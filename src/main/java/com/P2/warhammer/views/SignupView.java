@@ -1,6 +1,7 @@
 package com.P2.warhammer.views;
 
 
+import com.P2.warhammer.utilities.ServiceProvider;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -18,7 +19,10 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @PageTitle("signup page")
 @AnonymousAllowed
 public class SignupView extends Div {
-    SignupView(){
+    private final ServiceProvider services;
+
+    SignupView(ServiceProvider services){
+        this.services = services;
 
         getStyle().set("display", "flex").set("justify-content", "center");
 

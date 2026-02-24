@@ -1,6 +1,7 @@
 package com.P2.warhammer.views;
 
 
+import com.P2.warhammer.utilities.ServiceProvider;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -14,8 +15,10 @@ import jakarta.annotation.security.PermitAll;
 @Route("")
 @PermitAll
 public class DashBoard extends Div implements BeforeEnterObserver {
-    DashBoard(){
+    private final ServiceProvider services;
 
+    DashBoard(ServiceProvider services){
+        this.services = services;
     }
 
     @Override

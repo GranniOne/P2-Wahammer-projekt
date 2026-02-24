@@ -1,4 +1,4 @@
-package com.P2.warhammer.views;
+package com.P2.warhammer.layout;
 
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.UI;
