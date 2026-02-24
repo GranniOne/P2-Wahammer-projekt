@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @StyleSheet(Lumo.UTILITY_STYLESHEET)
 @StyleSheet("styles.css")
 public class Application implements AppShellConfigurator {
-    static void main(String[] args) {
+    public static void main(String[] args) {
         SpringApplication.run(Application.class,args);
     }
 }

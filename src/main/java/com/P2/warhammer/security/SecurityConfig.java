@@ -27,7 +27,7 @@ public class SecurityConfig {
          */
         // Let Vaadin handle all authentication & route protection
         return http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
-            configurer.loginView(LoginView.class); // automatically allows login page
+            configurer.loginView(LoginView.class);
         }).build();
     }
 
