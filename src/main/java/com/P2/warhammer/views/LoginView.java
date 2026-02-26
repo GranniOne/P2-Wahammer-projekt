@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 @Route("login")
 @PageTitle("login page")
 @AnonymousAllowed
-
 public class LoginView extends Div implements BeforeEnterObserver{
 
     private final LoginForm loginForm = new LoginForm();
@@ -37,8 +36,11 @@ public class LoginView extends Div implements BeforeEnterObserver{
         getStyle()
                 .set("display", "flex")
                 .set("flex-direction", "column")   // vertical instead of horizontal
-                .set("align-items", "center");     // center horizontally
+                .set("align-items", "center")
+                .setHeight("100%")
+                .set("justify-content","center");     // center horizontally
         add(loginForm);
+
 
         Button RegisterButton = new Button("Sign up", new Icon(VaadinIcon.ACADEMY_CAP), buttonClickEvent -> {
             UI.getCurrent().navigate("signup");
