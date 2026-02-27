@@ -1,0 +1,158 @@
+.background-img {
+    position: absolute;   /* removes it from layout flow */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;    /* fill container */
+    z-index: 0;           /* behind other content */
+}
+
+.div-page {
+    position: relative;   /* stacking context for absolute child */
+    height: 100vh;        /* full viewport height */
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.div-login {
+    position: relative;   /* above background image */
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+
+/* Form container */
+vaadin-login-form::part(form) {
+    position: relative; /* needed for ::before/::after */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 2em;
+    /* Warhammer-style dark gradient */
+    background: radial-gradient(circle at center, #5c0000 0%, #2a0000 50%, #0b0b0b 100%);
+    box-shadow: inset 2px 4px 15px rgba(0,0,0,0.8), 0 4px 20px rgba(0,0,0,0.6);
+    /*box-shadow: 0 0 15px rgba(255, 51, 0, 0.4), inset 0 0 10px rgba(255, 51, 0, 0.2);*/
+    border-radius: 25px;
+    transition: 0.4s ease-in-out;
+    overflow: visible;
+}
+
+/* Pulsing borders */
+vaadin-login-form::part(form)::before,
+vaadin-login-form::part(form)::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border: 2px solid #ff6600;           /* orange-red pulse */
+    border-radius: inherit;
+    opacity: 0.5;
+    animation: pulseOut 2s ease-out infinite;
+}
+
+/* Staggered pulse delay for second layer */
+vaadin-login-form::part(form)::after {
+    animation-delay: 1s;
+}
+
+/* Pulse animation */
+@keyframes pulseOut {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.2;
+    }
+    100% {
+        transform: scale(1.1);
+        opacity: 0;
+    }
+}
+
+@keyframes pulseOut {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+vaadin-login-form::part(form):hover {
+    transform: scale(1.05);
+    transition-delay: 125ms;
+    border: 1px solid #550000; /* subtle red glow on hover */}
+
+vaadin-login-form::part(form-title) {
+    color: #550000;
+    text-align: center;
+    font-size: 1.4em;
+    margin-bottom: 1em;
+    text-shadow: 1px 1px 3px black;
+}
+
+/* Username field container */
+vaadin-login-form vaadin-text-field {
+
+    border-radius: 20px;         /* keep rounded corners */
+    color: #ff9999;              /* affects label/prefix text, not typed input */
+
+}
+
+/* Password field container */
+vaadin-login-form vaadin-password-field {
+    border-radius: 20px;
+    color: #ff9999;              /* label/prefix text color */
+
+}
+
+/* Login button */
+vaadin-login-form [slot="submit"] {
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    background-color: #5c0000;
+    color: #ff9999;
+    border: 1px solid #aa0000;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+
+vaadin-login-form [slot="forgot-password"] {
+    padding: 0.5em 1em;
+    border-radius: 5px;
+    background-color: #5c0000;
+    color: #ff9999;
+    border: 1px solid #aa0000;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+
+}
+/* Overlay title */
+vaadin-login-overlay [slot="title"] {
+    color: #ff5555; /* deep glowing red */
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+    text-shadow:
+            1px 1px 2px black,   /* inner shadow */
+            0 0 10px #aa0000,    /* outer red glow */
+            0 0 20px #550000;    /* subtle dark red aura */
+    margin-bottom: 1em;
+}
+
+
+
+
+
+
+
