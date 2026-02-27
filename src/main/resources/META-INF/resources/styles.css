@@ -53,6 +53,7 @@ vaadin-login-form::part(form)::after {
     border-radius: inherit;
     opacity: 0.5;
     animation: pulseOut 2s ease-out infinite;
+    pointer-events: none;
 }
 
 /* Staggered pulse delay for second layer */
