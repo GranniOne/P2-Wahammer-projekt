@@ -59,10 +59,6 @@ public class LoginView extends Div implements BeforeEnterObserver{
         setClassName("div-page");
 
 
-        Image image = new Image(DownloadHandler.forServletResource("/images/test2.jpg"), "");
-        image.addClassName("background-img");
-        add(image);
-
         Div loginformDiv = new Div();
         loginformDiv.setClassName("div-login");
 
