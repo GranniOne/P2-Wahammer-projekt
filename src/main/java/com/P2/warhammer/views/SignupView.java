@@ -4,6 +4,8 @@ package com.P2.warhammer.views;
 import com.P2.warhammer.utilities.ServiceProvider;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
@@ -17,6 +19,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route("signup")
 @PageTitle("signup page")
+@StyleSheet("css/signupStyle.css")
 @AnonymousAllowed
 public class SignupView extends Div {
     private final ServiceProvider services;
@@ -24,7 +27,7 @@ public class SignupView extends Div {
     SignupView(ServiceProvider services){
         this.services = services;
 
-        getStyle().set("display", "flex").set("justify-content", "center");
+        setClassName("signupBody");
 
 
         TextField firstName = new TextField("First name");
@@ -37,7 +40,7 @@ public class SignupView extends Div {
 
         });
 
-
+        /*
         FormLayout formLayout = new FormLayout();
         formLayout.setAutoResponsive(true);
         formLayout.addFormRow(firstName, lastName);
@@ -48,5 +51,14 @@ public class SignupView extends Div {
 
 
         this.add(formLayout);
+
+         */
+
+        this.add(firstName);
+        this.add(lastName);
+        this.add(email);
+        this.add(password);
+        this.add(confirmPassword);
+        this.add(loginButton);
     }
 }
