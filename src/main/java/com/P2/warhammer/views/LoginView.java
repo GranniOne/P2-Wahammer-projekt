@@ -30,6 +30,7 @@ import java.util.TimerTask;
 
 @Route("login")
 @PageTitle("login page")
+@StyleSheet("css/loginStyle.css")
 @AnonymousAllowed
 public class LoginView extends Div implements BeforeEnterObserver{
 
