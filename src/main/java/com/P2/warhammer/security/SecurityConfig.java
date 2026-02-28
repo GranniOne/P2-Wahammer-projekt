@@ -3,6 +3,7 @@ package com.P2.warhammer.security;
 import com.P2.warhammer.views.LoginView;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,9 +27,16 @@ public class SecurityConfig {
 
          */
         // Let Vaadin handle all authentication & route protection
-        return http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
+        http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
             configurer.loginView(LoginView.class);
-        }).build();
+        });
+
+
+        http.authorizeHttpRequests(auth -> {
+            auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
+        });
+
+        return http.build();
     }
 
 
