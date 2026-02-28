@@ -19,13 +19,6 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        /*
-        http.authorizeHttpRequests(auth -> auth
-                .requestMatchers("/admin-only/**").hasAnyRole("ADMIN")
-                .requestMatchers("/public/**").permitAll()
-                .requestMatchers("/error").permitAll());
-
-         */
         // Let Vaadin handle all authentication & route protection
         http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
             configurer.loginView(LoginView.class);
@@ -34,6 +27,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
+            //auth.requestMatchers("/admin-only/**").hasAnyRole("ADMIN").requestMatchers("/public/**").permitAll().requestMatchers("/error").permitAll();
         });
 
         return http.build();
