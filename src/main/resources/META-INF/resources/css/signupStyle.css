@@ -1,6 +1,5 @@
 
 .signupBody {
-    position: absolute;   /* removes it from layout flow */
     display: flex;
     justify-content: center; /* horizontal */
     align-items: center;     /* vertical */
@@ -9,4 +8,19 @@
     background-image: url("../images/test2.jpg");
     background-repeat: no-repeat, repeat;
     background-size: cover;
+}
+
+.div-signupform{
+    justify-content: center;
+    display: flex;
+    width: 250px;
+    height: 400px;
+    border: #ff6600;
+    border-radius: 10px;
+    background-image: url("../images/test3.jpg");
+    background-repeat: no-repeat, repeat;
+    background-size: cover;
+    /*flex-direction: column;*/
+
+
 }
