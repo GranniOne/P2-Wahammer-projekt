@@ -8,11 +8,12 @@ public class Character {
 
     @Id
     String name;
-    int age;
+    String user;
 
-    Character(String name, int age){
+    Character(String name, String user){
         this.name = name;
-        this.age = age;
+        this.user = user;
+
     }
 
 }

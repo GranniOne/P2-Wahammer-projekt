@@ -14,8 +14,8 @@ public class CharacterService {
         this.repository = repository;
     }
 
-    public Character addCharacter(String name, int age) {
-        return repository.save(new Character(name, age));
+    public Character addCharacter(String name, String user) {
+        return repository.save(new Character(name, user));
 
     }
 

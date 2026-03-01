@@ -17,8 +17,8 @@ public class UserService {
         this.repository = repository;
     }
 
-    public User addUser(String name, int age) {
-        return repository.save(new User(name, age));
+    public User addUser(String name, String email, String password) {
+        return repository.save(new User(name, email, password));
 
     }
     public Boolean AuthenticateUser(String username, String email, String password, String confirmedPassword){

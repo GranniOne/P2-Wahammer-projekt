@@ -50,7 +50,7 @@ public class LoginView extends Div implements BeforeEnterObserver{
         i18n.getForm().setUsername("Email");
         i18n.getForm().setPassword("Password");
         i18n.getForm().setSubmit("Enter");
-        i18n.setAdditionalInformation("Warhammer is a really insane roleplaying game, so login at your own discretion");
+        i18n.setAdditionalInformation("Warhammer is a really insane roleplaying game, so login at your own discretion (～￣▽￣)～ ～(￣▽￣～)");
 
         loginForm.setI18n(i18n);
 
@@ -70,7 +70,7 @@ public class LoginView extends Div implements BeforeEnterObserver{
 
 
 
-        Button RegisterButton = new Button("Sign up", new Icon(VaadinIcon.ACADEMY_CAP), buttonClickEvent -> {
+        Button RegisterButton = new Button("Log in", new Icon(VaadinIcon.ARROW_RIGHT), buttonClickEvent -> {
             UI.getCurrent().navigate("signup");
         });
 

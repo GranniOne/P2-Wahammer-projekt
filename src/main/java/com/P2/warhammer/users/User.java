@@ -11,14 +11,44 @@ public class User {
     @Id
     private String id;
     String name;
-    int age;
+    String email;
+    String password;
+
 
     public User() {}
 
-    User(String name, int age){
+    User(String name, String email, String password){
         this.name = name;
-        this.age = age;
+        this.email = email;
+        this.password = password;
     }
 
 
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
 }
