@@ -28,10 +28,10 @@ vaadin-login-form::part(form) {
     flex-direction: column;
     gap: 10px;
     padding: 2em;
-    /* Warhammer-style dark gradient */
-    background: radial-gradient(circle at center, #5c0000 0%, #2a0000 50%, #0b0b0b 100%);
+    background-image: url("../images/test3.jpg");
+    background-size: cover;
+
     box-shadow: inset 2px 4px 15px rgba(0,0,0,0.8), 0 4px 20px rgba(0,0,0,0.6);
-    /*box-shadow: 0 0 15px rgba(255, 51, 0, 0.4), inset 0 0 10px rgba(255, 51, 0, 0.2);*/
     border-radius: 25px;
     transition: 0.4s ease-in-out;
     overflow: visible;
@@ -98,15 +98,13 @@ vaadin-login-form::part(form-title) {
 /* Username field container */
 vaadin-login-form vaadin-text-field {
 
-    border-radius: 20px;         /* keep rounded corners */
-    color: #ff9999;              /* affects label/prefix text, not typed input */
+    border-radius: 20px;
 
 }
 
 /* Password field container */
 vaadin-login-form vaadin-password-field {
     border-radius: 20px;
-    color: #ff9999;              /* label/prefix text color */
 
 }
 
