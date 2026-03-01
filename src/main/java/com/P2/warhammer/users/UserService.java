@@ -1,7 +1,5 @@
 package com.P2.warhammer.users;
 
-import com.P2.warhammer.utilities.UserException;
-import com.P2.warhammer.views.SignupView;
 import com.vaadin.flow.component.notification.Notification;
 import org.springframework.stereotype.Service;
 
