@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -34,16 +35,14 @@ public class SecurityConfig {
     }
 
 
-    // In-memory user
     @Bean
-    public InMemoryUserDetailsManager userDetailsService() {
-        LoggerFactory.getLogger(SecurityConfig.class)
-                .warn("NOT FOR PRODUCTION: Using in-memory user details manager!");
-        UserDetails user = User.withUsername("admin")
-                .password("admin") // plain text for testing
-                .roles("ADMIN")
+    public UserDetailsService userDetailsService() {
+        UserDetails userDetails = User.withUsername("user")
+                .password("password")
+                .roles("USER")
                 .build();
-        return new InMemoryUserDetailsManager(user);
+
+        return new InMemoryUserDetailsManager(userDetails);
     }
 
     // Plain text password encoder (testing only)
