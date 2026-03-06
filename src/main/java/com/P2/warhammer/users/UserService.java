@@ -19,6 +19,14 @@ public class UserService {
         return repository.save(new User(name, email, password));
 
     }
+    public User findFromUsername(String username) {
+        return repository.findUserByUsername(username);
+    }
+
+    public User findFromEmail(String email) {
+        return repository.findUserByEmail(email);
+    }
+
     public Boolean AuthenticateUser(String username, String email, String password, String confirmedPassword){
         String exception = "";
 
@@ -47,10 +55,11 @@ public class UserService {
                 confirmedPassword.isEmpty() ||
                 (password.equals(confirmedPassword));
 
-
-
+        //this statement does not appear to be working, needs fixing
+        addUser(username, email, password);
+        System.out.println("User " + username + " authenticated successfully");
         if(user == null && !test){
-                addUser(username, email, password);
+
                 return true;
         }else{
             exception += "Email already registered";

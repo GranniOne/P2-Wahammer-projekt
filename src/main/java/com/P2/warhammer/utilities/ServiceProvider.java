@@ -6,7 +6,6 @@ import com.vaadin.flow.spring.annotation.UIScope;
 import org.springframework.stereotype.Component;
 
 @Component
-@UIScope
 public class ServiceProvider {
 
     private final UserService userService;

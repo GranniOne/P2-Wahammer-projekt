@@ -5,12 +5,14 @@ import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.ServiceProvider;
+import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Main;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.login.AbstractLogin;
@@ -31,7 +33,6 @@ import java.util.TimerTask;
 @Route("login")
 @PageTitle("login page")
 @StyleSheet("css/loginStyle.css")
-@AnonymousAllowed
 public class LoginView extends Div implements BeforeEnterObserver{
 
     private final LoginForm loginForm = new LoginForm();
@@ -82,6 +83,9 @@ public class LoginView extends Div implements BeforeEnterObserver{
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         if (beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("error")) {
             loginForm.setError(true); // shows error if login fails
+        }
+        if(Utilities.authentication()){
+            beforeEnterEvent.forwardTo(DashBoard.class);
         }
 
     }
