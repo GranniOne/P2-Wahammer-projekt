@@ -1,6 +1,8 @@
 package com.P2.warhammer.views;
 
 
+import com.P2.warhammer.users.User;
+import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.ServiceProvider;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -12,9 +14,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 
 @Route("signup")
 @PageTitle("signup page")
@@ -22,6 +28,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @AnonymousAllowed
 public class SignupView extends Div {
     private final ServiceProvider services;
+    private final Binder<User> binder;
 
     SignupView(ServiceProvider services){
         this.services = services;
@@ -35,44 +42,61 @@ public class SignupView extends Div {
 
         TextField firstName = new TextField("Username"); //det var ikke mig
         EmailField email = new EmailField("Email address");
+        email.setManualValidation(true);
         PasswordField password = new PasswordField("Password");
         PasswordField confirmPassword = new PasswordField("Confirm password");
+
+        binder = new Binder<>();
+
+        //username validation
+        binder.forField(firstName)
+                .asRequired()
+                .withValidator(new StringLengthValidator(
+                        "username must be between 4 and 15 characters", 4, 15))
+                .bind(User::getUsername, User::setUsername);
+
+        //email validation
+        binder.forField(email)
+                .asRequired()
+                .withValidator(new EmailValidator("Invalid email format"))
+                .withValidator(emailvalue -> this.services.getUserService().findFromEmail(emailvalue) == null,"Email address already exists")
+                .bind(User::getEmail, User::setEmail);
+
+        //password validation
+        binder.forField(password)
+                .asRequired()
+                .withValidator(new StringLengthValidator(
+                        "Password must be between 8 and 25 characters", 5, 25))
+                .bind(User::getPassword, User::setPassword);
+
+        //confirming password
+        binder.forField(confirmPassword)
+                .asRequired()
+                .withValidator(confirm -> confirm.equals(password.getValue()),"passwords must match")
+                .bind(user -> "",(u,v) -> {});
+
+
+
+        var beanValidationErrors = new Div();
+        beanValidationErrors.addClassName(LumoUtility.TextColor.ERROR);
+        binder.setStatusLabel(beanValidationErrors);
+        binder.setBean(new User());
+
         Button loginButton = new Button("Sign up", new Icon(VaadinIcon.ARROW_RIGHT), buttonClickEvent -> {
             String Firstname = firstName.getValue();
             String Email = email.getValue();
             String Password = password.getValue();
             String ConfirmPassword = confirmPassword.getValue();
 
-
-            Boolean Result = services.getUserService().AuthenticateUser(Firstname, Email, Password,ConfirmPassword);
-
-            if(Result){
-                UI.getCurrent().navigate("login");
+            if(binder.validate().isOk()) {
+                services.getUserService().AuthenticateUser(Firstname, Email, Password,ConfirmPassword);
+                UI.getCurrent().navigate(LoginView.class);
+                System.out.println("its good");
             }
 
 
-            /*
-            if(firstName.getValue().isEmpty() || email.getValue().isEmpty() || password.getValue().isEmpty() || confirmPassword.getValue().isEmpty()){
-                System.out.println("the fields are empty");
-                return;
-            }
-
-            if(password.getValue().equals(confirmPassword.getValue())) {
-                System.out.println("it matches");
-
-
-            }else{
-
-                System.out.println("it does not match");
-            }
-
-             */
 
         });
-
-
-
-
 
         FormLayout formLayout = new FormLayout();
         formLayout.setAutoResponsive(true);
