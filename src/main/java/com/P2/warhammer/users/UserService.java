@@ -6,7 +6,14 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 
-
+/**
+ * Service for managing user data in the MongoDB database.
+ * Provides methods to add users, find users by username or email,
+ * authenticate users, and retrieve all users.
+ *
+ * @see User
+ * @see UserRepository
+ */
 @Service
 public class UserService {
     private final UserRepository repository;
@@ -20,6 +27,7 @@ public class UserService {
 
     }
     public User findFromUsername(String username) {
+
         return repository.findUserByUsername(username);
     }
 

@@ -13,7 +13,7 @@ import jakarta.annotation.security.PermitAll;
 @Route("profile")
 @PermitAll
 @PageTitle("Profile")
-public class ProfileView extends Div {
+public class  ProfileView extends Div {
 
     ProfileView() {
         add(new Button("hererrsrs"));

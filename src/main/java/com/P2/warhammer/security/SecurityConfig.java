@@ -2,7 +2,6 @@ package com.P2.warhammer.security;
 
 import com.P2.warhammer.utilities.Utilities;
 import com.P2.warhammer.views.LoginView;
-import com.vaadin.copilot.shaded.commons.configuration2.builder.fluent.DatabaseBuilderParameters;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.security.VaadinSavedRequestAwareAuthenticationSuccessHandler;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;

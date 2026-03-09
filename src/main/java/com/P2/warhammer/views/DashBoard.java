@@ -1,13 +1,9 @@
 package com.P2.warhammer.views;
 
 
-import com.P2.warhammer.utilities.ServiceProvider;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
+import com.P2.warhammer.users.UserService;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -21,10 +17,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Route("")
 @PermitAll
 public class DashBoard extends Div implements BeforeEnterObserver {
-    private final ServiceProvider services;
+    private final UserService userService;
 
-    DashBoard(ServiceProvider services){
-        this.services = services;
+    DashBoard(UserService userService){
+        this.userService = userService;
         Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
         Span label = new Span("welcome " + auth.getName());
         label.getStyle().set("font-family", "Arial").setFontSize("xxx-large").setJustifyContent(Style.JustifyContent.CENTER).setAlignItems(Style.AlignItems.CENTER).setDisplay(Style.Display.FLEX);;

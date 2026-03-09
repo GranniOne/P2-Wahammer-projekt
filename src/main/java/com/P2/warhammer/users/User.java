@@ -2,8 +2,16 @@ package com.P2.warhammer.users;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
-
+/**
+ * Repository interface for managing {@link User} entities in MongoDB.
+ * Extends {@link MongoRepository} to provide standard CRUD operations.
+ * Includes custom query methods to find users by email or username.
+ *
+ * @see User
+ * @see org.springframework.data.mongodb.repository.MongoRepository
+ */
 @Document(collection = "users")
 public class User {
 

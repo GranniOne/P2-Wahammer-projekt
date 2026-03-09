@@ -1,9 +1,9 @@
 package com.P2.warhammer.views;
 
 
+import com.P2.warhammer.layout.Navigation;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
-import com.P2.warhammer.utilities.ServiceProvider;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -27,11 +27,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 @StyleSheet("css/signupStyle.css")
 @AnonymousAllowed
 public class SignupView extends Div {
-    private final ServiceProvider services;
+    private final UserService userService;
     private final Binder<User> binder;
 
-    SignupView(ServiceProvider services){
-        this.services = services;
+    SignupView(UserService userService){
+        this.userService = userService;
 
         setClassName("signupBody");
 
@@ -59,7 +59,7 @@ public class SignupView extends Div {
         binder.forField(email)
                 .asRequired()
                 .withValidator(new EmailValidator("Invalid email format"))
-                .withValidator(emailvalue -> this.services.getUserService().findFromEmail(emailvalue) == null,"Email address already exists")
+                .withValidator(emailvalue -> this.userService.findFromEmail(emailvalue) == null,"Email address already exists")
                 .bind(User::getEmail, User::setEmail);
 
         //password validation
@@ -89,7 +89,7 @@ public class SignupView extends Div {
             String ConfirmPassword = confirmPassword.getValue();
 
             if(binder.validate().isOk()) {
-                services.getUserService().AuthenticateUser(Firstname, Email, Password,ConfirmPassword);
+                this.userService.AuthenticateUser(Firstname, Email, Password,ConfirmPassword);
                 UI.getCurrent().navigate(LoginView.class);
                 System.out.println("its good");
             }
