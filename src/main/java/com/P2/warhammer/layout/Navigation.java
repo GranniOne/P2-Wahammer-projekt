@@ -10,6 +10,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
+/**
+ * the Navigation layout, is automatically implemented by spring using the @Layout annotation, do not use it manually
+ */
 @Layout("")
 @AnonymousAllowed
 public class Navigation extends AppLayout {

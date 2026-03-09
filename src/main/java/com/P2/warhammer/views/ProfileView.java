@@ -21,5 +21,6 @@ public class  ProfileView extends Div {
         add(new Button("aDAadasdadadasdas"));
         add(new Button("asd"));
         add(new Button("asddadasdasdasd"));
+
     }
 }

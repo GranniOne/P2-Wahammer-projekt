@@ -1,11 +1,18 @@
 package com.P2.warhammer.characters;
-import com.P2.warhammer.users.User;
-import com.P2.warhammer.users.UserRepository;
-import org.springframework.stereotype.Service;
 
+import org.springframework.stereotype.Service;
 import java.util.List;
 
 
+/**
+ * Service for managing Character data in the MongoDB database.
+ * Provides methods yet to be determined.
+ *
+ * <p>Class should never be manually implemented, its lifetime is managed as a spring bean by spring</p>
+ *
+ * @see Character
+ * @see CharacterRepository
+ */
 @Service
 public class CharacterService {
     private final CharacterRepository repository;
@@ -14,6 +21,12 @@ public class CharacterService {
         this.repository = repository;
     }
 
+    /**
+     *
+     * @param name
+     * @param user
+     * @return
+     */
     public Character addCharacter(String name, String user) {
         return repository.save(new Character(name, user));
 

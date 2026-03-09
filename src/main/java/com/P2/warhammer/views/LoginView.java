@@ -1,5 +1,6 @@
 package com.P2.warhammer.views;
 
+import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.UI;
@@ -40,6 +41,7 @@ public class LoginView extends Div implements BeforeEnterObserver{
         loginForm.setClassName("loginform");
 
         setClassName("div-page");
+
 
 
         Div loginformDiv = new Div();

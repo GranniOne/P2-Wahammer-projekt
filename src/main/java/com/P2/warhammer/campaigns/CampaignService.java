@@ -1,11 +1,18 @@
 package com.P2.warhammer.campaigns;
-import com.P2.warhammer.characters.Character;
-import com.P2.warhammer.characters.CharacterRepository;
-import org.springframework.stereotype.Service;
 
+
+import org.springframework.stereotype.Service;
 import java.util.List;
 
-
+/**
+ * Service for managing Campaign data in the MongoDB database.
+ * Provides methods yet to be determined.
+ *
+ * <p>Class should never be manually implemented, its lifetime is managed as a spring bean by spring</p>
+ *
+ * @see Campaign
+ * @see CampaignRepository
+ */
 @Service
 public class CampaignService {
     private final CampaignRepository repository;
