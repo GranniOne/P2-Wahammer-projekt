@@ -1,7 +1,10 @@
 package com.P2.warhammer.security;
 
+import com.P2.warhammer.utilities.Utilities;
 import com.P2.warhammer.views.LoginView;
 import com.vaadin.copilot.shaded.commons.configuration2.builder.fluent.DatabaseBuilderParameters;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.spring.security.VaadinSavedRequestAwareAuthenticationSuccessHandler;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
@@ -9,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationResult;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -25,8 +30,6 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 
-import javax.sql.DataSource;
-import java.util.function.Supplier;
 
 @EnableMethodSecurity
 @EnableWebSecurity
@@ -49,19 +52,14 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Let Vaadin handle all authentication & route protection
-        http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {
-            configurer.loginView(LoginView.class);
-
-
-        });
-
-        http.authorizeHttpRequests(auth -> {
-            auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();
-            //auth.requestMatchers("/admin-only/**").hasAnyRole("ADMIN").requestMatchers("/public/**").permitAll().requestMatchers("/error").permitAll();
-        });
-
+        http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {configurer.loginView(LoginView.class);});
+        // designate a custom redirect page for when you have logged in
+        Utilities.postLoggedIn(http,"/profile");
+        //authorize Resource access
+        http.authorizeHttpRequests(auth -> {auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();});
         return http.build();
     }
+
 
     // Plain text password encoder (testing only)
     @Bean
