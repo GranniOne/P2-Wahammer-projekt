@@ -84,7 +84,7 @@ public class SignupView extends Div {
 
         Button loginButton = new Button("Sign up", new Icon(VaadinIcon.ARROW_RIGHT), buttonClickEvent -> {
             String Firstname = firstName.getValue();
-            String Email = email.getValue();
+            String Email = email.getValue().toLowerCase();
             String Password = password.getValue();
             String ConfirmPassword = confirmPassword.getValue();
 

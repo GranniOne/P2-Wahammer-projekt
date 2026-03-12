@@ -24,12 +24,12 @@ public class MongoAuthUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        email = email.toLowerCase();
         User user = userService.findFromEmail(email);
-
         if (user == null) {
             throw new UsernameNotFoundException("User not found: " + email);
         }
-
+        user.setEmail(user.getEmail().toLowerCase());
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
         grantedAuthorities.add(new SimpleGrantedAuthority("ADMIN"));
