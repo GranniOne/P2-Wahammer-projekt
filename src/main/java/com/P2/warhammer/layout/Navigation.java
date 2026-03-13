@@ -27,8 +27,7 @@ public class Navigation extends AppLayout {
             navBar.getStyle()
                     .set("padding", "0.5em")
                     .set("background-color", "#f0f0f0")
-                    .set("width", "100%").set("display", "flex")
-                    .set("justify-content", "center");
+                    .set("width", "100%").set("display", "flex");
 
             // Static navigation buttons
             Button homeButton = new Button("Home", e -> UI.getCurrent().navigate("dashboard"));
@@ -42,7 +41,8 @@ public class Navigation extends AppLayout {
             settingsButton.setIcon(new Icon(VaadinIcon.COG));
             logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
 
-            navBar.add(homeButton, profileButton, settingsButton, logoutButton);
+            navBar.addToStart(homeButton, profileButton, settingsButton);
+            navBar.addToEnd(logoutButton);
             this.addToNavbar(navBar);
 
         }
