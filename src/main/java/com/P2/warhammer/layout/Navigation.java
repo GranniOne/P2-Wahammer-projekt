@@ -9,6 +9,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 
 /**
  * the Navigation layout, is automatically implemented by spring using the @Layout annotation, do not use it manually
@@ -17,7 +18,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @AnonymousAllowed
 public class Navigation extends AppLayout {
 
-    Navigation() {
+    Navigation(AuthenticationContext authenticationContext) {
 
         boolean authenticated = Utilities.authentication();
         if(authenticated){
@@ -34,11 +35,13 @@ public class Navigation extends AppLayout {
             Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("Profile"));
             Button settingsButton = new Button("Settings", e -> UI.getCurrent().navigate("Settings"));
 
+            Button logoutButton = new Button("Log out", e -> authenticationContext.logout());
+
             homeButton.setIcon(new Icon(VaadinIcon.HOME));
             profileButton.setIcon(new Icon(VaadinIcon.USER));
             settingsButton.setIcon(new Icon(VaadinIcon.COG));
 
-            navBar.add(homeButton, profileButton, settingsButton);
+            navBar.add(homeButton, profileButton, settingsButton, logoutButton);
             this.addToNavbar(navBar);
 
         }
