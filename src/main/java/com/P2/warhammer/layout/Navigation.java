@@ -31,9 +31,9 @@ public class Navigation extends AppLayout {
                     .set("justify-content", "center");
 
             // Static navigation buttons
-            Button homeButton = new Button("Home", e -> UI.getCurrent().navigate("Dashboard"));
-            Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("Profile"));
-            Button settingsButton = new Button("Settings", e -> UI.getCurrent().navigate("Settings"));
+            Button homeButton = new Button("Home", e -> UI.getCurrent().navigate("dashboard"));
+            Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("profile"));
+            Button settingsButton = new Button("Settings", e -> UI.getCurrent().navigate("settings"));
 
             Button logoutButton = new Button("Log out", e -> authenticationContext.logout());
 
