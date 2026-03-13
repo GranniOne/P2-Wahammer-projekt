@@ -40,6 +40,7 @@ public class Navigation extends AppLayout {
             homeButton.setIcon(new Icon(VaadinIcon.HOME));
             profileButton.setIcon(new Icon(VaadinIcon.USER));
             settingsButton.setIcon(new Icon(VaadinIcon.COG));
+            logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
 
             navBar.add(homeButton, profileButton, settingsButton, logoutButton);
             this.addToNavbar(navBar);
