@@ -56,6 +56,10 @@ public class UserService  {
         return repository.findUserByEmail(email);
     }
 
+    public void saveUser(User user){
+        this.repository.save(user);
+    }
+
 
     /**
      * Creates a new user account after validating input fields.
