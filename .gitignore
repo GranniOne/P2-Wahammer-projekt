@@ -131,3 +131,4 @@ gradle-app.setting
 /src/main/frontend/generated/jar-resources/virtualListConnector.js
 /src/main/frontend/generated/jar-resources/vaadin-dev-tools/websocket-connection.d.ts
 /.idea/dataSources.xml
+/target/
