@@ -12,6 +12,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -52,6 +53,8 @@ public class  ProfileView extends VerticalLayout {
         layout.setWidth("20%");
         layout.setHeight("auto");
         layout.setMargin(true);
+
+        HorizontalLayout greeter = new HorizontalLayout();
 
         layout.setAlignItems(FlexComponent.Alignment.CENTER);
         layout.add(new H1("Hello " + userService.findFromEmail(auth.getName()).getUsername()));
