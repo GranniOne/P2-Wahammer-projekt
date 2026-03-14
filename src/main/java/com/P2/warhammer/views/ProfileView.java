@@ -8,9 +8,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -50,15 +48,22 @@ public class  ProfileView extends VerticalLayout {
         // Layout
         VerticalLayout layout = new VerticalLayout();
         layout.addClassName("profileViewBody");
-        layout.setWidth("20%");
+        layout.setWidth("30%");
         layout.setHeight("auto");
         layout.setMargin(true);
 
-        HorizontalLayout greeter = new HorizontalLayout();
+        H3 profileInformationHeader = new H3("Profile information");
+        H3 profileSettingHeader = new H3("Profile settings");
 
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.add(new H1("Hello " + userService.findFromEmail(auth.getName()).getUsername()));
-        layout.add(new H3("Profile settings"));
+        layout.setAlignItems(FlexComponent.Alignment.START);
+        layout.add(profileInformationHeader);
+        layout.setAlignSelf(Alignment.CENTER, profileInformationHeader);
+        layout.add(new Pre("Username: " + userService.findFromEmail(auth.getName()).getUsername() +
+                "\nE-mail: " + userService.findFromEmail(auth.getName()).getEmail()));
+        layout.add(new Hr());
+
+        layout.add(profileSettingHeader);
+        layout.setAlignSelf(Alignment.CENTER, profileSettingHeader);
 
         layout.add(usernameChangeComponent);
         layout.setAlignSelf(FlexComponent.Alignment.START, usernameChangeComponent);

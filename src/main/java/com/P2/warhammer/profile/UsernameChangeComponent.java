@@ -30,7 +30,7 @@ public class UsernameChangeComponent extends Div {
 
 
         // Username text input, validator secures username is unique
-        TextField usernameTextfield = new TextField("Change username:");
+        TextField usernameTextfield = new TextField("New username:");
         usernameTextfield.setValueChangeMode(ValueChangeMode.EAGER);
         userBinder.forField(usernameTextfield).withValidator(name ->
                         userService.findFromUsername(name) == null,
@@ -53,7 +53,7 @@ public class UsernameChangeComponent extends Div {
         cancelUsernameButton.getStyle().set("margin-left", "auto");
 
         // Username change button, this also builds dialog box
-        Button usernameButton = new Button("Confirm", e -> {
+        Button usernameButton = new Button("Change username", e -> {
             if (userBinder.validate().isOk()) {
                 dialogUsernameConfirm.removeAll();
                 dialogUsernameConfirm.add("Change username to: " + usernameTextfield.getValue() + "?");
