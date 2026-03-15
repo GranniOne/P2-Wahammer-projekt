@@ -1,6 +1,7 @@
 package com.P2.warhammer;
 
 
+import com.P2.warhammer.Skills.SkillsRepository;
 import com.mongodb.*;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -9,8 +10,10 @@ import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.bson.Document;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
 @StyleSheet(Lumo.STYLESHEET) // Use Aura.STYLESHEET to use Aura instead
@@ -18,7 +21,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
         SpringApplication.run(Application.class,args);
-
-
+    }
+    @Bean
+    CommandLineRunner testSkills(SkillsRepository repo) {
+        return args -> {
+            repo.findAll().forEach(skill -> System.out.println(skill));
+        };
     }
 }
