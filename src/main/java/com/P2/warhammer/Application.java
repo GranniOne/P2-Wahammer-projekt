@@ -22,10 +22,4 @@ public class Application implements AppShellConfigurator {
     public static void main(String[] args) {
         SpringApplication.run(Application.class,args);
     }
-    @Bean
-    CommandLineRunner testSkills(SkillsRepository repo) {
-        return args -> {
-            repo.findAll().forEach(skill -> System.out.println(skill));
-        };
-    }
 }
