@@ -36,7 +36,16 @@
         </dependencies>
     </dependencyManagement>
 
+
+
     <dependencies>
+        <!-- lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+
         <!-- Spring Boot Starters -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -83,6 +92,7 @@
             <optional>true</optional>
         </dependency>
     </dependencies>
+
 
     <build>
         <plugins>
