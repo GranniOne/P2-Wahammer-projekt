@@ -34,7 +34,9 @@ public class UsernameChangeComponent extends Div {
         usernameTextfield.setValueChangeMode(ValueChangeMode.EAGER);
         userBinder.forField(usernameTextfield).withValidator(name ->
                         userService.findFromUsername(name) == null,
-                "Username not available").bind(User::getUsername, User::setUsername);
+                "Username already taken").
+                withValidator(name -> name.contains(" ") == false, "Spaces not allowed")
+                .bind(User::getUsername, User::setUsername);
 
         // Dialog pop-up for usernameChange
         Dialog dialogUsernameConfirm = new Dialog();
