@@ -53,6 +53,7 @@ public class SignupView extends Div {
                 .asRequired()
                 .withValidator(new StringLengthValidator(
                         "username must be between 4 and 15 characters", 4, 15))
+                .withValidator(name -> name.contains(" ") == false, "Spaces not allowed")
                 .bind(User::getUsername, User::setUsername);
 
         //email validation
