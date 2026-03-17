@@ -4,6 +4,11 @@ package com.P2.warhammer.security;
 
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,8 +37,7 @@ public class MongoAuthUserDetailService implements UserDetailsService {
         user.setEmail(user.getEmail().toLowerCase());
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
 
-        grantedAuthorities.add(new SimpleGrantedAuthority("ADMIN"));
-
+        grantedAuthorities.add(email.equals("bob@gmail.com") ? new SimpleGrantedAuthority("ROLE_ADMIN") : new SimpleGrantedAuthority("ROLE_USER"));
         System.out.println(user.getEmail());
         System.out.println(user.getPassword());
 
@@ -43,5 +47,6 @@ public class MongoAuthUserDetailService implements UserDetailsService {
                 grantedAuthorities
         );
     }
+
 }
 

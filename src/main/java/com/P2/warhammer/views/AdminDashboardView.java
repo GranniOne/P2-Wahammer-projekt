@@ -15,10 +15,12 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
-
+import jakarta.annotation.security.RolesAllowed;
+import org.springframework.security.authorization.AuthorizationManagerFactory.*;
 import java.util.List;
 
-@PermitAll
+
+@RolesAllowed("ROLE_ADMIN")
 @Route("admin-dashboard")
 @PageTitle("dashboard")
 public class AdminDashboardView extends Div {

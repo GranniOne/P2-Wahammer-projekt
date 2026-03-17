@@ -6,15 +6,20 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.spring.security.VaadinSavedRequestAwareAuthenticationSuccessHandler;
 import com.vaadin.flow.spring.security.VaadinSecurityConfigurer;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManagerFactory;
 import org.springframework.security.authorization.AuthorizationResult;
+import org.springframework.security.authorization.DefaultAuthorizationManagerFactory;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,6 +54,15 @@ public class SecurityConfig {
     }
 
     @Bean
+    static RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withDefaultRolePrefix()
+                .role("ADMIN").implies("STAFF")
+                .role("STAFF").implies("USER")
+                .role("USER").implies("GUEST")
+                .build();
+    }
+
+    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Let Vaadin handle all authentication & route protection
         http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {configurer.loginView(LoginView.class);});
@@ -58,6 +72,11 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> {auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();});
         return http.build();
     }
+
+
+
+
+
 
 
     // Plain text password encoder (testing only)
