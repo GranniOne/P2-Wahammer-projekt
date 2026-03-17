@@ -137,49 +137,14 @@
 
 
     <build>
-        <resources>
-            <!-- include src/main/resources -->
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
-            <!-- Spring Boot Maven Plugin -->
+            <!-- Spring Boot plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal> <!-- creates executable JAR -->
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <!-- Optional: customize the manifest -->
-                    <mainClass>com.P2.Application</mainClass>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <mainClass>com.P2.Application</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
-            <!-- Optional: Maven compiler plugin -->
+            <!-- Compiler plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -187,6 +152,7 @@
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
         </plugins>
