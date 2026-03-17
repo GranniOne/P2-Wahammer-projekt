@@ -2,21 +2,15 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
-import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.contextmenu.GridContextMenu;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.listbox.MultiSelectListBox;
-import com.vaadin.flow.dom.Element;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
-import jakarta.annotation.security.PermitAll;
+import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
-import org.springframework.security.authorization.AuthorizationManagerFactory.*;
+
 import java.util.List;
 
 
@@ -87,6 +81,8 @@ public class AdminDashboardView extends Div {
         add(dialog);
         dialog.open();
     }
+
+
 
 }
 

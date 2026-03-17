@@ -54,15 +54,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    static RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.withDefaultRolePrefix()
-                .role("ADMIN").implies("STAFF")
-                .role("STAFF").implies("USER")
-                .role("USER").implies("GUEST")
-                .build();
-    }
-
-    @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Let Vaadin handle all authentication & route protection
         http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {configurer.loginView(LoginView.class);});
