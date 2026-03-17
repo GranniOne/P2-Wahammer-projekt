@@ -53,7 +53,7 @@ public class SecurityConfig {
         // Let Vaadin handle all authentication & route protection
         http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {configurer.loginView(LoginView.class);});
         // designate a custom redirect page for when you have logged in
-        Utilities.postLoggedIn(http,"/profile");
+        Utilities.postLoggedIn(http,"/admin-dashboard");
         //authorize Resource access
         http.authorizeHttpRequests(auth -> {auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();});
         return http.build();
