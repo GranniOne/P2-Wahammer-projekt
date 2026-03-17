@@ -1,0 +1,5 @@
+.div-page {
+    background: radial-gradient(circle,rgba(252, 238, 179, 1) 0%, rgba(240, 238, 201, 1) 100%);
+    background-repeat: no-repeat, repeat;
+    background-size: cover;
+}

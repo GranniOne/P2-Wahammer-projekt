@@ -29,5 +29,6 @@ public class SkillsView extends Div implements BeforeEnterObserver {
         layout.getStyle().set("margin-left", "auto").setPadding("100px");
         skillsRepository.findAll().forEach(skill -> layout.add(new Span(String.valueOf(skill))));
         add(layout);
+
     }
 }

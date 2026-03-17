@@ -32,6 +32,7 @@ public class Navigation extends AppLayout {
             // Static navigation buttons
             Button homeButton = new Button("Home", e -> UI.getCurrent().navigate("dashboard"));
             Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("profile"));
+            Button characterCreatorButton = new Button("Character Creator", e -> UI.getCurrent().navigate("characterCreator"));
             Button settingsButton = new Button("Settings", e -> UI.getCurrent().navigate("settings"));
 
             Button logoutButton = new Button("Log out", e -> authenticationContext.logout());
@@ -39,9 +40,10 @@ public class Navigation extends AppLayout {
             homeButton.setIcon(new Icon(VaadinIcon.HOME));
             profileButton.setIcon(new Icon(VaadinIcon.USER));
             settingsButton.setIcon(new Icon(VaadinIcon.COG));
+            characterCreatorButton.setIcon(new Icon(VaadinIcon.MALE));
             logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
 
-            navBar.addToStart(homeButton, profileButton, settingsButton);
+            navBar.addToStart(homeButton, profileButton, settingsButton, characterCreatorButton);
             navBar.addToEnd(logoutButton);
             this.addToNavbar(navBar);
 

@@ -55,6 +55,7 @@ public class  ProfileView extends VerticalLayout {
         H3 profileInformationHeader = new H3("User information");
         H3 profileSettingHeader = new H3("Profile settings");
 
+
         layout.setAlignItems(FlexComponent.Alignment.START);
         layout.add(profileInformationHeader);
         layout.setAlignSelf(Alignment.CENTER, profileInformationHeader);
