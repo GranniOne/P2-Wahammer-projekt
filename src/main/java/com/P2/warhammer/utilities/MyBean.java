@@ -13,7 +13,7 @@ public class MyBean {
     public void logSessionInits(ServiceInitEvent event) {
         event.getSource().addSessionInitListener(
                 sessionInitEvent -> {
-                    LoggerFactory.getLogger(getClass()).info("A new Session has been initialized!");
+                    LoggerFactory.getLogger(getClass()).info("A new Session has been initialized! " + "ip: " + sessionInitEvent.getSession().getBrowser().getAddress() + " Browser:  " + sessionInitEvent.getSession().getBrowser().getUserAgent());
                 });
 
 
