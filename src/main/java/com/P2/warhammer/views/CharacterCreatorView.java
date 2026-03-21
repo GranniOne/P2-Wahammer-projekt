@@ -1,6 +1,8 @@
 package com.P2.warhammer.views;
 
 
+import com.P2.warhammer.Skills.Skills;
+import com.P2.warhammer.Skills.SkillsRepository;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -10,6 +12,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.domain.Example;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +24,12 @@ import java.util.List;
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div {
     private final List<TextField> fieldArray = new ArrayList<>();
+    private final SkillsRepository skillsRepository;
+    private final List<Skills> skills;
+    public CharacterCreatorView(SkillsRepository skillsRepository) {
+        this.skillsRepository = skillsRepository;
+        this.skills = skillsRepository.findAll();
 
-    public CharacterCreatorView() {
         setClassName("div-page");
         getStyle().set("position", "relative");
 
@@ -44,11 +51,10 @@ public class CharacterCreatorView extends Div {
         Todo : description
         */
         CharacterSkillsGeneration(statBox,infoBoxParent);
-        InfoCreator(infoBoxParent);
 
 
 
-        
+
 
 
     }
@@ -60,9 +66,7 @@ public class CharacterCreatorView extends Div {
                 .set("display", "grid")
                 .set("grid-template-columns", "repeat(1, 1fr)")
                 .set("gap", "10px");
-
-        for (int i = 0; i < 16; i++) { //TODO make this a loop based on characteristics and skills
-
+        skills.forEach(skill -> {
             Div skillItem = new Div();
             skillItem.getStyle()
                     .set("display", "grid")
@@ -70,7 +74,9 @@ public class CharacterCreatorView extends Div {
                     .set("flex-direction", "column")
                     .set("gap", "5px");
 
-            Button skillButton = new Button("skill number: " + i, e -> {
+            Button skillButton = new Button(skill.getName(), e -> {
+                infoBoxParent.removeAll();
+                InfoCreator(skill,infoBoxParent);
                 infoBoxParent.setVisible(true);
             });
 
@@ -92,8 +98,8 @@ public class CharacterCreatorView extends Div {
 
             skillItem.add(skillButton, field, randomButton);
             skillGrid.add(skillItem);
+        });
 
-        }
 
         statBox.add(skillGrid);
         Button saveButton = new Button("Save Character", e -> {
@@ -108,8 +114,8 @@ public class CharacterCreatorView extends Div {
 
         add(statBox);
     }
-    private void InfoCreator(Div infoBoxParent) {
-        Div infoBoxTextContainer = getDiv();
+    private void InfoCreator(Skills skill, Div infoBoxParent) {
+        Div infoBoxTextContainer = getDiv(skill);
 
         Button closeInfoButton = new Button("X", e -> {
             infoBoxParent.setVisible(false);
@@ -132,25 +138,14 @@ public class CharacterCreatorView extends Div {
         add(infoBoxParent);
     }
 
-    private static @NonNull Div getDiv() {
+    private @NonNull Div getDiv(Skills skill) {
         Div infoBoxTextContainer = new Div();
-
-        boolean isAdvanced = true; // TODO get boolean from database
-
-        String skillOrTalent = (isAdvanced ? "Advanced skill" : "Basic skill"); //TODO: make this a text toggleable using boolean from database
-        String objectName = "string from database";
-        String objectCharacteristic = "int from database".toString();
-        String skillMax = "int from database".toString(); //TODO should always be at least 1. (you can only take something once at least)
-        String description = "string from database";
-
-        Div infoLine1 = new Div(new Text(skillOrTalent));
-        Div infoLine2 = new Div(new Text(objectName));
-        Div infoLine3 = new Div(new Text(objectCharacteristic));
-        Div infoLine4 = new Div(new Text(skillMax));
-        Div infoLine5 = new Div(new Text(description));
-
+        Div infoLine1 = new Div(new Text(skill.getCategory()));
+        Div infoLine2 = new Div(new Text(skill.getName()));
+        Div infoLine3 = new Div(new Text(skill.getCharacteristic()));
+        Div infoLine4 = new Div(new Text("its maximum power"));
+        Div infoLine5 = new Div(new Text(skill.getDescription()));
         infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4, infoLine5);
-
         return infoBoxTextContainer;
     }
 
