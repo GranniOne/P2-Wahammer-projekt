@@ -5,15 +5,13 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
-import com.vaadin.flow.component.splitlayout.SplitLayoutVariant;
 
-import static com.vaadin.copilot.shaded.helger.base.mock.CommonsAssert.assertEquals;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @PermitAll
@@ -21,15 +19,13 @@ import static com.vaadin.copilot.shaded.helger.base.mock.CommonsAssert.assertEqu
 @Route("characterCreator")
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div {
+    private final List<TextField> fieldArray = new ArrayList<>();
 
-    int InfoboxSide = 100; // should be 0 for left side or 100 for right side
-    int InfoboxWidth = 70; // should be 50 for midtscreen and 100 for none
     public CharacterCreatorView() {
-        SplitLayout splitLayout = new SplitLayout();
-
         setClassName("div-page");
+        getStyle().set("position", "relative");
 
-        Div statBox = new Div(new Text("Left"));
+        Div statBox = new Div();
         /* TODO : Add content to infobox
         Todo : skills
         Todo : talents
@@ -38,7 +34,7 @@ public class CharacterCreatorView extends Div {
         Todo : manual / rolled
         */
 
-        Div infoBox = new Div(new Text("Right"));
+        Div infoBoxParent = new Div();
         /* TODO : Add content to infobox
         Todo : characteristc
         Todo : name
@@ -48,49 +44,105 @@ public class CharacterCreatorView extends Div {
         */
 
 
+
+
+
+        //TODO #################################### infobox content #################################################
+
+        Div infoBoxTextContainer = new Div();
+
         boolean isAdvanced = true; // TODO get boolean from database
 
         String skillOrTalent = (isAdvanced ? "Advanced skill" : "Basic skill"); //TODO: make this a text toggleable using boolean from database
-
         String objectName = "string from database";
         String objectCharacteristic = "int from database".toString();
         String skillMax = "int from database".toString(); //TODO should always be at least 1. (you can only take something once at least)
         String description = "string from database";
 
+        Div infoLine1 = new Div(new Text(skillOrTalent));
+        Div infoLine2 = new Div(new Text(objectName));
+        Div infoLine3 = new Div(new Text(objectCharacteristic));
+        Div infoLine4 = new Div(new Text(skillMax));
+        Div infoLine5 = new Div(new Text(description));
 
+        infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4, infoLine5);
 
-
-        /* TODO : det her er bare for en sikkerheds skyld, gør ikke noget. gider ikke slette
-        new Text(skillOrTalent); // is data skill or talent
-        new Text(objectName); //name
-        new Text(objectCharacteristic); //characteristic
-        new Text(skillMax);
-        new Text(description);
-        */
-
-        infoBox.add(new Text(skillOrTalent), new Text(objectName), new Text(objectCharacteristic), new Text(skillMax), new Text(description));
-
-
-
-        infoBox.getStyle().set("background-color", "red");
-
-        statBox.getStyle().setHeight("100vh");
-        infoBox.getStyle().setHeight("100vh");
-
-        splitLayout.addToPrimary(statBox);
-        splitLayout.addToSecondary(infoBox);
-
-        splitLayout.setSplitterPosition(InfoboxSide);
-
-        splitLayout.addThemeVariants(SplitLayoutVariant.LUMO_MINIMAL);
-
-
-        Button toggleButton = new Button("Toggle", e -> {
-            double current = splitLayout.getSplitterPosition();
-            splitLayout.setSplitterPosition(current == InfoboxSide ? InfoboxWidth : InfoboxSide);
+        Button closeInfoButton = new Button("X", e -> {
+            infoBoxParent.setVisible(false);
         });
 
-        add(toggleButton, splitLayout);
+
+        infoBoxParent.getStyle().set("background-color", "#474747").set("top", "0").set("bottom", "0").setWidth("33vw").set("position", "absolute").set("top", "0").set("right", "0").set("z-index", "10");
+
+        //TODO #################################### infobox content #################################################
+
+        Div skillGrid = new Div();
+
+        skillGrid.getStyle()
+                .set("display", "grid")
+                .set("grid-template-columns", "repeat(1, 1fr)")
+                .set("gap", "10px");
+
+
+        //TODO ####################################### STAT LOOP ################################################
+
+        for (int i = 0; i < 16; i++) { //TODO make this a loop based on characteristics and skills
+
+            Div skillItem = new Div();
+            skillItem.getStyle()
+                    .set("display", "grid")
+                    .set("grid-template-columns", "180px 80px 120px")
+                    .set("flex-direction", "column")
+                    .set("gap", "5px");
+
+            Button skillButton = new Button("skill number: " + i, e -> {
+                infoBoxParent.setVisible(true);
+            });
+
+            TextField field = new TextField();
+            field.setRequiredIndicatorVisible(true);
+            field.setAllowedCharPattern("[0-9]");
+            field.setMinLength(1);
+            field.setMaxLength(2);
+            field.setI18n(new TextField.TextFieldI18n()
+                    .setRequiredErrorMessage("Enter a number")
+                    .setMaxLengthErrorMessage("Too large"));
+            fieldArray.add(field);
+
+            //TODO denne her roller bare et tal, ikke de terninger man skal rulle med
+            Button randomButton = new Button("roll die", e -> {
+                int randomValue = (int) (Math.random() * 100);
+                field.setValue(String.valueOf(randomValue));
+            });
+
+            skillItem.add(skillButton, field, randomButton);
+
+            skillGrid.add(skillItem);
+        }
+        statBox.add(skillGrid);
+        //TODO ####################################### STAT LOOP ################################################
+
+
+        infoBoxParent.add(closeInfoButton);
+        infoBoxParent.add(infoBoxTextContainer);
+
+
+        Button saveButton = new Button("Save Character", e -> {
+            //TODO save character to database
+            for (TextField field : fieldArray) {
+                //testing
+                System.out.println(field.getValue());
+            }
+
+
+        });
+        statBox.add(saveButton);
+
+        add(statBox);
+        add(infoBoxParent);
+        infoBoxParent.setVisible(false);
+
+
     }
 
 }
