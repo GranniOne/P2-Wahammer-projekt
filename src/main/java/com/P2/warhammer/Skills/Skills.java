@@ -28,4 +28,44 @@ public class Skills {
     public String toString(){
         return "Skill{Name = '" + Name + "', Category = '" + Category + "', Characteristic = '" + Characteristic + "', Description = '" + Description + "'}";
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return Name;
+    }
+
+    public String getCharacteristic() {
+        return Characteristic;
+    }
+
+    public String getCategory() {
+        return Category;
+    }
+
+    public String getDescription() {
+        return Description;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        Name = name;
+    }
+
+    public void setCharacteristic(String characteristic) {
+        Characteristic = characteristic;
+    }
+
+    public void setCategory(String category) {
+        Category = category;
+    }
+
+    public void setDescription(String description) {
+        Description = description;
+    }
 }
