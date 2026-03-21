@@ -9,6 +9,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
+import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,49 +43,23 @@ public class CharacterCreatorView extends Div {
         Todo : advanved / basic (category)
         Todo : description
         */
+        CharacterSkillsGeneration(statBox,infoBoxParent);
+        InfoCreator(infoBoxParent);
 
 
 
+        
 
 
-        //TODO #################################### infobox content #################################################
+    }
 
-        Div infoBoxTextContainer = new Div();
-
-        boolean isAdvanced = true; // TODO get boolean from database
-
-        String skillOrTalent = (isAdvanced ? "Advanced skill" : "Basic skill"); //TODO: make this a text toggleable using boolean from database
-        String objectName = "string from database";
-        String objectCharacteristic = "int from database".toString();
-        String skillMax = "int from database".toString(); //TODO should always be at least 1. (you can only take something once at least)
-        String description = "string from database";
-
-        Div infoLine1 = new Div(new Text(skillOrTalent));
-        Div infoLine2 = new Div(new Text(objectName));
-        Div infoLine3 = new Div(new Text(objectCharacteristic));
-        Div infoLine4 = new Div(new Text(skillMax));
-        Div infoLine5 = new Div(new Text(description));
-
-        infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4, infoLine5);
-
-        Button closeInfoButton = new Button("X", e -> {
-            infoBoxParent.setVisible(false);
-        });
-
-
-        infoBoxParent.getStyle().set("background-color", "#474747").set("top", "0").set("bottom", "0").setWidth("33vw").set("position", "absolute").set("top", "0").set("right", "0").set("z-index", "10");
-
-        //TODO #################################### infobox content #################################################
-
+    private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
         Div skillGrid = new Div();
 
         skillGrid.getStyle()
                 .set("display", "grid")
                 .set("grid-template-columns", "repeat(1, 1fr)")
                 .set("gap", "10px");
-
-
-        //TODO ####################################### STAT LOOP ################################################
 
         for (int i = 0; i < 16; i++) { //TODO make this a loop based on characteristics and skills
 
@@ -116,17 +91,11 @@ public class CharacterCreatorView extends Div {
             });
 
             skillItem.add(skillButton, field, randomButton);
-
             skillGrid.add(skillItem);
+
         }
+
         statBox.add(skillGrid);
-        //TODO ####################################### STAT LOOP ################################################
-
-
-        infoBoxParent.add(closeInfoButton);
-        infoBoxParent.add(infoBoxTextContainer);
-
-
         Button saveButton = new Button("Save Character", e -> {
             //TODO save character to database
             for (TextField field : fieldArray) {
@@ -138,10 +107,51 @@ public class CharacterCreatorView extends Div {
         statBox.add(saveButton);
 
         add(statBox);
-        add(infoBoxParent);
+    }
+    private void InfoCreator(Div infoBoxParent) {
+        Div infoBoxTextContainer = getDiv();
+
+        Button closeInfoButton = new Button("X", e -> {
+            infoBoxParent.setVisible(false);
+        });
+
+        infoBoxParent.getStyle().set("background-color", "#474747").
+                set("top", "0").
+                set("bottom", "0").
+                setWidth("33vw").
+                set("position", "absolute").
+                set("top", "0").
+                set("right", "0").
+                set("z-index", "10");
+
+
+        infoBoxParent.add(closeInfoButton);
+        infoBoxParent.add(infoBoxTextContainer);
         infoBoxParent.setVisible(false);
 
+        add(infoBoxParent);
+    }
 
+    private static @NonNull Div getDiv() {
+        Div infoBoxTextContainer = new Div();
+
+        boolean isAdvanced = true; // TODO get boolean from database
+
+        String skillOrTalent = (isAdvanced ? "Advanced skill" : "Basic skill"); //TODO: make this a text toggleable using boolean from database
+        String objectName = "string from database";
+        String objectCharacteristic = "int from database".toString();
+        String skillMax = "int from database".toString(); //TODO should always be at least 1. (you can only take something once at least)
+        String description = "string from database";
+
+        Div infoLine1 = new Div(new Text(skillOrTalent));
+        Div infoLine2 = new Div(new Text(objectName));
+        Div infoLine3 = new Div(new Text(objectCharacteristic));
+        Div infoLine4 = new Div(new Text(skillMax));
+        Div infoLine5 = new Div(new Text(description));
+
+        infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4, infoLine5);
+
+        return infoBoxTextContainer;
     }
 
 }
