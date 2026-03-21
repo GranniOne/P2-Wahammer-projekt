@@ -134,7 +134,6 @@ public class CharacterCreatorView extends Div {
                 System.out.println(field.getValue());
             }
 
-
         });
         statBox.add(saveButton);
 
