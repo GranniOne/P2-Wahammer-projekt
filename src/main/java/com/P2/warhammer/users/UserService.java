@@ -129,4 +129,8 @@ public class UserService  {
     public List<User> getAllUsers() {
         return repository.findAll();
     }
+
+    public UserRepository getRepository() {
+        return repository;
+    }
 }

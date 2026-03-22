@@ -19,6 +19,7 @@ import java.util.List;
 @PageTitle("dashboard")
 public class AdminDashboardView extends Div {
     final private UserService userService;
+
     public AdminDashboardView(UserService userService) {
         this.userService = userService;
         /*
@@ -49,6 +50,10 @@ public class AdminDashboardView extends Div {
         grid.addComponentColumn(user -> new Button("delete  " + user.getUsername(), event -> {
             openDialog(user,event.getSource().getText());
         })).setHeader("Delete user");
+        grid.addComponentColumn(user -> new Button("Access Profile " + user.getUsername(), event -> {
+            UI.getCurrent().navigate(AdminProfileView.class,user.getId());
+
+        })).setHeader("Access user");
 
 
 
