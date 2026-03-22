@@ -51,7 +51,7 @@ public class AdminDashboardView extends Div {
             openDialog(user,event.getSource().getText());
         })).setHeader("Delete user");
         grid.addComponentColumn(user -> new Button("Access Profile " + user.getUsername(), event -> {
-            UI.getCurrent().navigate(AdminProfileView.class,user.getId());
+            UI.getCurrent().navigate("admin-dashboard/UserProfile/"+ user.getId() +"/");
 
         })).setHeader("Access user");
 

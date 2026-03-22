@@ -10,6 +10,7 @@ import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
@@ -20,15 +21,17 @@ import com.vaadin.flow.theme.lumo.LumoIcon;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.swing.text.ComponentView;
 import java.util.List;
+import java.util.Map;
 
 @PageTitle("User Page")
 @RolesAllowed("ROLE_ADMIN")
-@Route("admin-dashboard/UserProfile")
-public class AdminProfileView extends Div implements HasUrlParameter<String>, BeforeEnterObserver {
+@Route("admin-dashboard/UserProfile/:userID")
+public class AdminProfileView extends Div implements BeforeEnterObserver {
     final UserService userService;
     final CharacterService characterService;
-    String userIdentification;
+    private String userID;
     public AdminProfileView(UserService uSerService, CharacterService characterService) {
         this.userService = uSerService;
         this.characterService = characterService;
@@ -37,14 +40,9 @@ public class AdminProfileView extends Div implements HasUrlParameter<String>, Be
     }
 
     @Override
-    public void setParameter(BeforeEvent beforeEvent, String user) {
-        userIdentification = user;
-        System.out.println(beforeEvent.getRouteParameters().get(""));
-    }
-
-    @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        User user = userService.getRepository().findDistinctById(userIdentification);
+        userID = beforeEnterEvent.getRouteParameters().get("userID").get();
+        User user = userService.getRepository().findDistinctById(userID);
         Div layout = new Div();
         layout.getStyle().set("display", "grid")
                 .set("grid-template-columns",
@@ -72,6 +70,23 @@ public class AdminProfileView extends Div implements HasUrlParameter<String>, Be
 
         layout.add(imageCard, iconCard, avatarCard);
         add(layout);
+
+
+
+        RouteParameters params = new RouteParameters(
+                Map.of("userID", userID, "characterID", "GranniCharacter")
+        );
+
+        String url = RouteConfiguration.forSessionScope()
+                .getUrl(AdminCharacterView.class, params);
+
+        add(new Button("Edit", e -> {
+            UI.getCurrent().navigate(url);
+        }));
+
+        // The generated url is `item/123/edit`
+        Anchor link = new Anchor(url, "Button Api");
+        add(link);
 
 
 
