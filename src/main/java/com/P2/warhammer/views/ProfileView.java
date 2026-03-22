@@ -1,6 +1,7 @@
 package com.P2.warhammer.views;
 
 import com.P2.warhammer.profile.ChangePasswordComponent;
+import com.P2.warhammer.profile.DeleteUserButtonComponent;
 import com.P2.warhammer.profile.UsernameChangeComponent;
 import com.P2.warhammer.users.UserService;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,12 +22,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @StyleSheet("css/profileStyle.css")
 public class  ProfileView extends VerticalLayout {
 
-    ProfileView(UserService userService) {
+    private final AuthenticationContext authenticationContext;
+
+    ProfileView(UserService userService, AuthenticationContext authenticationContext) {
         Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+        this.authenticationContext = authenticationContext;
 
         // Components
         UsernameChangeComponent usernameChangeComponent = new UsernameChangeComponent(userService, auth);
         ChangePasswordComponent changePasswordComponent = new ChangePasswordComponent(userService, auth);
+        DeleteUserButtonComponent deleteUserButtonComponent = new DeleteUserButtonComponent(userService, auth, authenticationContext);
 
         setSizeFull();
         setAlignItems(FlexComponent.Alignment.CENTER);
@@ -55,6 +61,9 @@ public class  ProfileView extends VerticalLayout {
 
         layout.add(changePasswordComponent);
         layout.setAlignSelf(FlexComponent.Alignment.START, usernameChangeComponent);
+
+        layout.add(deleteUserButtonComponent);
+        layout.setAlignSelf(FlexComponent.Alignment.END, deleteUserButtonComponent);
 
         add(layout);
 
