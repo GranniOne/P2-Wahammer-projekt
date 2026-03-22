@@ -18,6 +18,7 @@ public class ChangePasswordComponent extends Div {
 
     public ChangePasswordComponent(UserService userService, Authentication auth){
         Binder<User> passwordBinder = new Binder<>();
+        Dialog changePasswordDialog = new Dialog();
 
         PasswordField passwordField = new PasswordField("Password");
         passwordField.setValueChangeMode(ValueChangeMode.EAGER);
@@ -33,13 +34,13 @@ public class ChangePasswordComponent extends Div {
                 .withValidator(confirm -> confirm.equals(passwordField.getValue()),"passwords must match")
                 .bind(User::getPassword, User::setPassword);
 
-        Dialog changePasswordDialog = new Dialog();
-
         Button confirmPasswordButton = new Button("Confirm", e -> {
+
             User user = userService.findFromEmail(auth.getName());
             user.setPassword(confirmPasswordField.getValue());
             userService.saveUser(user);
             UI.getCurrent().getPage().reload();
+
         });
         confirmPasswordButton.getStyle().set("margin-left", "auto");
 
@@ -50,7 +51,9 @@ public class ChangePasswordComponent extends Div {
 
 
         Button changePasswordButton = new Button("Confirm password change", e -> {
-            // construct dialog box
+            if (! passwordBinder.validate().isOk()){
+                return;
+            }
             changePasswordDialog.open();
         });
 
