@@ -50,7 +50,7 @@ public class ChangePasswordComponent extends Div {
         cancelPasswordButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
 
-        Button changePasswordButton = new Button("Confirm password change", e -> {
+        Button changePasswordButton = new Button("Change password", e -> {
             if (! passwordBinder.validate().isOk()){
                 return;
             }
