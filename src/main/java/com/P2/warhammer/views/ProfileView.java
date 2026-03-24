@@ -1,29 +1,19 @@
 package com.P2.warhammer.views;
 
+import com.P2.warhammer.profile.ChangePasswordComponent;
+import com.P2.warhammer.profile.DeleteUserButtonComponent;
 import com.P2.warhammer.profile.UsernameChangeComponent;
-import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.StyleSheet;
-import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.theme.lumo.LumoUtility;
+import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.awt.*;
-import java.util.Locale;
 
 
 @Route("profile")
@@ -32,18 +22,19 @@ import java.util.Locale;
 @StyleSheet("css/profileStyle.css")
 public class  ProfileView extends VerticalLayout {
 
-    private final UserService userService;
+    private final AuthenticationContext authenticationContext;
 
-    ProfileView(UserService userService) {
-        this.userService = userService;
+    ProfileView(UserService userService, AuthenticationContext authenticationContext) {
         Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+        this.authenticationContext = authenticationContext;
 
         // Components
         UsernameChangeComponent usernameChangeComponent = new UsernameChangeComponent(userService, auth);
-
+        ChangePasswordComponent changePasswordComponent = new ChangePasswordComponent(userService, auth);
+        DeleteUserButtonComponent deleteUserButtonComponent = new DeleteUserButtonComponent(userService, auth, authenticationContext);
 
         setSizeFull();
-        setAlignItems(FlexComponent.Alignment.CENTER);
+        setAlignItems(Alignment.CENTER);
 
         // Layout
         VerticalLayout layout = new VerticalLayout();
@@ -55,7 +46,7 @@ public class  ProfileView extends VerticalLayout {
         H3 profileInformationHeader = new H3("User information");
         H3 profileSettingHeader = new H3("Profile settings");
 
-        layout.setAlignItems(FlexComponent.Alignment.START);
+        layout.setAlignItems(Alignment.START);
         layout.add(profileInformationHeader);
         layout.setAlignSelf(Alignment.CENTER, profileInformationHeader);
         layout.add(new Pre("Username: " + userService.findFromEmail(auth.getName()).getUsername() +
@@ -66,7 +57,13 @@ public class  ProfileView extends VerticalLayout {
         layout.setAlignSelf(Alignment.CENTER, profileSettingHeader);
 
         layout.add(usernameChangeComponent);
-        layout.setAlignSelf(FlexComponent.Alignment.START, usernameChangeComponent);
+        layout.setAlignSelf(Alignment.START, usernameChangeComponent);
+
+        layout.add(changePasswordComponent);
+        layout.setAlignSelf(Alignment.START, usernameChangeComponent);
+
+        layout.add(deleteUserButtonComponent);
+        layout.setAlignSelf(Alignment.END, deleteUserButtonComponent);
 
         add(layout);
 
