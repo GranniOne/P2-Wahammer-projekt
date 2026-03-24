@@ -64,7 +64,9 @@ public class UserService  {
         this.repository.save(user);
     }
 
-
+    public void deleteUser(User user){
+        this.repository.delete(user);
+    }
     /**
      * Creates a new user account after validating input fields.
      * <p>

@@ -67,7 +67,7 @@ public class SignupView extends Div {
         binder.forField(password)
                 .asRequired()
                 .withValidator(new StringLengthValidator(
-                        "Password must be between 8 and 25 characters", 5, 25))
+                        "Password must be between 5 and 25 characters", 5, 25))
                 .bind(User::getPassword, User::setPassword);
 
         //confirming password
