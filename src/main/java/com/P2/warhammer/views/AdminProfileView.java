@@ -62,7 +62,9 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
         });
         this.add(layout);
 
-
+        this.add(new Button("hello", event -> {
+            characterService.addCharacter("Baaaaaa",user);
+        }));
 
         RouteParameters params = new RouteParameters(
                 Map.of("userID", userID, "characterID", "GranniCharacter")

@@ -1,8 +1,10 @@
 package com.P2.warhammer.characters;
 
+import com.P2.warhammer.users.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
@@ -24,7 +26,8 @@ public class Character {
     @Id
     private String id;
     String name;
-    String user;
+    @DBRef
+    User user;
     String race;
     int age = 0;
 
@@ -53,7 +56,7 @@ public class Character {
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    Character(String name, String user) {
+    Character(String name, User user) {
         this.name = name;
         this.user = user;
 
