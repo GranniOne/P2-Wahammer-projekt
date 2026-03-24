@@ -132,4 +132,3 @@ gradle-app.setting
 /src/main/frontend/generated/jar-resources/vaadin-dev-tools/websocket-connection.d.ts
 /.idea/dataSources.xml
 /target/
-/.idea/workspace.xml
