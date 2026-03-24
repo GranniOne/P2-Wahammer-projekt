@@ -28,6 +28,8 @@ public class Character {
     String name;
     @DBRef
     User user;
+    @DBRef
+    User GameMaster;
     String race;
     int age = 0;
 
@@ -56,9 +58,10 @@ public class Character {
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    Character(String name, User user) {
+    Character(String name, User user, User GameMaster) {
         this.name = name;
         this.user = user;
+        this.GameMaster = GameMaster;
 
         //sets all armour values to zero
         for (int i = 1; i <= 5; i++) {
