@@ -28,8 +28,8 @@ public class CharacterService {
      * @param user
      * @return
      */
-    public Character addCharacter(String name, User user) {
-        return repository.save(new Character(name, user));
+    public Character addCharacter(String name, User user, User GameMaster) {
+        return repository.save(new Character(name, user, GameMaster));
 
     }
     public List<Character> getCharactersByUser(String user) {
