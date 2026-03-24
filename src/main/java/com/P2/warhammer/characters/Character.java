@@ -22,6 +22,7 @@ import java.util.List;
 public class Character {
 
     @Id
+    private String id;
     String name;
     String user;
     String race;
