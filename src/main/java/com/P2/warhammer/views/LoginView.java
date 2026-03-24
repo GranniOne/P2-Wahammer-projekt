@@ -13,7 +13,7 @@ import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.router.*;
 
-@Route("login")
+@Route(value = "login", autoLayout = false)
 @PageTitle("login page")
 @StyleSheet("css/loginStyle.css")
 public class LoginView extends Div implements BeforeEnterObserver{

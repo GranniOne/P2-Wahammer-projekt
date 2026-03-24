@@ -10,12 +10,13 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Layout;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.spring.security.AuthenticationContext;
+import jakarta.annotation.security.PermitAll;
 
 /**
  * the Navigation layout, is automatically implemented by spring using the @Layout annotation, do not use it manually
  */
 @Layout("")
-@AnonymousAllowed
+@PermitAll
 public class Navigation extends AppLayout {
 
     Navigation(AuthenticationContext authenticationContext) {
@@ -30,7 +31,7 @@ public class Navigation extends AppLayout {
                     .set("width", "100%").set("display", "flex");
 
             // Static navigation buttons
-            Button homeButton = new Button("Home", e -> UI.getCurrent().navigate("dashboard"));
+            Button homeButton = new Button("Home", e -> UI.getCurrent().navigate(""));
             Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("profile"));
             Button profileCharactersButton = new Button("View characters", e -> UI.getCurrent().navigate("profileCharacters"));
             Button settingsButton = new Button("Settings", e -> UI.getCurrent().navigate("settings"));

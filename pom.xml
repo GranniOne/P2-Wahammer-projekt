@@ -5,6 +5,13 @@
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.0.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
     <groupId>com.p2.warhammer</groupId>
     <artifactId>warhammer</artifactId>
     <version>1.0-SNAPSHOT</version>
@@ -35,8 +42,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-
 
     <dependencies>
         <!-- lombok -->
@@ -82,14 +87,13 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
-            <version>25.0.7</version>
+            <version>${vaadin.version}</version>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-dev</artifactId>
             <optional>true</optional>
         </dependency>
-
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver-sync</artifactId>
@@ -131,8 +135,6 @@
             <version>1.21.4</version>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
 
 
@@ -142,6 +144,27 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>com.vaadin</groupId>
+                <artifactId>vaadin-maven-plugin</artifactId>
+                <version>${vaadin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>build-frontend</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>com.P2.warhammer.Application</mainClass>
+
+                    <!-- To always force an optimized production bundle build set this configuration to 'true' -->
+                    <!-- To possibly use the pre-compiled production bundle remove or set to 'false' -->
+                    <forceProductionBuild>true</forceProductionBuild>
+                    <!-- To have reproducible build by running 'npm ci' -->
+                    <ciBuild>true</ciBuild>
+                </configuration>
             </plugin>
 
             <!-- Compiler plugin -->
