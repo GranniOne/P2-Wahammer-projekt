@@ -2,6 +2,7 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
+import com.P2.warhammer.layout.CharacterCard;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
@@ -19,11 +20,13 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import jakarta.annotation.security.RolesAllowed;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.swing.text.ComponentView;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @PageTitle("User Page")
 @RolesAllowed("ROLE_ADMIN")
@@ -49,27 +52,14 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
                         "repeat(auto-fill, minmax(190px, 1fr))")
                 .set("gap", "1em");
 
-        // Card with image media
-        Card imageCard = new Card();
-        imageCard.add(
-                "Lapland is the northern-most region of Finland and an active outdoor destination.");
+        try{
+            layout.add(new CharacterCard(characterService.getCharactersByUser(userID).getFirst()));
 
-        // Card with icon media
-        Card iconCard = new Card();
-        Icon icon = LumoIcon.PHOTO.create();
-        iconCard.setMedia(icon);
-        iconCard.add(
-                "Lapland is the northern-most region of Finland and an active outdoor destination.");
+        }catch (NoSuchElementException e){
+            e.printStackTrace();
+        }
 
-        // Card with avatar media
-        Card avatarCard = new Card();
-        Avatar avatar = new Avatar("Lapland");
-        avatarCard.setMedia(avatar);
-        avatarCard.add(
-                "Lapland is the northern-most region of Finland and an active outdoor destination.");
-
-        layout.add(imageCard, iconCard, avatarCard);
-        add(layout);
+        this.add(layout);
 
 
 

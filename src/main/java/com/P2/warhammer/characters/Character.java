@@ -67,4 +67,32 @@ public class Character {
 
     }
 
+    @Override
+    public String toString() {
+        return "Character{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", user='" + user + '\'' +
+                ", race='" + race + '\'' +
+                ", age=" + age +
+                ", experience=" + experience +
+                ", advantage=" + advantage +
+                ", maxWounds=" + maxWounds +
+                ", damageTaken=" + damageTaken +
+                ", armourValues=" + armourValues +
+                ", corruptionMax=" + corruptionMax +
+                ", corruptionTaken=" + corruptionTaken +
+                ", Pfennings=" + Pfennings +
+                ", silverShillings=" + silverShillings +
+                ", goldCrowns=" + goldCrowns +
+                ", statusLevel=" + statusLevel +
+                ", inventory=" + inventory +
+                ", equippedArmour=" + equippedArmour +
+                ", equippedWeapons=" + equippedWeapons +
+                ", talents=" + talents +
+                ", skills=" + skills +
+                ", conditions=" + conditions +
+                ", characteristics=" + characteristics +
+                '}';
+    }
 }
