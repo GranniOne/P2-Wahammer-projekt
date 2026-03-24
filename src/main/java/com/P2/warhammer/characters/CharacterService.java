@@ -32,6 +32,9 @@ public class CharacterService {
         return repository.save(new Character(name, user, GameMaster));
 
     }
+    public Character CreateAndAddCharacter(Character character) {
+        return repository.save(character);
+    }
     public List<Character> getCharactersByUser(String user) {
         return repository.getCharacterByuser(user);
     }

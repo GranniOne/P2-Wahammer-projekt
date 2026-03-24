@@ -1,7 +1,10 @@
 package com.P2.warhammer.views;
 
+import com.P2.warhammer.Skills.Skills;
+import com.P2.warhammer.Skills.SkillsRepository;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
+import com.P2.warhammer.characters.Skill;
 import com.P2.warhammer.layout.CharacterCard;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
@@ -34,10 +37,12 @@ import java.util.NoSuchElementException;
 public class AdminProfileView extends Div implements BeforeEnterObserver {
     final UserService userService;
     final CharacterService characterService;
+    final SkillsRepository  skillsRepository;
     private String userID;
-    public AdminProfileView(UserService uSerService, CharacterService characterService) {
+    public AdminProfileView(UserService uSerService, CharacterService characterService, SkillsRepository skillsRepository) {
         this.userService = uSerService;
         this.characterService = characterService;
+        this.skillsRepository = skillsRepository;
         System.out.println("first");
 
     }
@@ -63,7 +68,11 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
         this.add(layout);
 
         this.add(new Button("hello", event -> {
-            characterService.addCharacter("Baaaaaa",user,user);
+            Character character = new Character("Testing",user,user);
+            List<Skills> Usedskills =  skillsRepository.findAll();
+            character.setSkills(Usedskills);
+            characterService.CreateAndAddCharacter(character);
+
         }));
 
         RouteParameters params = new RouteParameters(

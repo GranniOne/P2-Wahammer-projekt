@@ -1,11 +1,14 @@
 package com.P2.warhammer.characters;
 
+import com.P2.warhammer.Skills.Skills;
 import com.P2.warhammer.users.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +29,9 @@ public class Character {
     @Id
     private String id;
     String name;
-    @DBRef
+    @DocumentReference
     User user;
-    @DBRef
+    @DocumentReference
     User GameMaster;
     String race;
     int age = 0;
@@ -51,14 +54,13 @@ public class Character {
     List<Object> inventory = new ArrayList<>();
     List<Object> equippedArmour = new ArrayList<>();
     List<Object> equippedWeapons = new ArrayList<>();
-
-    List<Object> talents = new ArrayList<>();
-    List<Object> skills = new ArrayList<>();
+    List<Talent> talents = new ArrayList<>();
+    List<Skills> skills = new ArrayList<>();
     List<Object> conditions = new ArrayList<>();
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    Character(String name, User user, User GameMaster) {
+    public Character(String name, User user, User GameMaster) {
         this.name = name;
         this.user = user;
         this.GameMaster = GameMaster;
