@@ -1,7 +1,11 @@
 package com.P2.warhammer.views;
 
+import com.P2.warhammer.Skills.Skills;
+import com.P2.warhammer.Skills.SkillsRepository;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
+import com.P2.warhammer.characters.Skill;
+import com.P2.warhammer.layout.CharacterCard;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
@@ -19,11 +23,13 @@ import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import jakarta.annotation.security.RolesAllowed;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.swing.text.ComponentView;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @PageTitle("User Page")
 @RolesAllowed("ROLE_ADMIN")
@@ -31,10 +37,12 @@ import java.util.Map;
 public class AdminProfileView extends Div implements BeforeEnterObserver {
     final UserService userService;
     final CharacterService characterService;
+    final SkillsRepository  skillsRepository;
     private String userID;
-    public AdminProfileView(UserService uSerService, CharacterService characterService) {
-        this.userService = uSerService;
+    public AdminProfileView(UserService userService, CharacterService characterService, SkillsRepository skillsRepository) {
+        this.userService = userService;
         this.characterService = characterService;
+        this.skillsRepository = skillsRepository;
         System.out.println("first");
 
     }
@@ -48,30 +56,24 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
                 .set("grid-template-columns",
                         "repeat(auto-fill, minmax(190px, 1fr))")
                 .set("gap", "1em");
+        characterService.getCharactersByUser(userID).forEach(c -> {
+            try{
+                layout.add(new CharacterCard(c));
 
-        // Card with image media
-        Card imageCard = new Card();
-        imageCard.add(
-                "Lapland is the northern-most region of Finland and an active outdoor destination.");
+            }catch (NoSuchElementException e){
+                e.printStackTrace();
+            }
 
-        // Card with icon media
-        Card iconCard = new Card();
-        Icon icon = LumoIcon.PHOTO.create();
-        iconCard.setMedia(icon);
-        iconCard.add(
-                "Lapland is the northern-most region of Finland and an active outdoor destination.");
+        });
+        this.add(layout);
 
-        // Card with avatar media
-        Card avatarCard = new Card();
-        Avatar avatar = new Avatar("Lapland");
-        avatarCard.setMedia(avatar);
-        avatarCard.add(
-                "Lapland is the northern-most region of Finland and an active outdoor destination.");
+        this.add(new Button("hello", event -> {
+            Character character = new Character("Testing",user,user);
+            List<Skills> Usedskills =  skillsRepository.findAll();
+            character.setSkills(Usedskills);
+            characterService.addCharacter(character);
 
-        layout.add(imageCard, iconCard, avatarCard);
-        add(layout);
-
-
+        }));
 
         RouteParameters params = new RouteParameters(
                 Map.of("userID", userID, "characterID", "GranniCharacter")

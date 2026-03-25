@@ -1,9 +1,14 @@
 package com.P2.warhammer.characters;
 
+import com.P2.warhammer.Skills.Skills;
+import com.P2.warhammer.users.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Reference;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +27,12 @@ import java.util.List;
 public class Character {
 
     @Id
+    private String id;
     String name;
-    String user;
+    @DocumentReference
+    User user;
+    @DocumentReference
+    User GameMaster;
     String race;
     int age = 0;
 
@@ -45,16 +54,16 @@ public class Character {
     List<Object> inventory = new ArrayList<>();
     List<Object> equippedArmour = new ArrayList<>();
     List<Object> equippedWeapons = new ArrayList<>();
-
-    List<Object> talents = new ArrayList<>();
-    List<Object> skills = new ArrayList<>();
+    List<Talent> talents = new ArrayList<>();
+    List<Skills> skills = new ArrayList<>();
     List<Object> conditions = new ArrayList<>();
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    Character(String name, String user) {
+    public Character(String name, User user, User GameMaster) {
         this.name = name;
         this.user = user;
+        this.GameMaster = GameMaster;
 
         //sets all armour values to zero
         for (int i = 1; i <= 5; i++) {
@@ -66,4 +75,32 @@ public class Character {
 
     }
 
+    @Override
+    public String toString() {
+        return "Character{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", user='" + user + '\'' +
+                ", race='" + race + '\'' +
+                ", age=" + age +
+                ", experience=" + experience +
+                ", advantage=" + advantage +
+                ", maxWounds=" + maxWounds +
+                ", damageTaken=" + damageTaken +
+                ", armourValues=" + armourValues +
+                ", corruptionMax=" + corruptionMax +
+                ", corruptionTaken=" + corruptionTaken +
+                ", Pfennings=" + Pfennings +
+                ", silverShillings=" + silverShillings +
+                ", goldCrowns=" + goldCrowns +
+                ", statusLevel=" + statusLevel +
+                ", inventory=" + inventory +
+                ", equippedArmour=" + equippedArmour +
+                ", equippedWeapons=" + equippedWeapons +
+                ", talents=" + talents +
+                ", skills=" + skills +
+                ", conditions=" + conditions +
+                ", characteristics=" + characteristics +
+                '}';
+    }
 }
