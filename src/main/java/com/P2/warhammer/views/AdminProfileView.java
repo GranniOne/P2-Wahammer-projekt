@@ -39,8 +39,8 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
     final CharacterService characterService;
     final SkillsRepository  skillsRepository;
     private String userID;
-    public AdminProfileView(UserService uSerService, CharacterService characterService, SkillsRepository skillsRepository) {
-        this.userService = uSerService;
+    public AdminProfileView(UserService userService, CharacterService characterService, SkillsRepository skillsRepository) {
+        this.userService = userService;
         this.characterService = characterService;
         this.skillsRepository = skillsRepository;
         System.out.println("first");
