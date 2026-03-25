@@ -28,11 +28,12 @@ public class CharacterService {
      * @param user
      * @return
      */
-    public Character addCharacter(String name, User user, User GameMaster) {
+
+    public Character CreateAndAddCharacter(String name, User user, User GameMaster) {
         return repository.save(new Character(name, user, GameMaster));
 
     }
-    public Character CreateAndAddCharacter(Character character) {
+    public Character addCharacter(Character character) {
         return repository.save(character);
     }
     public List<Character> getCharactersByUser(String user) {

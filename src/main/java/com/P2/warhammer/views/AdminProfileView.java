@@ -71,7 +71,7 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
             Character character = new Character("Testing",user,user);
             List<Skills> Usedskills =  skillsRepository.findAll();
             character.setSkills(Usedskills);
-            characterService.CreateAndAddCharacter(character);
+            characterService.addCharacter(character);
 
         }));
 
