@@ -37,7 +37,7 @@ public class CharacterService {
         return repository.save(character);
     }
     public List<Character> getCharactersByUser(String user) {
-        return repository.getCharacterByuser(user);
+        return repository.getCharactersByUser(user);
     }
 
     public List<Character> getAllCharacters() {
