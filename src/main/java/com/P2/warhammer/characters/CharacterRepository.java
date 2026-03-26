@@ -16,5 +16,5 @@ import java.util.List;
 @Repository
 public interface CharacterRepository extends MongoRepository<Character, String> {
 
-    List<Character> getCharacterByUser(String user);
+    List<Character> getCharactersByUser(String user);
 }
