@@ -34,6 +34,7 @@ public class Navigation extends AppLayout {
             Button homeButton = new Button("Home", e -> UI.getCurrent().navigate(""));
             Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("profile"));
             Button profileCharactersButton = new Button("View characters", e -> UI.getCurrent().navigate("profileCharacters"));
+            Button campaignViewButton = new Button("View campaigns", e -> UI.getCurrent().navigate("campaignViewer"));
             Button settingsButton = new Button("Settings", e -> UI.getCurrent().navigate("settings"));
 
             Button logoutButton = new Button("Log out", e -> authenticationContext.logout());
@@ -43,8 +44,9 @@ public class Navigation extends AppLayout {
             settingsButton.setIcon(new Icon(VaadinIcon.COG));
             profileCharactersButton.setIcon(new Icon(VaadinIcon.MALE));
             logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
+            campaignViewButton.setIcon(new Icon(VaadinIcon.MAP_MARKER));
 
-            navBar.addToStart(homeButton, profileButton, settingsButton, profileCharactersButton);
+            navBar.addToStart(homeButton, profileButton, settingsButton, campaignViewButton, profileCharactersButton);
             navBar.addToEnd(logoutButton);
             this.addToNavbar(navBar);
 

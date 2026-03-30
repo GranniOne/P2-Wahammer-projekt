@@ -1,8 +1,13 @@
 package com.P2.warhammer.campaigns;
 
+import com.P2.warhammer.Skills.SkillsRepository;
+import com.P2.warhammer.users.UserRepository;
+import  com.P2.warhammer.users.User;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -16,10 +21,19 @@ public class Campaign {
 
     @Id
     String name;
-    int age;
+    String gameMaster;
 
-    Campaign(String name, int age){
+    UserRepository userRepository;
+    List<User> players;
+
+    Campaign(String name, String gameMaster){
         this.name = name;
-        this.age = age;
+        this.gameMaster = gameMaster;
+        this.players = new ArrayList<>();
+
+    }
+
+    public String getName() {
+        return name;
     }
 }

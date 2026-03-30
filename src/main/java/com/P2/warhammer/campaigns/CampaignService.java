@@ -21,8 +21,8 @@ public class CampaignService {
         this.repository = repository;
     }
 
-    public Campaign addCampaign(String name, int age) {
-        return repository.save(new Campaign(name, age));
+    public Campaign addCampaign(String name, String gameMaster) {
+        return repository.save(new Campaign(name, gameMaster));
 
     }
 
