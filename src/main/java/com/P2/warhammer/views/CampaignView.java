@@ -1,27 +1,19 @@
 package com.P2.warhammer.views;
 
 
-import com.P2.warhammer.Skills.Skills;
-import com.P2.warhammer.Skills.SkillsRepository;
 import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.campaigns.CampaignRepository;
 import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
-import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
-import org.jspecify.annotations.NonNull;
 
-import javax.swing.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 
