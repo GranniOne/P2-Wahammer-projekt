@@ -1,6 +1,7 @@
 package com.P2.warhammer.characters;
 
 import com.P2.warhammer.Skills.Skill;
+import com.P2.warhammer.Talents.Talent;
 import com.P2.warhammer.users.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +36,6 @@ public class Character {
     int age = 0;
 
     int experience = 0;
-
     int advantage = 0;
     int maxWounds = 0;
     int damageTaken = 0;
@@ -50,11 +50,11 @@ public class Character {
     int statusLevel = 0; //your "class gold". see Excel sheet
 
     List<Object> inventory = new ArrayList<>();
-    List<Object> equippedArmour = new ArrayList<>();
-    List<Object> equippedWeapons = new ArrayList<>();
+    List<Armour> equippedArmour = new ArrayList<>();
+    List<Weapon> equippedWeapons = new ArrayList<>();
     List<Talent> talents = new ArrayList<>();
     List<Skill> skills = new ArrayList<>();
-    List<Object> conditions = new ArrayList<>();
+    List<Condition> conditions = new ArrayList<>();
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
