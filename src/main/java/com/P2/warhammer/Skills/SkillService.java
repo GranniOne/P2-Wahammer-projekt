@@ -17,7 +17,7 @@ public class SkillService {
 
     }
 
-    public List<Skill> getAllCampaigns() {
+    public List<Skill> getAllSkills() {
         return repository.findAll();
     }
 }
