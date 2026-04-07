@@ -1,6 +1,6 @@
 package com.P2.warhammer.views;
 
-import com.P2.warhammer.Skills.SkillsRepository;
+import com.P2.warhammer.Skills.SkillRepository;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,17 +17,17 @@ import jakarta.annotation.security.PermitAll;
 @Route("skills")
 public class SkillsView extends Div implements BeforeEnterObserver {
 
-    private final SkillsRepository skillsRepository;
+    private final SkillRepository skillRepository;
 
-    public SkillsView(SkillsRepository skillsRepository) {
-        this.skillsRepository = skillsRepository;
+    public SkillsView(SkillRepository skillRepository) {
+        this.skillRepository = skillRepository;
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         VerticalLayout layout = new VerticalLayout();
         layout.getStyle().set("margin-left", "auto").setPadding("100px");
-        skillsRepository.findAll().forEach(skill -> layout.add(new Span(String.valueOf(skill))));
+        skillRepository.findAll().forEach(skill -> layout.add(new Span(String.valueOf(skill))));
         add(layout);
 
     }

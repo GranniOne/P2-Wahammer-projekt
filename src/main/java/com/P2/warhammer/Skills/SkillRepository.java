@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface SkillsRepository extends MongoRepository<Skills, String> {
+public interface SkillRepository extends MongoRepository<Skill, String> {
 
 }

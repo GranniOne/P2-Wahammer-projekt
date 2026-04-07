@@ -1,6 +1,5 @@
 package com.P2.warhammer.campaigns;
 
-import com.P2.warhammer.Skills.SkillsRepository;
 import com.P2.warhammer.users.UserRepository;
 import  com.P2.warhammer.users.User;
 import org.springframework.data.annotation.Id;

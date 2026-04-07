@@ -1,32 +1,19 @@
 package com.P2.warhammer.views;
 
-import com.P2.warhammer.Skills.Skills;
-import com.P2.warhammer.Skills.SkillsRepository;
+import com.P2.warhammer.Skills.Skill;
+import com.P2.warhammer.Skills.SkillRepository;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
-import com.P2.warhammer.characters.Skill;
 import com.P2.warhammer.layout.CharacterCard;
 import com.P2.warhammer.users.User;
-import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.card.Card;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.streams.DownloadHandler;
-import com.vaadin.flow.theme.lumo.LumoIcon;
 import jakarta.annotation.security.RolesAllowed;
-import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.swing.text.ComponentView;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -37,12 +24,12 @@ import java.util.NoSuchElementException;
 public class AdminProfileView extends Div implements BeforeEnterObserver {
     final UserService userService;
     final CharacterService characterService;
-    final SkillsRepository  skillsRepository;
+    final SkillRepository skillRepository;
     private String userID;
-    public AdminProfileView(UserService userService, CharacterService characterService, SkillsRepository skillsRepository) {
+    public AdminProfileView(UserService userService, CharacterService characterService, SkillRepository skillRepository) {
         this.userService = userService;
         this.characterService = characterService;
-        this.skillsRepository = skillsRepository;
+        this.skillRepository = skillRepository;
         System.out.println("first");
 
     }
@@ -69,7 +56,7 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
 
         this.add(new Button("hello", event -> {
             Character character = new Character("Testing",user,user);
-            List<Skills> Usedskills =  skillsRepository.findAll();
+            List<Skill> Usedskills =  skillRepository.findAll();
             character.setSkills(Usedskills);
             characterService.addCharacter(character);
 

@@ -1,8 +1,8 @@
 package com.P2.warhammer.views;
 
 
-import com.P2.warhammer.Skills.Skills;
-import com.P2.warhammer.Skills.SkillsRepository;
+import com.P2.warhammer.Skills.Skill;
+import com.P2.warhammer.Skills.SkillRepository;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -12,7 +12,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.domain.Example;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +23,11 @@ import java.util.List;
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div {
     private final List<TextField> fieldArray = new ArrayList<>();
-    private final SkillsRepository skillsRepository;
-    private final List<Skills> skills;
-    public CharacterCreatorView(SkillsRepository skillsRepository) {
-        this.skillsRepository = skillsRepository;
-        this.skills = skillsRepository.findAll();
+    private final SkillRepository skillRepository;
+    private final List<Skill> skills;
+    public CharacterCreatorView(SkillRepository skillRepository) {
+        this.skillRepository = skillRepository;
+        this.skills = skillRepository.findAll();
 
         setClassName("div-page");
         getStyle().set("position", "relative");
@@ -114,7 +113,7 @@ public class CharacterCreatorView extends Div {
 
         add(statBox);
     }
-    private void InfoCreator(Skills skill, Div infoBoxParent) {
+    private void InfoCreator(Skill skill, Div infoBoxParent) {
         Div infoBoxTextContainer = getDiv(skill);
 
         Button closeInfoButton = new Button("X", e -> {
@@ -138,7 +137,7 @@ public class CharacterCreatorView extends Div {
         add(infoBoxParent);
     }
 
-    private @NonNull Div getDiv(Skills skill) {
+    private @NonNull Div getDiv(Skill skill) {
         Div infoBoxTextContainer = new Div();
         Div infoLine1 = new Div(new Text(skill.getCategory()));
         Div infoLine2 = new Div(new Text(skill.getName()));

@@ -1,12 +1,10 @@
 package com.P2.warhammer.Skills;
 
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "skills")
-public class Skills {
+public class Skill {
 
     @Id
     private String id;
@@ -15,9 +13,9 @@ public class Skills {
     String Category;
     String Description;
 
-    public Skills() {}
+    public Skill() {}
 
-    public Skills(String Name, String Category, String Characteristic, String Description){
+    public Skill(String Name, String Category, String Characteristic, String Description){
         this.Name = Name;
         this.Category = Category;
         this.Characteristic = Characteristic;

@@ -1,12 +1,10 @@
 package com.P2.warhammer.characters;
 
-import com.P2.warhammer.Skills.Skills;
+import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.users.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Reference;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
@@ -55,7 +53,7 @@ public class Character {
     List<Object> equippedArmour = new ArrayList<>();
     List<Object> equippedWeapons = new ArrayList<>();
     List<Talent> talents = new ArrayList<>();
-    List<Skills> skills = new ArrayList<>();
+    List<Skill> skills = new ArrayList<>();
     List<Object> conditions = new ArrayList<>();
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
