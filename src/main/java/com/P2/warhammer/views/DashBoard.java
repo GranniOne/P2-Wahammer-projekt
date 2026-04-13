@@ -33,11 +33,18 @@ import java.util.Objects;
 public class DashBoard extends Div implements BeforeEnterObserver {
     private final UserService userService;
     User loadedUser;
+    List<Character> ownedCharacters;
+    List<Campaign> campaigns;
     DashBoard(UserService userService, CharacterService  characterService, CampaignService  campaignService) {
         this.userService = userService;
-        loadedUser = userService.findFromEmail(SecurityContextHolder.getContext().getAuthentication().getName());
-        List<Character> ownedCharacters =  characterService.getCharactersByUser(loadedUser);
-        List<Campaign> campaigns = campaignService.getCampaignsByPlayerAndGameMaster(loadedUser,loadedUser);
+        try{
+            loadedUser = userService.findFromEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            ownedCharacters =  characterService.getCharactersByUser(loadedUser);
+            campaigns = campaignService.getCampaignsByPlayerAndGameMaster(loadedUser,loadedUser);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         campaigns.forEach((campaign) -> {
             System.out.println(campaign.getName());
         });
