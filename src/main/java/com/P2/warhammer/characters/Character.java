@@ -1,7 +1,10 @@
 package com.P2.warhammer.characters;
 
+import com.P2.warhammer.Conditions.Condition;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.items.Armour;
+import com.P2.warhammer.items.Weapon;
 import com.P2.warhammer.users.User;
 import lombok.Getter;
 import lombok.Setter;

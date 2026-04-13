@@ -19,6 +19,7 @@ import java.util.List;
 public class Campaign {
 
     @Id
+    private String Id;
     String name;
     String gameMaster;
 

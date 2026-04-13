@@ -1,4 +1,4 @@
-package com.P2.warhammer.characters;
+package com.P2.warhammer.views;
 
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
@@ -11,7 +11,7 @@ import jakarta.annotation.security.PermitAll;
 @PageTitle("Profile Character page")
 @Route("profileCharacters")
 @StyleSheet("css/profileCharacterStyle.css")
-public class ProfileCharacters extends Div {
+public class ProfileCharactersView extends Div {
 
 
 }
