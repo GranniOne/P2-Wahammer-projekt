@@ -3,6 +3,7 @@ package com.P2.warhammer.views;
 
 
 import com.P2.warhammer.users.UserService;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.dom.Style;
@@ -14,7 +15,7 @@ import jakarta.annotation.security.PermitAll;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
+@StyleSheet("css/dashboardPage.css")
 @PageTitle("dashboard Page")
 @Route("")
 @PermitAll
@@ -23,11 +24,35 @@ public class DashBoard extends Div implements BeforeEnterObserver {
 
     DashBoard(UserService userService){
         this.userService = userService;
-        Authentication auth =  SecurityContextHolder.getContext().getAuthentication();
+        setClassName("dashboard");
+        Div dashboard = new Div();
 
-        Span label = new Span("welcome " + auth.getName());
-        label.getStyle().set("font-family", "Arial").setFontSize("xxx-large").setJustifyContent(Style.JustifyContent.CENTER).setAlignItems(Style.AlignItems.CENTER).setDisplay(Style.Display.FLEX);;
-        add(label);
+        Div characterContent = new Div();
+        Span CharacterTitle = new Span("Characters");
+        Div CharacterCards = new Div();
+
+        Div CampaignContent = new Div();
+        Span CampaignTitle = new Span("Campaigns");
+        Div CampaignCards = new Div();
+
+        dashboard.setClassName("dashboardContent");
+        characterContent.setClassName("characterContent");
+        CampaignContent.setClassName("CampaignContent");
+        CharacterTitle.setClassName("CharacterTitle");
+        CampaignTitle.setClassName("CampaignTitle");
+        CampaignCards.setClassName("CampaignCards");
+        CharacterCards.setClassName("CharacterCards");
+
+
+        characterContent.add(CharacterTitle,CharacterCards);
+        CampaignContent.add(CampaignTitle,CampaignCards);
+
+        dashboard.add(characterContent,CampaignContent);
+        add(dashboard);
+
+
+
+
 
     }
 
@@ -36,5 +61,6 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         if(beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("continue")){
 
         }
+
     }
 }

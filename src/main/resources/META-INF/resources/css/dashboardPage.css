@@ -1,0 +1,62 @@
+.dashboard {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    background: #550000;
+}
+
+.dashboardContent {
+    display: flex;
+    flex-direction: row;
+    height: 50%;
+    width: 70%;
+    background: aqua;
+    align-items: center;
+}
+.characterContent {
+    display: flex;
+    flex-direction: column;;
+    width: 100%;
+    height: 100%;
+    background: chartreuse;
+    align-items: center;
+
+}
+.CampaignContent {
+    display: flex;
+    flex-direction: column;;
+    width : 100%;
+    height: 100%;
+    background: blue;
+    align-items: center;
+}
+.CharacterTitle{
+
+    display: flex;
+    font-size: 24px;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+.CampaignTitle {
+    display: flex;
+    font-size: 24px;
+    border: 1px solid black;
+    border-radius: 10px;
+}
+
+.CharacterCards {
+    height: 90%;
+    width: 100%;
+    background: darkorange;
+    margin-top: auto;
+}
+
+.CampaignCards {
+    height: 90%;
+    width: 100%;
+    background: darkviolet;
+    margin-top: auto;
+
+}
