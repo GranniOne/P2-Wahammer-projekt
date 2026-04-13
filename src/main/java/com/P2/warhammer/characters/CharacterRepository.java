@@ -1,5 +1,6 @@
 package com.P2.warhammer.characters;
 
+import com.P2.warhammer.users.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,5 +17,5 @@ import java.util.List;
 @Repository
 public interface CharacterRepository extends MongoRepository<Character, String> {
 
-    List<Character> getCharactersByUser(String user);
+    List<Character> getCharactersByUser(User user);
 }

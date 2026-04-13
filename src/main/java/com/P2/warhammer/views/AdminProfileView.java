@@ -43,7 +43,7 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
                 .set("grid-template-columns",
                         "repeat(auto-fill, minmax(190px, 1fr))")
                 .set("gap", "1em");
-        characterService.getCharactersByUser(userID).forEach(c -> {
+        characterService.getCharactersByUser(user).forEach(c -> {
             try{
                 layout.add(new CharacterCard(c));
 

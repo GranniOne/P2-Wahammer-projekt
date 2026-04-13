@@ -1,7 +1,10 @@
 package com.P2.warhammer.campaigns;
 
+import com.P2.warhammer.users.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 
 /**
@@ -14,4 +17,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CampaignRepository extends MongoRepository<Campaign, String> {
+    List<Campaign> findByPlayersContainingOrGameMaster(User player, User gameMaster);
 }

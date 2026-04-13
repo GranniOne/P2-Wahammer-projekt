@@ -1,6 +1,7 @@
 package com.P2.warhammer.campaigns;
 
 
+import com.P2.warhammer.users.User;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
@@ -21,9 +22,12 @@ public class CampaignService {
         this.repository = repository;
     }
 
-    public Campaign addCampaign(String name, String gameMaster) {
+    public Campaign addCampaign(String name, User gameMaster) {
         return repository.save(new Campaign(name, gameMaster));
 
+    }
+    public List<Campaign> getCampaignsByPlayerAndGameMaster(User players, User gameMaster) {
+        return repository.findByPlayersContainingOrGameMaster(players, gameMaster);
     }
 
     public List<Campaign> getAllCampaigns() {
