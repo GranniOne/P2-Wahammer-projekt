@@ -18,4 +18,6 @@ import java.util.List;
 @Repository
 public interface CampaignRepository extends MongoRepository<Campaign, String> {
     List<Campaign> findByPlayersContainingOrGameMaster(User player, User gameMaster);
+
+    Campaign findCampaignById(String id);
 }

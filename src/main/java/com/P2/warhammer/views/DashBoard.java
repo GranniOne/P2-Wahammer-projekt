@@ -8,16 +8,14 @@ import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.dom.Style;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -58,6 +56,9 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         ownedCharacters.forEach(character -> {
             Card card = new Card();
             card.setTitle(character.getName());
+            card.getElement().addEventListener("click", event -> {
+                System.out.println(character.getName());
+            });
             CharacterCards.add(card);
         });
 
@@ -70,6 +71,10 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         campaigns.forEach(campaign -> {
             Card card = new Card();
             card.setTitle(Objects.equals(loadedUser.getId(), campaign.getGameMaster().getId()) ? "Gamemaster: " + campaign.getName() : "player: " +  campaign.getName());
+            card.getElement().addEventListener("click", event -> {
+                UI.getCurrent().navigate(CampaignView.class,QueryParameters.of("Campaign", campaign.getId()));
+
+            });
             CampaignCards.add(card);
         });
 

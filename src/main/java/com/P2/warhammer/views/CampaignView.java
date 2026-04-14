@@ -6,22 +6,32 @@ import com.P2.warhammer.campaigns.CampaignRepository;
 import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @PermitAll
 @PageTitle("Campaign view Page")
-@Route("campaignViewer")
+@Route("campaign")
 @StyleSheet("css/characterStyle.css")
-public class CampaignView extends Div {
+public class CampaignView extends Div implements HasUrlParameter<String> {
+
+    private static final String QUERY_PARAM_CHARACTER = "character";
+    private static final String QUERY_PARAM_CAMPAIGN = "campaign";
+
+    Map<String,List<String>> parameters;
 
     private final List<TextField> fieldArray = new ArrayList<>();
     private final CampaignRepository campaignRepository;
@@ -51,6 +61,8 @@ public class CampaignView extends Div {
         infoDisplayer(infoBox, characters);*/
         add(infoBox);
 
+
+
     }
 
     private void infoDisplayer(Div infoBox, List<Object> list) {
@@ -66,5 +78,26 @@ public class CampaignView extends Div {
             infoGrid.add(infoItem);*/
         });
         infoBox.add(infoGrid);
+    }
+
+    @Override
+    public void setParameter(BeforeEvent beforeEvent,@OptionalParameter String campaignId) {
+        parameters = beforeEvent.getLocation().getQueryParameters().getParameters();
+
+        characterRepository.findByCampaign(campaignRepository.findCampaignById(parameters.get("Campaign").getFirst())).forEach(character -> {
+
+            add(new Button(character.getName(), buttonClickEvent -> {
+                Map<String, List<String>> newParamsMap = new HashMap<>(parameters);
+
+                newParamsMap.put("Character", List.of(character.getId()));
+
+                UI.getCurrent().navigate(CharactersInCampaignView.class,new QueryParameters(newParamsMap));
+
+
+            }));
+        });
+
+
+
     }
 }

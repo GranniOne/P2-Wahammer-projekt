@@ -2,6 +2,7 @@ package com.P2.warhammer.characters;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.users.User;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,6 +33,9 @@ public class Character {
     User user;
     @DocumentReference
     User GameMaster;
+    @DocumentReference
+    Campaign campaign;
+
     String race;
     int age = 0;
 

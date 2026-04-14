@@ -1,5 +1,6 @@
 package com.P2.warhammer.campaigns;
 
+import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.users.UserRepository;
 import  com.P2.warhammer.users.User;
 import org.springframework.data.annotation.Id;
@@ -56,5 +57,13 @@ public class Campaign {
 
     public void setPlayers(List<User> players) {
         this.players = players;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
