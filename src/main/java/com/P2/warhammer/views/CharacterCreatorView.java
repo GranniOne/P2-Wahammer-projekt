@@ -3,6 +3,8 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.characteristics.Characteristic;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -114,7 +116,7 @@ public class CharacterCreatorView extends Div {
         add(statBox);
     }
     private void InfoCreator(Skill skill, Div infoBoxParent) {
-        Div infoBoxTextContainer = getDiv(skill);
+        Div infoBoxTextContainer = getSkillDiv(skill);
 
         Button closeInfoButton = new Button("X", e -> {
             infoBoxParent.setVisible(false);
@@ -137,7 +139,7 @@ public class CharacterCreatorView extends Div {
         add(infoBoxParent);
     }
 
-    private @NonNull Div getDiv(Skill skill) {
+    private @NonNull Div getSkillDiv(Skill skill) {
         Div infoBoxTextContainer = new Div();
         Div infoLine1 = new Div(new Text(skill.getCategory()));
         Div infoLine2 = new Div(new Text(skill.getName()));
@@ -148,4 +150,24 @@ public class CharacterCreatorView extends Div {
         return infoBoxTextContainer;
     }
 
+    /*
+    //I KNOW AT MAN KAN GØRE DE HER FUNKTIONER TIL EN JEG TESTER NOGET
+    private @NonNull Div getTalentDiv(Talent talent) {
+        Div infoBoxTextContainer = new Div();
+        Div infoLine1 = new Div(new Text(talent.getCategory()));
+        Div infoLine2 = new Div(new Text(talent.getName()));
+        Div infoLine3 = new Div(new Text(talent.getCharacteristic()));
+        Div infoLine4 = new Div(new Text(talent.getDescription()));
+        infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4);
+        return infoBoxTextContainer;
+    }
+
+    private @NonNull Div getCharacteristicDiv(Characteristic characteristic) {
+        Div infoBoxTextContainer = new Div();
+        Div infoLine1 = new Div(new Text(characteristic.getCategory()));
+        Div infoLine2 = new Div(new Text(characteristic.getName()));
+        infoBoxTextContainer.add(infoLine1, infoLine2);
+        return infoBoxTextContainer;
+    }
+*/
 }

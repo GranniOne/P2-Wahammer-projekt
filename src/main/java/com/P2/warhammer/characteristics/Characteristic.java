@@ -5,12 +5,15 @@ public class Characteristic {
     int base;
     int modifier;
     int penalty;
+    String name;
 
-    public Characteristic(int base, int modifier, int penalty){
+    public Characteristic(int base, int modifier, int penalty, String name){
         this.base = base;
         this.modifier = modifier;
         this.penalty = penalty;
     }
+    public String getCategory() {return "Characteristic";}
+
     public int getBase() {
         return base;
     }
@@ -33,5 +36,13 @@ public class Characteristic {
 
     public void setPenalty(int penalty) {
         this.penalty = penalty;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
