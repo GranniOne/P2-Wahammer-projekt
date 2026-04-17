@@ -1,0 +1,25 @@
+package com.P2.warhammer.careers;
+
+
+import com.P2.warhammer.campaigns.Campaign;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+
+@Service
+public class CareerService {
+    private final CareerRepository repository;
+
+    public CareerService(CareerRepository repository) {
+        this.repository = repository;
+    }
+
+    public Career addCareer(String id, String name, List<String> levelCharacterticsList, List<String> levelTrappingsList, List<String> levelStatusList, List<String> levelTalentsList, List<String> levelSkillsList, String socialClass) {
+        return repository.save(new Career(id, name, levelCharacterticsList, levelTrappingsList, levelStatusList, levelTalentsList, levelSkillsList, socialClass));
+    }
+
+    public List<Career> getAllCareers() {
+        return repository.findAll();
+    }
+}

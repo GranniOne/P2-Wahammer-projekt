@@ -3,8 +3,11 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.careers.Career;
+import com.P2.warhammer.careers.CareerRepository;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.TextField;
@@ -24,11 +27,16 @@ import java.util.List;
 public class CharacterCreatorView extends Div {
     private final List<TextField> baseFieldArray = new ArrayList<>();
     private final List<TextField> modFieldArray = new ArrayList<>();
+    private final List<Button> skillButtonArray = new ArrayList<>();
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
-    public CharacterCreatorView(SkillRepository skillRepository) {
+    private final CareerRepository careerRepository;
+    private final List<Career> careers;
+    public CharacterCreatorView(SkillRepository skillRepository, CareerRepository careerRepository) {
         this.skillRepository = skillRepository;
         this.skills = skillRepository.findAll();
+        this.careerRepository = careerRepository;
+        this.careers = careerRepository.findAll();
 
         setClassName("div-page");
         getStyle().set("position", "relative");
@@ -50,21 +58,22 @@ public class CharacterCreatorView extends Div {
         Todo : advanved / basic (category)
         Todo : description
         */
+
+        add(CareerBox());
         CharacterSkillsGeneration(statBox,infoBoxParent);
-
-
-
-
 
 
     }
 
-    private TextField createField(List<TextField> modFieldArray) {
+
+    //TODO FIND UD AF HVORDAN MAN ENFORCER STØRRELSEN. Så vidt jeg kan læse mig til kan man skrive som jeg har gjort men jeg kan ikke få den til at stoppe en i at skrive for stort, kun bogstaver.
+    private TextField createField(String size, int max) {
         TextField statField = new TextField();
         statField.setRequiredIndicatorVisible(true);
         statField.setAllowedCharPattern("[0-9]");
+        statField.setPattern(size);
         statField.setMinLength(1);
-        statField.setMaxLength(2);
+        statField.setMaxLength(max);
         statField.setI18n(new TextField.TextFieldI18n()
                 .setRequiredErrorMessage("Enter a number")
                 .setMaxLengthErrorMessage("Too large"));
@@ -72,8 +81,26 @@ public class CharacterCreatorView extends Div {
         return statField;
     }
 
+    //gets all careers and adds them to a dropdown menu in a div it returns. i will code it such that when you add a career it is saved to the character and then you can change it later.
+    //no multi-jobbing >:(
+    private Div CareerBox(){
+        Div div = new Div();
+
+        ComboBox<String> dropdownMenu = new ComboBox<>("choose a career");
+
+        List<Career> careerList = new ArrayList<>(careers);
+        for (Career career : careerList) {
+            dropdownMenu.getListDataView().addItem(career.getName());
+        }
+        div.add(dropdownMenu);
+        div.add(createField("[1-4]", 4));
+
+        return div;
+    }
+
 
     private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
+
         Div skillGrid = new Div();
 
         skillGrid.getStyle()
@@ -96,16 +123,15 @@ public class CharacterCreatorView extends Div {
                 infoBoxParent.setVisible(true);
             });
             skillItem.add(skillButton);
+            skillButtonArray.add(skillButton);
 
-            TextField baseField = createField(baseFieldArray);
-            TextField modifierField = createField(modFieldArray);
+            TextField baseField = createField("[0-99]", 99);
+            TextField modifierField = createField("[0-99]", 99);
 
             baseFieldArray.add(baseField);
             modFieldArray.add(modifierField);
 
-            createField(modFieldArray);
-
-/*
+           /*
             //TODO denne her skal kun være på characteristics. man kan ikke rulle skills og talents i character creatoren kun i spillearket
             Button randomButton = new Button("roll die", e -> {
                 int randomValue = (int) (Math.random() * 100);
@@ -120,11 +146,13 @@ public class CharacterCreatorView extends Div {
         statBox.add(skillGrid);
         Button saveButton = new Button("Save Character", e -> {
             //TODO save character to database
+            //lige nu printer denne her bare values fra de fields som ikke er tomme
             for (int i = 0; i < baseFieldArray.size(); i++) {
+                String name = skillButtonArray.get(i).getText();
                 String baseValue = baseFieldArray.get(i).getValue();
                 String modValue = modFieldArray.get(i).getValue();
                 if (!baseValue.isEmpty() && !modValue.isEmpty()) {
-                    System.out.println(Integer.parseInt(baseValue)+Integer.parseInt(modValue));
+                    System.out.println(name + ": " + Integer.parseInt(baseValue)+Integer.parseInt(modValue));
                 }
             }
 
