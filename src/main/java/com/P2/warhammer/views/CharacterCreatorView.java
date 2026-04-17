@@ -3,8 +3,6 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
-import com.P2.warhammer.Talents.Talent;
-import com.P2.warhammer.characteristics.Characteristic;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -24,7 +22,8 @@ import java.util.List;
 @Route("characterCreator")
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div {
-    private final List<TextField> fieldArray = new ArrayList<>();
+    private final List<TextField> baseFieldArray = new ArrayList<>();
+    private final List<TextField> modFieldArray = new ArrayList<>();
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
     public CharacterCreatorView(SkillRepository skillRepository) {
@@ -60,6 +59,20 @@ public class CharacterCreatorView extends Div {
 
     }
 
+    private TextField createField(List<TextField> modFieldArray) {
+        TextField statField = new TextField();
+        statField.setRequiredIndicatorVisible(true);
+        statField.setAllowedCharPattern("[0-9]");
+        statField.setMinLength(1);
+        statField.setMaxLength(2);
+        statField.setI18n(new TextField.TextFieldI18n()
+                .setRequiredErrorMessage("Enter a number")
+                .setMaxLengthErrorMessage("Too large"));
+
+        return statField;
+    }
+
+
     private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
         Div skillGrid = new Div();
 
@@ -67,6 +80,8 @@ public class CharacterCreatorView extends Div {
                 .set("display", "grid")
                 .set("grid-template-columns", "repeat(1, 1fr)")
                 .set("gap", "10px");
+
+
         skills.forEach(skill -> {
             Div skillItem = new Div();
             skillItem.getStyle()
@@ -80,24 +95,24 @@ public class CharacterCreatorView extends Div {
                 InfoCreator(skill,infoBoxParent);
                 infoBoxParent.setVisible(true);
             });
+            skillItem.add(skillButton);
 
-            TextField field = new TextField();
-            field.setRequiredIndicatorVisible(true);
-            field.setAllowedCharPattern("[0-9]");
-            field.setMinLength(1);
-            field.setMaxLength(2);
-            field.setI18n(new TextField.TextFieldI18n()
-                    .setRequiredErrorMessage("Enter a number")
-                    .setMaxLengthErrorMessage("Too large"));
-            fieldArray.add(field);
+            TextField baseField = createField(baseFieldArray);
+            TextField modifierField = createField(modFieldArray);
 
-            //TODO denne her roller bare et tal, ikke de terninger man skal rulle med
+            baseFieldArray.add(baseField);
+            modFieldArray.add(modifierField);
+
+            createField(modFieldArray);
+
+/*
+            //TODO denne her skal kun være på characteristics. man kan ikke rulle skills og talents i character creatoren kun i spillearket
             Button randomButton = new Button("roll die", e -> {
                 int randomValue = (int) (Math.random() * 100);
-                field.setValue(String.valueOf(randomValue));
+                baseField.setValue(String.valueOf(randomValue));
             });
-
-            skillItem.add(skillButton, field, randomButton);
+*/
+            skillItem.add(skillButton, baseField, modifierField);
             skillGrid.add(skillItem);
         });
 
@@ -105,9 +120,12 @@ public class CharacterCreatorView extends Div {
         statBox.add(skillGrid);
         Button saveButton = new Button("Save Character", e -> {
             //TODO save character to database
-            for (TextField field : fieldArray) {
-                //testing
-                System.out.println(field.getValue());
+            for (int i = 0; i < baseFieldArray.size(); i++) {
+                String baseValue = baseFieldArray.get(i).getValue();
+                String modValue = modFieldArray.get(i).getValue();
+                if (!baseValue.isEmpty() && !modValue.isEmpty()) {
+                    System.out.println(Integer.parseInt(baseValue)+Integer.parseInt(modValue));
+                }
             }
 
         });
@@ -115,6 +133,9 @@ public class CharacterCreatorView extends Div {
 
         add(statBox);
     }
+
+
+
     private void InfoCreator(Skill skill, Div infoBoxParent) {
         Div infoBoxTextContainer = getSkillDiv(skill);
 
