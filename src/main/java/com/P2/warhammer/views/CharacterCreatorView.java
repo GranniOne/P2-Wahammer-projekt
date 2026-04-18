@@ -5,6 +5,7 @@ import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
+import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.vaadin.flow.component.Text;
@@ -19,6 +20,7 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,7 +37,6 @@ public class CharacterCreatorView extends Div {
     private final List<Skill> skills;
     private final CharacterRepository characterRepository;
     private final CareerRepository careerRepository;
-    private final List<TextField> characteristicsList = new ArrayList<>();
     private final List<Career> careers;
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository) {
         this.skillRepository = skillRepository;
@@ -48,26 +49,12 @@ public class CharacterCreatorView extends Div {
         getStyle().set("position", "relative");
 
         Div statBox = new Div();
-        /* TODO : Add content to infobox
-        Todo : skills
-        Todo : talents
-        Todo : stats
-        Todo : advanved / basic (category)
-        Todo : manual / rolled
-        */
 
         Div infoBoxParent = new Div();
-        /* TODO : Add content to infobox
-        Todo : characteristc
-        Todo : name
-        Todo : stats
-        Todo : advanved / basic (category)
-        Todo : description
-        */
 
         add(CareerBox());
         CharacterSkillsGeneration(statBox,infoBoxParent);
-
+        saveCharacterButtonCreator();
 
     }
 
@@ -106,7 +93,7 @@ public class CharacterCreatorView extends Div {
     }
 
 
-    private void characterTest() {
+    private void saveCharacterButtonCreator() {
         TextField nameField = new TextField("Character Name");
         IntegerField ageField = new IntegerField("Character age");
         IntegerField xpField = new IntegerField("Character XP");
@@ -133,9 +120,46 @@ public class CharacterCreatorView extends Div {
 
     private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
 
-        Div skillGrid = new Div();
+        Div characteristicsGrid = new Div();
+        characteristicsGrid.getStyle()
+                .set("display", "grid")
+                .set("grid-template-columns", "repeat(1, 1fr)")
+                .set("gap", "10px");
+
+        List<String> characteristicsStringList = List.of("Weapon skill", "Ballistic skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
+
+        for (String charName : characteristicsStringList){
+            CharacteristicsDiv characteristicsDiv = new CharacteristicsDiv(charName);
+            characteristicsDiv.getStyle()
+                    //.set("display", "grid")
+                    .set("grid-template-columns", "180px 80px 120px")
+                    //.set("flex-direction", "column")
+                    .set("gap", "5px");
+
+            TextField charField = new TextField ();
+            charField.setReadOnly(true);
+            charField.setValue(charName);
+
+            TextField raceField = new TextField ();
+            raceField.setReadOnly(true);
+            raceField.setValue("Species bonus goes here plz fix x3");
+
+            TextField baseField = createField("[0-99]", 99);
+            TextField modifierField = createField("[0-99]", 99);
+            TextField penaltyField = createField("[0-99]", 99);
+            baseFieldArray.add(baseField);
+            modFieldArray.add(modifierField);
 
 
+            characteristicsDiv.add(charField);
+            characteristicsDiv.add(raceField);
+            characteristicsDiv.add(baseField);
+            characteristicsDiv.add(modifierField);
+            characteristicsDiv.add(penaltyField);
+
+
+            characteristicsGrid.add(characteristicsDiv);
+        }
 
 
         /*
@@ -179,6 +203,11 @@ public class CharacterCreatorView extends Div {
 
 
         statBox.add(skillGrid);
+
+        */
+
+
+         /* TODO denne her er sin egen ting xd
         Button saveButton = new Button("Save Character", e -> {
             //TODO save character to database
             //lige nu printer denne her bare values fra de fields som ikke er tomme
@@ -196,6 +225,8 @@ public class CharacterCreatorView extends Div {
 
         statBox.add(saveButton);
  */
+
+        statBox.add(characteristicsGrid);
         add(statBox);
     }
 

@@ -7,7 +7,8 @@ public class Characteristic {
     int penalty;
     String name;
 
-    public Characteristic(int base, int modifier, int penalty, String name){
+    public Characteristic(String name, int base, int modifier, int penalty){
+        this.name = name;
         this.base = base;
         this.modifier = modifier;
         this.penalty = penalty;
