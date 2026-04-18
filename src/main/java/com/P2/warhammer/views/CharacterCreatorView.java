@@ -5,11 +5,14 @@ import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
+import com.P2.warhammer.characters.Character;
+import com.P2.warhammer.characters.CharacterRepository;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -30,12 +33,14 @@ public class CharacterCreatorView extends Div {
     private final List<Button> skillButtonArray = new ArrayList<>();
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
+    private final CharacterRepository characterRepository;
     private final CareerRepository careerRepository;
     private final List<TextField> characteristicsList = new ArrayList<>();
     private final List<Career> careers;
-    public CharacterCreatorView(SkillRepository skillRepository, CareerRepository careerRepository) {
+    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository) {
         this.skillRepository = skillRepository;
         this.skills = skillRepository.findAll();
+        this.characterRepository = characterRepository;
         this.careerRepository = careerRepository;
         this.careers = careerRepository.findAll();
 
@@ -101,6 +106,31 @@ public class CharacterCreatorView extends Div {
     }
 
 
+    private void characterTest() {
+        TextField nameField = new TextField("Character Name");
+        IntegerField ageField = new IntegerField("Character age");
+        IntegerField xpField = new IntegerField("Character XP");
+        add(nameField);
+        add(ageField);
+        add(xpField);
+
+        Button saveButton = new Button("Save Character", e -> {
+            String name = nameField.getValue();
+            Integer age = ageField.getValue();
+            Integer xp = xpField.getValue();
+
+            if (name == null || name.isEmpty()){
+                System.out.println("Name is requried");
+                return;
+            }
+
+            com.P2.warhammer.characters.Character character = new Character(name,null,null, age, xp);
+            characterRepository.save(character);
+            System.out.println("Saved Charachter: " + character.getName());
+        });
+        add(saveButton);
+    }
+
     private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
 
         Div skillGrid = new Div();
@@ -163,9 +193,9 @@ public class CharacterCreatorView extends Div {
 
         });
 
- */
-        statBox.add(saveButton);
 
+        statBox.add(saveButton);
+ */
         add(statBox);
     }
 

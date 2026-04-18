@@ -29,8 +29,8 @@ public class CharacterService {
      * @return
      */
 
-    public Character CreateAndAddCharacter(String name, User user, User GameMaster) {
-        return repository.save(new Character(name, user, GameMaster));
+    public Character CreateAndAddCharacter(String name, User user, User GameMaster, int age, int xp) {
+        return repository.save(new Character(name, user, GameMaster, age, xp));
 
     }
     public Character addCharacter(Character character) {
