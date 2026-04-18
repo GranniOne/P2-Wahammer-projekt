@@ -124,7 +124,8 @@ public class CharacterCreatorView extends Div {
         characteristicsGrid.getStyle()
                 .set("display", "grid")
                 .set("grid-template-columns", "repeat(1, 1fr)")
-                .set("gap", "10px");
+                .set("color", "blue");
+
 
         List<String> characteristicsStringList = List.of("Weapon skill", "Ballistic skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
 
@@ -133,10 +134,8 @@ public class CharacterCreatorView extends Div {
             characteristicsMap.put(charName, charDiv);
 
             charDiv.getStyle()
-                    //.set("display", "grid")
                     .set("grid-template-columns", "180px 80px 120px")
-                    //.set("flex-direction", "column")
-                    .set("gap", "5px");
+                    .set("background-color", "#F5A3BE");
 
             TextField charField = new TextField ();
             charField.setReadOnly(true);
@@ -165,6 +164,8 @@ public class CharacterCreatorView extends Div {
             CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
             if (skillGrid != null) {
                 Div skillDiv = new Div();
+
+                skillDiv.getStyle().set("background-color", "#F5B0A3");
 
                 Button skillButton = new Button(skill.getName(), e -> {
                     infoBoxParent.removeAll();
@@ -270,7 +271,7 @@ public class CharacterCreatorView extends Div {
             infoBoxParent.setVisible(false);
         });
 
-        infoBoxParent.getStyle().set("background-color", "white").
+        infoBoxParent.getStyle().set("background-color", "#474747").
                 set("top", "0").
                 set("bottom", "0").
                 setWidth("33vw").
