@@ -3,7 +3,6 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.campaigns.CampaignRepository;
-import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.vaadin.flow.component.dependency.StyleSheet;

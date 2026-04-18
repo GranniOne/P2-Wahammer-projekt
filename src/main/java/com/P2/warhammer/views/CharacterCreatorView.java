@@ -31,6 +31,7 @@ public class CharacterCreatorView extends Div {
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
     private final CareerRepository careerRepository;
+    private final List<TextField> characteristicsList = new ArrayList<>();
     private final List<Career> careers;
     public CharacterCreatorView(SkillRepository skillRepository, CareerRepository careerRepository) {
         this.skillRepository = skillRepository;
@@ -88,8 +89,9 @@ public class CharacterCreatorView extends Div {
 
         ComboBox<String> dropdownMenu = new ComboBox<>("choose a career");
 
-        List<Career> careerList = new ArrayList<>(careers);
-        for (Career career : careerList) {
+        System.out.println("her");
+        for (Career career : careers) {
+            System.out.println(career.getName());
             dropdownMenu.getListDataView().addItem(career.getName());
         }
         div.add(dropdownMenu);
@@ -103,11 +105,14 @@ public class CharacterCreatorView extends Div {
 
         Div skillGrid = new Div();
 
+
+
+
+        /*
         skillGrid.getStyle()
                 .set("display", "grid")
                 .set("grid-template-columns", "repeat(1, 1fr)")
                 .set("gap", "10px");
-
 
         skills.forEach(skill -> {
             Div skillItem = new Div();
@@ -137,7 +142,7 @@ public class CharacterCreatorView extends Div {
                 int randomValue = (int) (Math.random() * 100);
                 baseField.setValue(String.valueOf(randomValue));
             });
-*/
+
             skillItem.add(skillButton, baseField, modifierField);
             skillGrid.add(skillItem);
         });
@@ -157,6 +162,8 @@ public class CharacterCreatorView extends Div {
             }
 
         });
+
+ */
         statBox.add(saveButton);
 
         add(statBox);

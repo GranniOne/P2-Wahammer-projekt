@@ -1,9 +1,7 @@
 package com.P2.warhammer.careers;
 
 
-import com.P2.warhammer.campaigns.Campaign;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 
