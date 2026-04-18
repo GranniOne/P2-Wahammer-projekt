@@ -22,7 +22,9 @@ import org.jspecify.annotations.NonNull;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @PermitAll
@@ -79,16 +81,13 @@ public class CharacterCreatorView extends Div {
     private Div CareerBox(){
         Div div = new Div();
 
-        ComboBox<String> dropdownMenu = new ComboBox<>("choose a career");
+        ComboBox<Career> dropdownMenu = new ComboBox<>("choose a career");
 
-        System.out.println("her");
-        for (Career career : careers) {
-            System.out.println(career.getName());
-            dropdownMenu.getListDataView().addItem(career.getName());
-        }
+        dropdownMenu.setItems(careers);
+        dropdownMenu.setItemLabelGenerator(Career::getName);
+
         div.add(dropdownMenu);
-        div.add(createField("[1-4]", 4));
-
+        div.add(createField("[1-4]", 1));
         return div;
     }
 
@@ -120,6 +119,7 @@ public class CharacterCreatorView extends Div {
 
     private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
 
+        Map<String, CharacteristicsDiv> characteristicsMap = new HashMap<>();
         Div characteristicsGrid = new Div();
         characteristicsGrid.getStyle()
                 .set("display", "grid")
@@ -129,8 +129,10 @@ public class CharacterCreatorView extends Div {
         List<String> characteristicsStringList = List.of("Weapon skill", "Ballistic skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
 
         for (String charName : characteristicsStringList){
-            CharacteristicsDiv characteristicsDiv = new CharacteristicsDiv(charName);
-            characteristicsDiv.getStyle()
+            CharacteristicsDiv charDiv = new CharacteristicsDiv(charName);
+            characteristicsMap.put(charName, charDiv);
+
+            charDiv.getStyle()
                     //.set("display", "grid")
                     .set("grid-template-columns", "180px 80px 120px")
                     //.set("flex-direction", "column")
@@ -144,22 +146,51 @@ public class CharacterCreatorView extends Div {
             raceField.setReadOnly(true);
             raceField.setValue("Species bonus goes here plz fix x3");
 
-            TextField baseField = createField("[0-99]", 99);
-            TextField modifierField = createField("[0-99]", 99);
-            TextField penaltyField = createField("[0-99]", 99);
+            TextField baseField = createField("[0-99]", 2);
+            TextField modifierField = createField("[0-99]", 2);
+            TextField penaltyField = createField("[0-99]", 2);
             baseFieldArray.add(baseField);
             modFieldArray.add(modifierField);
 
 
-            characteristicsDiv.add(charField);
-            characteristicsDiv.add(raceField);
-            characteristicsDiv.add(baseField);
-            characteristicsDiv.add(modifierField);
-            characteristicsDiv.add(penaltyField);
+            charDiv.add(charField);
+            charDiv.add(raceField);
+            charDiv.add(baseField);
+            charDiv.add(modifierField);
+            charDiv.add(penaltyField);
 
-
-            characteristicsGrid.add(characteristicsDiv);
         }
+
+        skills.forEach(skill -> {
+            CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
+            if (skillGrid != null) {
+                Div skillDiv = new Div();
+
+                Button skillButton = new Button(skill.getName(), e -> {
+                    infoBoxParent.removeAll();
+                    InfoCreator(skill,infoBoxParent);
+                    infoBoxParent.setVisible(true);
+                });
+
+                TextField charValueField = new TextField ();
+                charValueField.setReadOnly(true);
+                charValueField.setValue("Characteristic value goes here");
+
+                TextField baseField = createField("[0-99]", 2);
+                TextField modifierField = createField("[0-99]", 2);
+                TextField penaltyField = createField("[0-99]", 2);
+
+                skillDiv.add(skillButton);
+                skillDiv.add(charValueField);
+                skillDiv.add(baseField);
+                skillDiv.add(modifierField);
+                skillDiv.add(penaltyField);
+
+                skillGrid.add(skillDiv);
+            }
+            });
+
+        characteristicsMap.values().forEach(characteristicsGrid::add); //foreach my beloved ❤️❤️❤️ ⸜(｡˃ ᵕ ˂ )⸝♡ °❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･
 
 
         /*
@@ -184,8 +215,8 @@ public class CharacterCreatorView extends Div {
             skillItem.add(skillButton);
             skillButtonArray.add(skillButton);
 
-            TextField baseField = createField("[0-99]", 99);
-            TextField modifierField = createField("[0-99]", 99);
+            TextField baseField = createField("[0-99]", 2);
+            TextField modifierField = createField("[0-99]", 2);
 
             baseFieldArray.add(baseField);
             modFieldArray.add(modifierField);
@@ -239,7 +270,7 @@ public class CharacterCreatorView extends Div {
             infoBoxParent.setVisible(false);
         });
 
-        infoBoxParent.getStyle().set("background-color", "#474747").
+        infoBoxParent.getStyle().set("background-color", "white").
                 set("top", "0").
                 set("bottom", "0").
                 setWidth("33vw").

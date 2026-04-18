@@ -1,10 +1,12 @@
 package com.P2.warhammer.careers;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Document(collection = "careers")
 public class Career {
     @Id
     private String Id;
@@ -26,6 +28,7 @@ public class Career {
     List<String> levelSkillsList = new ArrayList<>();
     String socialClass = "";
 
+    public Career () {}
 
     //TODO add name, status, social class, talents, skills, characteristics, trappings
 
@@ -93,9 +96,9 @@ public class Career {
         this.socialClass = socialClass;
     }
 
-    public Career(String id, String name, List<String> levelCharacterticsList, List<String> levelTrappingsList, List<String> levelStatusList, List<String> levelTalentsList, List<String> levelSkillsList, String socialClass) {
-        Id = id;
-        Name = name;
+    public Career(String Id, String Name, List<String> levelCharacterticsList, List<String> levelTrappingsList, List<String> levelStatusList, List<String> levelTalentsList, List<String> levelSkillsList, String socialClass) {
+        Id = Id;
+        Name = Name;
         this.levelCharacterticsList = levelCharacterticsList;
         this.levelTrappingsList = levelTrappingsList;
         this.levelStatusList = levelStatusList;
