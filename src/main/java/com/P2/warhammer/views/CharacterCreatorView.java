@@ -1,6 +1,5 @@
 package com.P2.warhammer.views;
 
-
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
 import com.P2.warhammer.careers.Career;
@@ -40,6 +39,7 @@ public class CharacterCreatorView extends Div {
     private final CharacterRepository characterRepository;
     private final CareerRepository careerRepository;
     private final List<Career> careers;
+
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository) {
         this.skillRepository = skillRepository;
         this.skills = skillRepository.findAll();
@@ -60,8 +60,6 @@ public class CharacterCreatorView extends Div {
 
     }
 
-
-    //TODO FIND UD AF HVORDAN MAN ENFORCER STØRRELSEN. Så vidt jeg kan læse mig til kan man skrive som jeg har gjort men jeg kan ikke få den til at stoppe en i at skrive for stort, kun bogstaver.
     private TextField createField(String size, int max) {
         TextField statField = new TextField();
         statField.setRequiredIndicatorVisible(true);
@@ -110,12 +108,38 @@ public class CharacterCreatorView extends Div {
                 return;
             }
 
-            com.P2.warhammer.characters.Character character = new Character(name,null,null, age, xp);
+            Character character = new Character(name,null,null, age, xp);
             characterRepository.save(character);
             System.out.println("Saved Charachter: " + character.getName());
         });
         add(saveButton);
     }
+
+    //TODO vi skal opdatere UI'en og køre denne her funktion for at vise
+    private void SetCharacteristics(int level, Career career){
+        List<String> careerCharacteristicList = career.getLevelCharacterticsList();
+        List<String> characterCharacteristicList = new ArrayList<>();
+        for (int i = 0; i < level+2 && i < careerCharacteristicList.size(); i++) {
+            characterCharacteristicList.add(careerCharacteristicList.get(i));
+        }
+    }
+
+    private void SetTalents(int level, Career career){
+        List<String> careerTalentList = career.getLevelTalentsList();
+        List<String> characterTalentList = new ArrayList<>();
+        for (int i = 0; i < level+2 && i < careerTalentList.size(); i++) {
+            characterTalentList.add(careerTalentList.get(i));
+        }
+    }
+
+    private void SetSkills(int level, Career career){
+        List<String> careerSkillList = career.getLevelSkillsList();
+        List<String> characterSkillList = new ArrayList<>();
+        for (int i = 0; i < level+2 && i < careerSkillList.size(); i++) {
+            characterSkillList.add(careerSkillList.get(i));
+        }
+    }
+
 
     private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
 
