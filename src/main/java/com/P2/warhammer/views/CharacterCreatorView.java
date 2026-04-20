@@ -7,6 +7,7 @@ import com.P2.warhammer.careers.CareerRepository;
 import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -40,6 +41,7 @@ public class CharacterCreatorView extends Div {
     private final CareerRepository careerRepository;
     private final List<Career> careers;
 
+
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository) {
         this.skillRepository = skillRepository;
         this.skills = skillRepository.findAll();
@@ -54,8 +56,10 @@ public class CharacterCreatorView extends Div {
 
         Div infoBoxParent = new Div();
 
-        add(CareerBox());
-        CharacterSkillsGeneration(statBox,infoBoxParent);
+        add(CareerBox(statBox, infoBoxParent));
+
+        //commented out as we only need to see these elements when a career is chosen
+        //CharacterSkillsGeneration(statBox,infoBoxParent);
         saveCharacterButtonCreator();
 
     }
@@ -74,9 +78,17 @@ public class CharacterCreatorView extends Div {
         return statField;
     }
 
+    private void reRenderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent){
+        System.out.println("Value changed to " + e.getValue());
+        //TODO Set characteristics, skills and talents
+
+        statBox.removeAll();
+        CharacterSkillsGeneration(statBox,infoBoxParent);
+    }
+
     //gets all careers and adds them to a dropdown menu in a div it returns. i will code it such that when you add a career it is saved to the character and then you can change it later.
     //no multi-jobbing >:(
-    private Div CareerBox(){
+    private Div CareerBox(Div statBox, Div infoBoxParent){
         Div div = new Div();
 
         ComboBox<Career> dropdownMenu = new ComboBox<>("choose a career");
@@ -86,9 +98,15 @@ public class CharacterCreatorView extends Div {
 
         div.add(dropdownMenu);
         div.add(createField("[1-4]", 1));
+
+        //adds listener so the skills talents and characteristics can change when another career is selected
+        dropdownMenu.addValueChangeListener(e ->
+            reRenderCharSkillsTalent(e, statBox, infoBoxParent)
+        );
+
+
         return div;
     }
-
 
     private void saveCharacterButtonCreator() {
         TextField nameField = new TextField("Character Name");
@@ -140,49 +158,8 @@ public class CharacterCreatorView extends Div {
         }
     }
 
-
-    private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
-
-        Map<String, CharacteristicsDiv> characteristicsMap = new HashMap<>();
-        Div characteristicsGrid = new Div();
-        characteristicsGrid.getStyle()
-                .set("display", "grid")
-                .set("grid-template-columns", "repeat(1, 1fr)")
-                .set("color", "blue");
-
-
-        List<String> characteristicsStringList = List.of("Weapon skill", "Ballistic skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
-
-        for (String charName : characteristicsStringList){
-            CharacteristicsDiv charDiv = new CharacteristicsDiv(charName);
-            characteristicsMap.put(charName, charDiv);
-
-            charDiv.getStyle()
-                    .set("grid-template-columns", "180px 80px 120px")
-                    .set("background-color", "#F5A3BE");
-
-            TextField charField = new TextField ();
-            charField.setReadOnly(true);
-            charField.setValue(charName);
-
-            TextField raceField = new TextField ();
-            raceField.setReadOnly(true);
-            raceField.setValue("Species bonus goes here plz fix x3");
-
-            TextField baseField = createField("[0-99]", 2);
-            TextField modifierField = createField("[0-99]", 2);
-            TextField penaltyField = createField("[0-99]", 2);
-            baseFieldArray.add(baseField);
-            modFieldArray.add(modifierField);
-
-
-            charDiv.add(charField);
-            charDiv.add(raceField);
-            charDiv.add(baseField);
-            charDiv.add(modifierField);
-            charDiv.add(penaltyField);
-
-        }
+    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid){
+        //TODO make this loop only run for race skills and career skills
 
         skills.forEach(skill -> {
             CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
@@ -204,7 +181,6 @@ public class CharacterCreatorView extends Div {
                 TextField baseField = createField("[0-99]", 2);
                 TextField modifierField = createField("[0-99]", 2);
                 TextField penaltyField = createField("[0-99]", 2);
-
                 skillDiv.add(skillButton);
                 skillDiv.add(charValueField);
                 skillDiv.add(baseField);
@@ -213,9 +189,59 @@ public class CharacterCreatorView extends Div {
 
                 skillGrid.add(skillDiv);
             }
-            });
+        });
 
         characteristicsMap.values().forEach(characteristicsGrid::add); //foreach my beloved ❤️❤️❤️ ⸜(｡˃ ᵕ ˂ )⸝♡ °❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･
+    }
+
+    //renders characteristics and puts them into a hashmap used for skills rendering
+    private void renderCharacteristics(String characteristicName, Map<String, CharacteristicsDiv> characteristicsMap){
+        CharacteristicsDiv charDiv = new CharacteristicsDiv(characteristicName);
+        characteristicsMap.put(characteristicName, charDiv);
+
+        charDiv.getStyle()
+                .set("grid-template-columns", "180px 80px 120px")
+                .set("background-color", "#F5A3BE");
+
+        TextField charField = new TextField ();
+        charField.setReadOnly(true);
+        charField.setValue(characteristicName);
+
+        TextField raceField = new TextField ();
+        raceField.setReadOnly(true);
+        raceField.setValue("Species bonus goes here plz fix x3");
+
+        TextField baseField = createField("[0-99]", 2);
+        TextField modifierField = createField("[0-99]", 2);
+        TextField penaltyField = createField("[0-99]", 2);
+        baseFieldArray.add(baseField);
+        modFieldArray.add(modifierField);
+
+
+        charDiv.add(charField);
+        charDiv.add(raceField);
+        charDiv.add(baseField);
+        charDiv.add(modifierField);
+        charDiv.add(penaltyField);
+    }
+
+    private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
+
+        //initializes hashmap for characteristics. used to put skills into characteristics
+        Map<String, CharacteristicsDiv> characteristicsMap = new HashMap<>();
+        Div characteristicsGrid = new Div();
+        characteristicsGrid.getStyle()
+                .set("display", "grid")
+                .set("grid-template-columns", "repeat(1, 1fr)")
+                .set("color", "blue");
+
+        //add characteristics to hashmap and create visual elements
+        List<String> characteristicsStringList = List.of("Weapon skill", "Ballistic skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
+        for (String characteristicName : characteristicsStringList){
+           renderCharacteristics(characteristicName, characteristicsMap);
+        }
+
+        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid);
 
 
         /*
@@ -262,7 +288,6 @@ public class CharacterCreatorView extends Div {
 
         */
 
-
          /* TODO denne her er sin egen ting xd
         Button saveButton = new Button("Save Character", e -> {
             //TODO save character to database
@@ -284,6 +309,7 @@ public class CharacterCreatorView extends Div {
 
         statBox.add(characteristicsGrid);
         add(statBox);
+        System.out.println(statBox);
     }
 
 
