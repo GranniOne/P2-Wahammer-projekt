@@ -1,5 +1,7 @@
 package com.P2.warhammer.views;
 
+import com.P2.warhammer.Race.Race;
+import com.P2.warhammer.Race.RaceRepository;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
 import com.P2.warhammer.careers.Career;
@@ -35,18 +37,29 @@ public class CharacterCreatorView extends Div {
     private final List<Button> skillButtonArray = new ArrayList<>();
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
+
     private final CharacterRepository characterRepository;
+
     private final CareerRepository careerRepository;
     private final List<Career> careers;
+
+    private final RaceRepository raceRepository;
+    private final List<Race> race;
+
     Map<String, ArrayList<TextField>> characteristicValues = new HashMap<>();
 
 
-    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository) {
+    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository) {
         this.skillRepository = skillRepository;
         this.skills = skillRepository.findAll();
+
         this.characterRepository = characterRepository;
+
         this.careerRepository = careerRepository;
         this.careers = careerRepository.findAll();
+
+        this.raceRepository = raceRepository;
+        this.race = raceRepository.findAll();
 
         setClassName("div-page");
         getStyle().set("position", "relative");
@@ -55,12 +68,12 @@ public class CharacterCreatorView extends Div {
 
         Div infoBoxParent = new Div();
 
+        saveCharacterButtonCreator();
+        add(RaceBox());
         add(CareerBox(statBox, infoBoxParent));
 
         //commented out as we only need to see these elements when a career is chosen
         //CharacterSkillsGeneration(statBox,infoBoxParent);
-        saveCharacterButtonCreator();
-
     }
 
     private TextField createField(String size, int max) {
@@ -83,6 +96,18 @@ public class CharacterCreatorView extends Div {
 
         statBox.removeAll();
         CharacterSkillsGeneration(statBox,infoBoxParent);
+    }
+
+    private Div RaceBox(){
+        Div div1 = new Div();
+
+        ComboBox<Race> dropdownMenu = new ComboBox<>("choose a Race");
+
+        dropdownMenu.setItems(race.stream().filter(r -> r.getRace() != null && !r.getRace().isBlank()).toList());
+        dropdownMenu.setItemLabelGenerator(Race::getRace);
+
+        div1.add(dropdownMenu);
+        return div1;
     }
 
     //gets all careers and adds them to a dropdown menu in a div it returns. i will code it such that when you add a career it is saved to the character and then you can change it later.
