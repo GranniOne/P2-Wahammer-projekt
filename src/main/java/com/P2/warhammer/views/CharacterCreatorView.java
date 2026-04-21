@@ -4,6 +4,7 @@ import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
+import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
@@ -20,7 +21,6 @@ import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
 
-import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,14 +32,13 @@ import java.util.Map;
 @Route("characterCreator")
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div {
-    private final List<TextField> baseFieldArray = new ArrayList<>();
-    private final List<TextField> modFieldArray = new ArrayList<>();
     private final List<Button> skillButtonArray = new ArrayList<>();
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
     private final CharacterRepository characterRepository;
     private final CareerRepository careerRepository;
     private final List<Career> careers;
+    Map<String, ArrayList<TextField>> characteristicValues = new HashMap<>();
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository) {
@@ -78,7 +77,7 @@ public class CharacterCreatorView extends Div {
         return statField;
     }
 
-    private void reRenderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent){
+    private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent){
         System.out.println("Value changed to " + e.getValue());
         //TODO Set characteristics, skills and talents
 
@@ -101,12 +100,31 @@ public class CharacterCreatorView extends Div {
 
         //adds listener so the skills talents and characteristics can change when another career is selected
         dropdownMenu.addValueChangeListener(e ->
-            reRenderCharSkillsTalent(e, statBox, infoBoxParent)
+            renderCharSkillsTalent(e, statBox, infoBoxParent)
         );
 
 
         return div;
     }
+
+    private Map<String, Characteristic> characterHashmapCharacteristics(){
+
+        Map<String, Characteristic> characterHashmapCharacteristics = new HashMap<>();
+
+        for (Map.Entry<String, ArrayList<TextField>> characteristicElement : characteristicValues.entrySet()) {
+            String key = characteristicElement.getKey();
+            ArrayList<TextField> values = characteristicElement.getValue();
+            int baseValue = Integer.parseInt(String.valueOf(values.get(0)));
+            int modifierValue = Integer.parseInt(String.valueOf(values.get(1)));
+            int penaltyValue = Integer.parseInt(String.valueOf(values.get(2)));
+
+            Characteristic characteristic = new Characteristic(key, baseValue, modifierValue, penaltyValue);
+
+            characterHashmapCharacteristics.put(key, characteristic);
+        }
+        return characterHashmapCharacteristics;
+    }
+
 
     private void saveCharacterButtonCreator() {
         TextField nameField = new TextField("Character Name");
@@ -122,11 +140,18 @@ public class CharacterCreatorView extends Div {
             Integer xp = xpField.getValue();
 
             if (name == null || name.isEmpty()){
-                System.out.println("Name is requried");
-                return;
+                name = " 'no name was entered' ";
+            }
+            if (age <= 0){
+                age = 0;
+            }
+            if (xp <= 0){
+                xp = 0;
             }
 
-            Character character = new Character(name,null,null, age, xp);
+
+
+            Character character = new Character(name,null,null, age, xp, characterHashmapCharacteristics());
             characterRepository.save(character);
             System.out.println("Saved Charachter: " + character.getName());
         });
@@ -214,9 +239,16 @@ public class CharacterCreatorView extends Div {
         TextField baseField = createField("[0-99]", 2);
         TextField modifierField = createField("[0-99]", 2);
         TextField penaltyField = createField("[0-99]", 2);
-        baseFieldArray.add(baseField);
-        modFieldArray.add(modifierField);
 
+
+        ArrayList<TextField> fieldArray = new ArrayList<> (
+            List.of(
+                baseField,
+                modifierField,
+                penaltyField
+            )
+        );
+        characteristicValues.put(characteristicName, fieldArray);
 
         charDiv.add(charField);
         charDiv.add(raceField);
@@ -311,8 +343,6 @@ public class CharacterCreatorView extends Div {
         add(statBox);
         System.out.println(statBox);
     }
-
-
 
     private void InfoCreator(Skill skill, Div infoBoxParent) {
         Div infoBoxTextContainer = getSkillDiv(skill);

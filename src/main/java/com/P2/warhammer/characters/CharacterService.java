@@ -1,8 +1,10 @@
 package com.P2.warhammer.characters;
 
+import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.users.User;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -29,8 +31,8 @@ public class CharacterService {
      * @return
      */
 
-    public Character CreateAndAddCharacter(String name, User user, User GameMaster, int age, int xp) {
-        return repository.save(new Character(name, user, GameMaster, age, xp));
+    public Character CreateAndAddCharacter(String name, User user, User GameMaster, int age, int xp, Map<String, Characteristic> characteristicsmap) {
+        return repository.save(new Character(name, user, GameMaster, age, xp, characteristicsmap));
 
     }
     public Character addCharacter(Character character) {

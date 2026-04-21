@@ -3,7 +3,7 @@ package com.P2.warhammer.Talents;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "skills")
+@Document(collection = "talents")
 public class Talent {
 
     @Id
