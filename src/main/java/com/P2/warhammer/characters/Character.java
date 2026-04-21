@@ -64,12 +64,12 @@ public class Character {
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    public Character(String name, User user, User GameMaster, Integer age, Integer xp) {
+    public Character(String name, User user, User GameMaster, Integer age, Integer experience) {
         this.name = name;
         this.user = user;
         this.GameMaster = GameMaster;
         this.age = age;
-        this.experience = xp;
+        this.experience = experience;
 
         //sets all armour values to zero
         for (int i = 1; i <= 5; i++) {
