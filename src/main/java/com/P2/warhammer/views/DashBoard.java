@@ -110,6 +110,13 @@ public class DashBoard extends Div implements BeforeEnterObserver {
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         if(beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("continue")){
 
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+                System.out.println("BOobies");
+            }
+
+                    System.out.println("S");
         }
 
     }
