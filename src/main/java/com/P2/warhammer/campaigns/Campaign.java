@@ -27,8 +27,10 @@ public class Campaign {
     User gameMaster;
     @DocumentReference
     List<User> players;
+    @DocumentReference
+    List<Character> characters;
 
-    Campaign(String name, User gameMaster){
+    public Campaign(String name, User gameMaster){
         this.name = name;
         this.gameMaster = gameMaster;
         this.players = new ArrayList<>();

@@ -30,6 +30,10 @@ public class CampaignService {
         return repository.findByPlayersContainingOrGameMaster(players, gameMaster);
     }
 
+    public Campaign addCompletedCampaign(Campaign campaign){
+        return repository.save(campaign);
+    }
+
     public List<Campaign> getAllCampaigns() {
         return repository.findAll();
     }

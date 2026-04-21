@@ -1,17 +1,25 @@
 package com.P2.warhammer.utilities;
 
+import com.P2.warhammer.users.User;
+import com.P2.warhammer.users.UserService;
 import com.vaadin.flow.spring.security.VaadinSavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
 /**
  * class providing utility methods that the program needs
  */
+
+@Component
 public class Utilities {
 
-    Utilities(){
+    static UserService userService;
+
+    Utilities(UserService userService){
+        Utilities.userService = userService;
 
     }
 
@@ -35,6 +43,11 @@ public class Utilities {
         successHandler.setDefaultTargetUrl(string);
         successHandler.setAlwaysUseDefaultTargetUrl(true);
         http.setSharedObject(VaadinSavedRequestAwareAuthenticationSuccessHandler.class, successHandler);
+
+    }
+
+    public static User getUserFromAuthentication(){
+        return userService.findFromEmail(SecurityContextHolder.getContext().getAuthentication().getName());
 
     }
 }

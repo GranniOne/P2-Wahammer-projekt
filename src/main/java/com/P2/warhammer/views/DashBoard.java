@@ -8,7 +8,9 @@ import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
+import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
@@ -36,7 +38,7 @@ public class DashBoard extends Div implements BeforeEnterObserver {
     DashBoard(UserService userService, CharacterService  characterService, CampaignService  campaignService) {
         this.userService = userService;
         try{
-            loadedUser = userService.findFromEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+            loadedUser = Utilities.getUserFromAuthentication();
             ownedCharacters =  characterService.getCharactersByUser(loadedUser);
             campaigns = campaignService.getCampaignsByPlayerAndGameMaster(loadedUser,loadedUser);
         }catch (Exception e){
@@ -65,7 +67,8 @@ public class DashBoard extends Div implements BeforeEnterObserver {
 
 
         Div CampaignContent = new Div();
-        Span CampaignTitle = new Span("Campaigns");
+        Div CampaignField = new Div();
+        Span CampaignTitleSpan = new Span("Campaigns");
         Div CampaignCards = new Div();
 
         campaigns.forEach(campaign -> {
@@ -82,13 +85,17 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         characterContent.setClassName("characterContent");
         CampaignContent.setClassName("CampaignContent");
         CharacterTitle.setClassName("CharacterTitle");
-        CampaignTitle.setClassName("CampaignTitle");
+        CampaignField.setClassName("CampaignField");
+        CampaignTitleSpan.setClassName("CampaignTitle");
         CampaignCards.setClassName("CampaignCards");
         CharacterCards.setClassName("CharacterCards");
 
+        CampaignField.add(CampaignTitleSpan,new Button("Add Campaign", event -> {
+            UI.getCurrent().navigate(CampaignCreatorView.class);
+        }));
 
         characterContent.add(CharacterTitle,CharacterCards);
-        CampaignContent.add(CampaignTitle,CampaignCards);
+        CampaignContent.add(CampaignField,CampaignCards);
 
         dashboard.add(characterContent,CampaignContent);
         add(dashboard);
