@@ -3,6 +3,7 @@ package com.P2.warhammer.characters;
 import com.P2.warhammer.Conditions.Condition;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.items.Armour;
 import com.P2.warhammer.items.Weapon;
 import com.P2.warhammer.campaigns.Campaign;
@@ -14,7 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -61,25 +64,30 @@ public class Character {
     List<Talent> talents = new ArrayList<>();
     List<Skill> skills = new ArrayList<>();
     List<Condition> conditions = new ArrayList<>();
-    List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
+
+    private Map<String, Characteristic> characteristicsmap = new HashMap<>();
 
 
-    public Character(String name, User user, User GameMaster, Integer age, Integer xp) {
+    public Character(String name, User user, User GameMaster, Integer age, Integer xp, Map<String, Characteristic> characteristicsmap) {
+        List<String> characteristicsStringList = List.of("Weapon Skill", "Ballistic Skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
         this.name = name;
         this.user = user;
         this.GameMaster = GameMaster;
         this.age = age;
         this.experience = xp;
 
+        for (String label : characteristicsStringList) {
+            characteristicsmap.put(label, new Characteristic(label, 0, 0, 0));
+        }
+
         //sets all armour values to zero
         for (int i = 1; i <= 5; i++) {
             armourValues.add(0);
         }
-        for (int i = 1; i <= 10; i++) {
-            characteristics.add(0);
-        }
 
     }
+
+
 
 
     @Override
@@ -107,7 +115,7 @@ public class Character {
                 ", talents=" + talents +
                 ", skills=" + skills +
                 ", conditions=" + conditions +
-                ", characteristics=" + characteristics +
+                ", characteristics=" + characteristicsmap +
                 '}';
     }
 }
