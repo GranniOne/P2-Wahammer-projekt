@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
+import org.hibernate.validator.internal.constraintvalidators.bv.time.futureorpresent.FutureOrPresentValidatorForJapaneseDate;
 import org.jspecify.annotations.NonNull;
 
 import java.util.ArrayList;
@@ -77,11 +78,20 @@ public class CharacterCreatorView extends Div {
         return statField;
     }
 
-    private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent){
+    private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent, TextField socialClassField, TextField moneyField, TextField levelField){
+        Career currectCareer = (Career) e.getValue();
+        statBox.removeAll();
         System.out.println("Value changed to " + e.getValue());
+
         //TODO Set characteristics, skills and talents
 
-        statBox.removeAll();
+        int level = Integer.parseInt(levelField.getValue());
+
+        socialClassField.setValue(currectCareer.getSocialClass());
+
+        List<String> status = currectCareer.getLevelStatusList();
+
+        moneyField.setValue(status.get(level) + " Brass coins");
         CharacterSkillsGeneration(statBox,infoBoxParent);
     }
 
@@ -90,17 +100,31 @@ public class CharacterCreatorView extends Div {
     private Div CareerBox(Div statBox, Div infoBoxParent){
         Div div = new Div();
 
-        ComboBox<Career> dropdownMenu = new ComboBox<>("choose a career");
+        TextField socialClassField = new TextField();
+        socialClassField.setReadOnly(true);
+        socialClassField.setLabel("Social Class");
+
+        TextField statusField = new TextField();
+        statusField.setReadOnly(true);
+        statusField.setLabel("Status");
+
+        ComboBox<Career> dropdownMenu = new ComboBox<>("Choose a career");
 
         dropdownMenu.setItems(careers);
         dropdownMenu.setItemLabelGenerator(Career::getName);
 
         div.add(dropdownMenu);
-        div.add(createField("[1-4]", 1));
+        TextField levelField = createField("[1-4]", 1);
+        levelField.setLabel("Level");
+        div.add(levelField);
+        div.add(socialClassField);
+        div.add(statusField);
+
+
 
         //adds listener so the skills talents and characteristics can change when another career is selected
         dropdownMenu.addValueChangeListener(e ->
-            renderCharSkillsTalent(e, statBox, infoBoxParent)
+            renderCharSkillsTalent(e, statBox, infoBoxParent, socialClassField, statusField, levelField)
         );
 
 
