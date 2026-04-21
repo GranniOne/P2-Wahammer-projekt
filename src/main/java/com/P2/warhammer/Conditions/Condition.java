@@ -1,4 +1,4 @@
-package com.P2.warhammer.characters;
+package com.P2.warhammer.Conditions;
 
 public class Condition {
 }

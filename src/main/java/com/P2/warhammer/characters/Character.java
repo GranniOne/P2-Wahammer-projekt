@@ -1,7 +1,10 @@
 package com.P2.warhammer.characters;
 
+import com.P2.warhammer.Conditions.Condition;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.items.Armour;
+import com.P2.warhammer.items.Weapon;
 import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.users.User;
 import lombok.Getter;
@@ -38,7 +41,6 @@ public class Character {
 
     String race;
     int age = 0;
-
     int experience = 0;
     int advantage = 0;
     int maxWounds = 0;
@@ -62,10 +64,12 @@ public class Character {
     List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    public Character(String name, User user, User GameMaster) {
+    public Character(String name, User user, User GameMaster, Integer age, Integer xp) {
         this.name = name;
         this.user = user;
         this.GameMaster = GameMaster;
+        this.age = age;
+        this.experience = xp;
 
         //sets all armour values to zero
         for (int i = 1; i <= 5; i++) {
@@ -76,6 +80,7 @@ public class Character {
         }
 
     }
+
 
     @Override
     public String toString() {

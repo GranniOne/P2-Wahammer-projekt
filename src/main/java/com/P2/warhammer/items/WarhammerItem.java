@@ -1,4 +1,4 @@
-package com.P2.warhammer.characters;
+package com.P2.warhammer.items;
 
 import lombok.Getter;
 import lombok.Setter;
