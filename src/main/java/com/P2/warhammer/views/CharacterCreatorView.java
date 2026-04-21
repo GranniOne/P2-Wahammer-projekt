@@ -114,13 +114,16 @@ public class CharacterCreatorView extends Div {
         for (Map.Entry<String, ArrayList<TextField>> characteristicElement : characteristicValues.entrySet()) {
             String key = characteristicElement.getKey();
             ArrayList<TextField> values = characteristicElement.getValue();
-            int baseValue = Integer.parseInt(String.valueOf(values.get(0)));
-            int modifierValue = Integer.parseInt(String.valueOf(values.get(1)));
-            int penaltyValue = Integer.parseInt(String.valueOf(values.get(2)));
+            int baseValue = Integer.parseInt(values.get(0).getValue());
+            int modifierValue = Integer.parseInt(values.get(1).getValue());
+            int penaltyValue = Integer.parseInt(values.get(2).getValue());
 
             Characteristic characteristic = new Characteristic(key, baseValue, modifierValue, penaltyValue);
 
             characterHashmapCharacteristics.put(key, characteristic);
+            System.out.println("success");
+            System.out.println(baseValue + "" + modifierValue + "" + penaltyValue);
+
         }
         return characterHashmapCharacteristics;
     }
