@@ -3,6 +3,8 @@ package com.P2.warhammer.Race;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document(collection = "race")
 
 public class Race {
@@ -28,9 +30,13 @@ public class Race {
     public String getDice() {return dice;}
     public String getSpecies() {return species;}
 
-    public void setId(String id) {this.id = id;}
-    public void setRace(String race){}
-    public void setCareer(String career) {}
-    public void setDice(String dice) {}
-    public void setSpecies(String species) {}
+    public void setRace(String race) {this.race = race;}
+    public void setCareer(String career) {this.career = career;}
+    public void setDice(String dice) {this.dice = dice;}
+    public void setSpecies(String species) {this.species = species;}
+
+    private List<RaceEntry> entries;
+
+    public List<RaceEntry> getEntries() { return entries; }
+    public void setEntries(List<RaceEntry> entries) { this.entries = entries; }
 }

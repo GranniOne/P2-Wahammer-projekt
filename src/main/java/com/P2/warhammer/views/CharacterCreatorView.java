@@ -1,6 +1,7 @@
 package com.P2.warhammer.views;
 
 import com.P2.warhammer.Race.Race;
+import com.P2.warhammer.Race.RaceEntry;
 import com.P2.warhammer.Race.RaceRepository;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
@@ -22,11 +23,11 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.swing.*;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 @PermitAll
@@ -45,6 +46,7 @@ public class CharacterCreatorView extends Div {
 
     private final RaceRepository raceRepository;
     private final List<Race> race;
+    private final List<Race> raceItems;
 
     Map<String, ArrayList<TextField>> characteristicValues = new HashMap<>();
 
@@ -60,6 +62,7 @@ public class CharacterCreatorView extends Div {
 
         this.raceRepository = raceRepository;
         this.race = raceRepository.findAll();
+        this.raceItems = race.stream().filter(r -> r.getRace() != null && !r.getRace().isBlank()).toList();
 
         setClassName("div-page");
         getStyle().set("position", "relative");
@@ -101,12 +104,27 @@ public class CharacterCreatorView extends Div {
     private Div RaceBox(){
         Div div1 = new Div();
 
-        ComboBox<Race> dropdownMenu = new ComboBox<>("choose a Race");
+        ComboBox<String> dropdownMenu = new ComboBox<>("choose a species");
+        dropdownMenu.setItems(raceItems.stream().map(Race::getRace).toList());
 
-        dropdownMenu.setItems(race.stream().filter(r -> r.getRace() != null && !r.getRace().isBlank()).toList());
-        dropdownMenu.setItemLabelGenerator(Race::getRace);
+        Button button1 = new Button("Roll for Species", e -> {
+            int roll = ThreadLocalRandom.current().nextInt(1, 101);
+            System.out.println("Rolled: " + roll);
+
+            Race raceTable = raceRepository.findById("species_table").orElseThrow();
+
+            String result = raceTable.getEntries().stream()
+                    .filter(entry -> roll >= entry.getMin() && roll <= entry.getMax())
+                    .map(RaceEntry::getSpecies)
+                    .findFirst()
+                    .orElse("Unknown");
+
+            System.out.println("Result species: " + result);
+            dropdownMenu.setValue(result);
+        });
 
         div1.add(dropdownMenu);
+        div1.add(button1);
         return div1;
     }
 
