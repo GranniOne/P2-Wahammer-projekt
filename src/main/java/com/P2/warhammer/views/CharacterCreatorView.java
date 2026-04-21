@@ -178,12 +178,12 @@ public class CharacterCreatorView extends Div {
                 charValueField.setReadOnly(true);
                 charValueField.setValue("Characteristic value goes here");
 
-                TextField baseField = createField("[0-99]", 2);
+                //TextField baseField = createField("[0-99]", 2);
                 TextField modifierField = createField("[0-99]", 2);
                 TextField penaltyField = createField("[0-99]", 2);
                 skillDiv.add(skillButton);
                 skillDiv.add(charValueField);
-                skillDiv.add(baseField);
+                //skillDiv.add(baseField);
                 skillDiv.add(modifierField);
                 skillDiv.add(penaltyField);
 
@@ -236,7 +236,7 @@ public class CharacterCreatorView extends Div {
                 .set("color", "blue");
 
         //add characteristics to hashmap and create visual elements
-        List<String> characteristicsStringList = List.of("Weapon skill", "Ballistic skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
+        List<String> characteristicsStringList = List.of("Weapon Skill", "Ballistic Skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
         for (String characteristicName : characteristicsStringList){
            renderCharacteristics(characteristicName, characteristicsMap);
         }
