@@ -5,6 +5,8 @@ import com.P2.warhammer.Race.RaceEntry;
 import com.P2.warhammer.Race.RaceRepository;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.Talents.TalentRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
 import com.P2.warhammer.characteristics.Characteristic;
@@ -22,11 +24,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
-import org.hibernate.validator.internal.constraintvalidators.bv.time.futureorpresent.FutureOrPresentValidatorForJapaneseDate;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.swing.*;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,6 +38,7 @@ public class CharacterCreatorView extends Div {
     private final List<Button> skillButtonArray = new ArrayList<>();
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
+    private final List<Talent> talents;
 
     private final CharacterRepository characterRepository;
 
@@ -46,24 +46,27 @@ public class CharacterCreatorView extends Div {
     private final List<Career> careers;
 
     private final RaceRepository raceRepository;
-    private final List<Race> race;
-    private final List<Race> raceItems;
+    private final List<Race> race, raceItems, careerItem ;
+    private final TalentRepository talentRepository;
 
     Map<String, ArrayList<TextField>> characteristicValues = new HashMap<>();
 
 
-    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository) {
+    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository) {
         this.skillRepository = skillRepository;
         this.skills = skillRepository.findAll();
+        this.talentRepository = talentRepository;
+        this.talents = talentRepository.findAll();
 
         this.characterRepository = characterRepository;
-
-        this.careerRepository = careerRepository;
-        this.careers = careerRepository.findAll();
 
         this.raceRepository = raceRepository;
         this.race = raceRepository.findAll();
         this.raceItems = race.stream().filter(r -> r.getRace() != null && !r.getRace().isBlank()).toList();
+
+        this.careerRepository = careerRepository;
+        this.careers = careerRepository.findAll();
+        this.careerItem = race.stream().filter(r-> r.getCareer() != null && !r.getCareer().isBlank()).toList();
 
         setClassName("div-page");
         getStyle().set("position", "relative");
@@ -101,15 +104,21 @@ public class CharacterCreatorView extends Div {
 
         //TODO Set characteristics, skills and talents
 
+        if (levelField.getValue().isEmpty()){
+            levelField.setValue("1");
+        }
         int level = Integer.parseInt(levelField.getValue());
 
         socialClassField.setValue(currectCareer.getSocialClass());
 
         List<String> status = currectCareer.getLevelStatusList();
 
-        moneyField.setValue(status.get(level) + " Brass coins");
+        moneyField.setValue(status.get(level-1) + " Brass coins");
         CharacterSkillsGeneration(statBox,infoBoxParent);
+        renderTalentElements(statBox);
     }
+
+
 
     private Div RaceBox(){
         Div div1 = new Div();
@@ -219,8 +228,6 @@ public class CharacterCreatorView extends Div {
                 xp = 0;
             }
 
-
-
             Character character = new Character(name,null,null, age, xp, characterHashmapCharacteristics());
             characterRepository.save(character);
             System.out.println("Saved Charachter: " + character.getName());
@@ -265,7 +272,7 @@ public class CharacterCreatorView extends Div {
 
                 Button skillButton = new Button(skill.getName(), e -> {
                     infoBoxParent.removeAll();
-                    InfoCreator(skill,infoBoxParent);
+                    SkillInfoCreator(skill,infoBoxParent);
                     infoBoxParent.setVisible(true);
                 });
 
@@ -287,6 +294,41 @@ public class CharacterCreatorView extends Div {
         });
 
         characteristicsMap.values().forEach(characteristicsGrid::add); //foreach my beloved ❤️❤️❤️ ⸜(｡˃ ᵕ ˂ )⸝♡ °❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･
+    }
+
+    private Div renderTalentElements(Div infoBoxParent){
+        Div characterTalentDiv = new Div();
+        talents.forEach(talent -> {
+
+
+            Div talentDiv = new Div();
+
+            talentDiv.getStyle().set("background-color", "#F5B0A3");
+
+            Button talentButton = new Button(talent.getName(), e -> {
+                infoBoxParent.removeAll();
+                TalentInfoCreator(talent,infoBoxParent);
+                infoBoxParent.setVisible(true);
+            });
+
+            TextField talentTakenField = new TextField ();
+            talentTakenField.setReadOnly(true);
+            talentTakenField.setValue("Talent amount goes here");
+
+            TextField talentMaxField = new TextField ();
+            talentMaxField.setReadOnly(true);
+            talentMaxField.setValue("Max amount of talent goes here");
+
+            talentDiv.add(talentButton);
+
+            talentDiv.add(talentTakenField);
+            talentDiv.add(talentMaxField);
+
+            characterTalentDiv.add(talentDiv);
+
+        });
+
+        return characterTalentDiv;
     }
 
     //renders characteristics and puts them into a hashmap used for skills rendering
@@ -410,11 +452,12 @@ public class CharacterCreatorView extends Div {
  */
 
         statBox.add(characteristicsGrid);
+        statBox.add(renderTalentElements(infoBoxParent));
         add(statBox);
         System.out.println(statBox);
     }
 
-    private void InfoCreator(Skill skill, Div infoBoxParent) {
+    private void SkillInfoCreator(Skill skill, Div infoBoxParent) {
         Div infoBoxTextContainer = getSkillDiv(skill);
 
         Button closeInfoButton = new Button("X", e -> {
@@ -438,6 +481,28 @@ public class CharacterCreatorView extends Div {
         add(infoBoxParent);
     }
 
+    private void TalentInfoCreator(Talent talent, Div infoBoxParent) {
+        Div infoBoxTextContainer = getTalentDiv(talent);
+        Button closeInfoButton = new Button("X", e -> {
+            infoBoxParent.setVisible(false);
+        });
+
+        infoBoxParent.getStyle().set("background-color", "#474747").
+                set("top", "0").
+                set("bottom", "0").
+                setWidth("33vw").
+                set("position", "absolute").
+                set("top", "0").
+                set("right", "0").
+                set("z-index", "10");
+
+
+        infoBoxParent.add(closeInfoButton);
+        infoBoxParent.setVisible(false);
+        infoBoxParent.add(infoBoxTextContainer);
+        add(infoBoxParent);
+    }
+
     private @NonNull Div getSkillDiv(Skill skill) {
         Div infoBoxTextContainer = new Div();
         Div infoLine1 = new Div(new Text(skill.getCategory()));
@@ -449,7 +514,7 @@ public class CharacterCreatorView extends Div {
         return infoBoxTextContainer;
     }
 
-    /*
+
     //I KNOW AT MAN KAN GØRE DE HER FUNKTIONER TIL EN JEG TESTER NOGET
     private @NonNull Div getTalentDiv(Talent talent) {
         Div infoBoxTextContainer = new Div();
@@ -460,7 +525,7 @@ public class CharacterCreatorView extends Div {
         infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4);
         return infoBoxTextContainer;
     }
-
+/*
     private @NonNull Div getCharacteristicDiv(Characteristic characteristic) {
         Div infoBoxTextContainer = new Div();
         Div infoLine1 = new Div(new Text(characteristic.getCategory()));
