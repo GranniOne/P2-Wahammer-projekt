@@ -69,7 +69,6 @@ public class Character {
 
 
     public Character(String name, User user, User gameMaster, Integer age, Integer xp, Map<String, Characteristic> characteristicsmap) {
-        List<String> characteristicsStringList = List.of("Weapon Skill", "Ballistic Skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
         this.name = name;
         this.user = user;
         this.GameMaster = gameMaster;
@@ -77,9 +76,7 @@ public class Character {
         this.experience = xp;
         this.characteristicsmap = characteristicsmap;
 
-        for (String label : characteristicsStringList) {
-            characteristicsmap.put(label, new Characteristic(label, 0, 0, 0));
-        }
+
 
 
         /*
