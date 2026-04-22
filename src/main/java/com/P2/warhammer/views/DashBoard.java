@@ -18,6 +18,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.server.VaadinSession;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
@@ -45,9 +46,7 @@ public class DashBoard extends Div implements BeforeEnterObserver {
             e.printStackTrace();
         }
 
-        campaigns.forEach((campaign) -> {
-            System.out.println(campaign.getName());
-        });
+
         setClassName("dashboard");
         Div dashboard = new Div();
 
@@ -108,15 +107,17 @@ public class DashBoard extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        VaadinSession.getCurrent().setAttribute("user", Utilities.getUserFromAuthentication());
         if(beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("continue")){
-
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-                System.out.println("BOobies");
+
+
+
             }
 
-                    System.out.println("S");
+                  ;
         }
 
     }

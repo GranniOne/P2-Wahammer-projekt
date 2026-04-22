@@ -68,4 +68,23 @@ public class Campaign {
     public void setId(String id) {
         this.id = id;
     }
+
+    public List<Character> getCharacters() {
+        return characters;
+    }
+
+    public void setCharacters(List<Character> characters) {
+        this.characters = characters;
+    }
+
+    @Override
+    public String toString() {
+        return "Campaign{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", gameMaster=" + gameMaster +
+                ", players=" + players +
+                ", characters=" + characters +
+                '}';
+    }
 }
