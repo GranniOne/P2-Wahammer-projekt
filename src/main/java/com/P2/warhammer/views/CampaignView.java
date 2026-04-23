@@ -9,6 +9,7 @@ import com.P2.warhammer.users.User;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
@@ -17,10 +18,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
-import org.bson.types.ObjectId;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @PermitAll
@@ -36,7 +35,6 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
 
     private final CampaignRepository campaignRepository;
     private final CharacterRepository characterRepository;
-
 
     public CampaignView(CampaignRepository campaignRepository, CharacterRepository characterRepository){
 
@@ -63,8 +61,9 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
         parameters = beforeEvent.getLocation().getQueryParameters().getParameters();
         queryParameters = beforeEvent.getLocation().getQueryParameters();
         Campaign currentCampaign = campaignRepository.findCampaignById(parameters.get("Campaign").getFirst());
-        User user = (User)VaadinSession.getCurrent().getAttribute("user");
-
+        User user = Utilities.getUserFromAuthentication();
+        layout.removeAll();
+        header.removeAll();
         if(currentCampaign.getGameMaster().getId().equals(user.getId())){
             List<Character> characters = currentCampaign.getCharacters();
             makeCharactersCards(characters,currentCampaign);

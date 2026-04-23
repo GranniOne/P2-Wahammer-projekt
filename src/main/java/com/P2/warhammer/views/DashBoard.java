@@ -122,7 +122,6 @@ public class DashBoard extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        VaadinSession.getCurrent().setAttribute("user", Utilities.getUserFromAuthentication());
         if(beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("continue")){
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
