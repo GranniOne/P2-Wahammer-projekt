@@ -13,9 +13,9 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.server.VaadinSession;
 import jakarta.annotation.security.PermitAll;
 import org.bson.types.ObjectId;
 
@@ -26,21 +26,29 @@ import java.util.stream.Collectors;
 @PermitAll
 @PageTitle("Campaign view Page")
 @Route("campaign")
-@StyleSheet("css/characterStyle.css")
+@StyleSheet("css/CampaignStyle.css")
 public class CampaignView extends Div implements HasUrlParameter<String> {
-
+    QueryParameters queryParameters;
     Map<String,List<String>> parameters;
+    Div Content = new Div();
+    Div layout = new Div();
+    Div header = new Div();
 
     private final CampaignRepository campaignRepository;
     private final CharacterRepository characterRepository;
 
 
     public CampaignView(CampaignRepository campaignRepository, CharacterRepository characterRepository){
+
         this.campaignRepository = campaignRepository;
         this.characterRepository = characterRepository;
 
         setClassName("div-page");
-        getStyle().set("position", "relative");
+        Content.setClassName("content");
+        layout.setClassName("campaign-view");
+        header.setClassName("header");
+        add(Content);
+
 
 
 
@@ -53,21 +61,26 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
     @Override
     public void setParameter(BeforeEvent beforeEvent,@OptionalParameter String campaignId) {
         parameters = beforeEvent.getLocation().getQueryParameters().getParameters();
+        queryParameters = beforeEvent.getLocation().getQueryParameters();
         Campaign currentCampaign = campaignRepository.findCampaignById(parameters.get("Campaign").getFirst());
         User user = (User)VaadinSession.getCurrent().getAttribute("user");
 
         if(currentCampaign.getGameMaster().getId().equals(user.getId())){
-            List<Character> characters = characterRepository.findByCampaign(campaignRepository.findCampaignById(parameters.get("Campaign").getFirst()));
+            List<Character> characters = currentCampaign.getCharacters();
+            makeCharactersCards(characters,currentCampaign);
 
             ComboBox<Character> comboBox = new ComboBox<>("all characters in campaign");
             comboBox.setItems(characters);
             comboBox.setItemLabelGenerator(Character::getName);
-            add(comboBox);
+            header.add(comboBox);
 
-
+            Content.add(layout);
         }else{
             List<Character> userOwnedCharacters;
+
             userOwnedCharacters = characterRepository.getCharactersByUser(user);
+
+
 
             List<String> existingIds = currentCampaign.getCharacters().stream().map(Character::getId).toList();
 
@@ -84,34 +97,45 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
             ComboBox<Character> comboBox = new ComboBox<>("Select Character to add to campaign");
             comboBox.setItems(availableCharacters);
             comboBox.setItemLabelGenerator(Character::getName);
-            add(comboBox);
-
-
-
-            add(new Button("Add Character", event -> {
+            header.add(comboBox);
+            makeCharactersCards(addedCharacters,currentCampaign);
+            Button addcharacter = new Button("Add character", event -> {
                 currentCampaign.getCharacters().add(comboBox.getValue());
                 campaignRepository.save(currentCampaign);
-                UI.getCurrent().getPage().reload();
+                UI.getCurrent().navigate(CampaignView.class,queryParameters);
+            });
+            header.add(addcharacter);
+            addcharacter.setClassName("add-character");
+            Content.add(header);
+            Content.add(layout);
+        }
+    }
+    private void makeCharactersCards(List<Character> characters, Campaign currentCampaign){
+
+        characters.forEach(character -> {
+            Div buttonToCard =  new Div();
+            Span characterName = new  Span(character.getName());
+            Card card = new Card();
+            card.add(characterName);
+            card.getStyle().set("display","flex").setFlexDirection(Style.FlexDirection.ROW);
+            buttonToCard.getStyle().setGap("200px");
+            buttonToCard.add(new Button("View", event -> {
+                UI.getCurrent().navigate(CharacterView.class,QueryParameters.of("Character",character.getId()));
 
             }));
-            addedCharacters.forEach(character -> {
-                add(new Button(character.getName()));
 
-            });
-        }
+            buttonToCard.add(new Button("Edit", event -> {
 
+            }));
 
-
-
-
-
-
-
-
-
-
-
-
-
+            buttonToCard.add(new Button("Delete", event -> {
+                if(currentCampaign.getCharacters().removeIf(character2 -> character2.getId().equals(character.getId()))){
+                    campaignRepository.save(currentCampaign);
+                    UI.getCurrent().navigate(CampaignView.class,queryParameters);
+                }
+            }));
+            card.add(buttonToCard);
+            layout.add(card);
+        });
     }
 }

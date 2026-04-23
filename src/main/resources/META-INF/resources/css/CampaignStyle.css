@@ -1,0 +1,39 @@
+
+.div-page {
+    display: flex;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    background: yellow;
+    flex-direction: column;
+}
+.content{
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    background: #47ff12;
+    height: 70%;
+    width: 70%;
+}
+
+.campaign-view {
+    height: 100%;
+    width: 100%;
+    background: hotpink;
+    gap: 25px;
+}
+
+
+.header{
+    display: flex;
+    justify-content: center;
+    width: fit-content;
+    align-self: center;
+
+
+}
+.add-character{
+    margin-top: auto;
+    margin-left: 10px;
+}
+

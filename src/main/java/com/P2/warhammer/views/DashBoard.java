@@ -51,7 +51,8 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         Div dashboard = new Div();
 
         Div characterContent = new Div();
-        Span CharacterTitle = new Span("Characters");
+        Div CharacterField = new Div();
+        Span CharacterTitleSpan = new Span("Characters");
         Div CharacterCards = new Div();
 
         ownedCharacters.forEach(character -> {
@@ -83,18 +84,32 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         dashboard.setClassName("dashboardContent");
         characterContent.setClassName("characterContent");
         CampaignContent.setClassName("CampaignContent");
-        CharacterTitle.setClassName("CharacterTitle");
-        CampaignField.setClassName("CampaignField");
+        CampaignField.setClassName("Field");
+        CharacterField.setClassName("Field");
+
+        CharacterTitleSpan.setClassName("CharacterTitle");
         CampaignTitleSpan.setClassName("CampaignTitle");
         CampaignCards.setClassName("CampaignCards");
         CharacterCards.setClassName("CharacterCards");
 
-        CampaignField.add(CampaignTitleSpan,new Button("Add Campaign", event -> {
+        Button addCampaignButton =  new Button("Add Campaign",buttonClickEvent -> {
             UI.getCurrent().navigate(CampaignCreatorView.class);
-        }));
+        });
 
-        characterContent.add(CharacterTitle,CharacterCards);
+        Button addCharacterButton =  new Button("Add Character",buttonClickEvent -> {
+            UI.getCurrent().navigate(CharacterCreatorView.class);
+        });
+
+        addCampaignButton.getStyle().setMarginLeft("20px").setBackground("black");
+        addCharacterButton.getStyle().setMarginLeft("20px").setBackground("black");
+
+        CampaignField.add(CampaignTitleSpan,addCampaignButton);
+        CharacterField.add(CharacterTitleSpan,addCharacterButton);
+
+        characterContent.add(CharacterField,CharacterCards);
         CampaignContent.add(CampaignField,CampaignCards);
+
+
 
         dashboard.add(characterContent,CampaignContent);
         add(dashboard);
