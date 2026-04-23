@@ -59,7 +59,7 @@ public class DashBoard extends Div implements BeforeEnterObserver {
             Card card = new Card();
             card.setTitle(character.getName());
             card.getElement().addEventListener("click", event -> {
-                System.out.println(character.getName());
+                UI.getCurrent().navigate(CharacterView.class, QueryParameters.of("Character", character.getId()));
             });
             CharacterCards.add(card);
         });
