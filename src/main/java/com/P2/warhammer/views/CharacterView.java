@@ -2,6 +2,7 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
@@ -9,6 +10,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.*;
@@ -26,6 +28,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
 
@@ -58,16 +61,24 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String characterId) {
             this.character = characterService.getCharacterFromId(beforeEvent.getLocation().getQueryParameters().getParameters("Character").getFirst());
 
-            List<Integer> characteristics = character.getCharacteristics();
-            String[] characteristicNames = {"Weapon Skill", "Ballistic Skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship"};
+            //List<Integer> characteristics = character.getCharacteristics();
+            //String[] characteristicNames = {"Weapon Skill", "Ballistic Skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship"};
 
 
 
-            for(int i = 0; i < characteristicNames.length; i++){
-                characteristicsMap.put(characteristicNames[i], characteristics.get(i));
-            }
+            //for(int i = 0; i < characteristicNames.length; i++){
+            //    characteristicsMap.put(characteristicNames[i], characteristics.get(i));
+            //}
+
+            Div page = new Div();
+            page.setClassName("page");
+
             Div contentDiv = new Div();
             contentDiv.setClassName("content");
+
+            Image banner = new Image("../images/test7.png", "Warhammer Fantasy Roleplay");
+            banner.getStyle().setWidth("55%").setHeight("auto").set("object-fit", "contain");
+            banner.setClassName("image");
 
 
             Div characterInfo = new Div();
@@ -77,21 +88,20 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             Div skillInfo = new Div();
             skillInfo.setClassName("skillInfo");
 
-
-
-
             characterInfo.add(
                     createInfoSection(),
                     createCareerSection(),
                     createPathSection(),
-                    createBodySection()
+                    createBodySection(),
+                    createFateSection(),
+                    MovementWealthArmorDiv()
             );
 
-
+            page.add(banner,contentDiv);
             contentDiv.add(characterInfo, skillInfo);
 
             skillInfo.add(createSkillGrid());
-            add(contentDiv);
+            add(page);
 
 
 
@@ -208,26 +218,126 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         );
         return body;
     }
-
     private Div createLabeledDiv(String text, String className) {
         Div container = new Div(new Span(text));
         container.setClassName(className);
         return container;
     }
 
+    private Div createFateSection(){
+        Div div  = new Div();
+        div.setClassName("FateResilienceExp");
+        Div FateResilience = new Div();
+        Div Fate = new Div();
+        Div Resilience = new Div();
+        Div Exp = new Div();
+
+        FateResilience.setClassName("FXR");
+        Fate.setClassName("Fate");
+        Resilience.setClassName("Resilience");
+        Exp.setClassName("Exp");
 
 
-    private Grid<String> createSkillGrid() {
+        Fate.add(createLabeledDiv("Fate:", "TitleSpan"));
+        Fate.add(createLabeledDiv("Fate:", "DivFate"));
+        Fate.add(createLabeledDiv("Fortune:", "DivFortune"));
+
+
+        Div DivResilienceAndResolve = new Div();
+        DivResilienceAndResolve.getStyle().set("display","flex").setFlexDirection(Style.FlexDirection.ROW);
+
+
+
+        DivResilienceAndResolve.add(createLabeledDiv("Resilience:", "ResilienceResolve"), createLabeledDiv("Resolve", "ResilienceResolve"));
+
+        Resilience.add(createLabeledDiv("Resilience:", "TitleSpan"));
+        Resilience.add(DivResilienceAndResolve);
+        Resilience.add(createLabeledDiv("Motivation:", "DivMotivation"));
+
+
+
+        Exp.add((createLabeledDiv("Exp:", "DivExp")));
+
+        FateResilience.add(Resilience, Fate);
+        div.add(FateResilience, Exp);
+
+        return div;
+    }
+
+
+
+    private Div MovementWealthArmorDiv(){
+        Div div = new Div();
+        div.setClassName("MovementWealthArmor");
+        Div Armor = new Div();
+        Armor.setClassName("armor");
+
+        Div MovementWealth = new Div();
+        MovementWealth.setClassName("movementwealth");
+
+        Div Movement = new Div();
+        Movement.setClassName("movement");
+
+        Div Wealth = new Div();
+        Wealth.setClassName("wealth");
+
+
+        MovementWealth.add(Movement, Wealth);
+
+        div.add(MovementWealth,Armor);
+
+
+
+
+
+
+        return div;
+    }
+
+
+    private Grid<Characteristic> createSkillGrid() {
         // We change the Grid type to String because the "Row" is now a Characteristic name
-        Grid<String> grid = new Grid<>(String.class, false);
+        Grid<Characteristic> grid = new Grid<>(Characteristic.class, false);
         grid.setClassName("skillGrid");
         // Add the toggle/dropdown column
         grid.addColumn(createToggleDetailsRenderer(grid)).setWidth("60px").setFlexGrow(0);
 
 
-        // Add the Characteristic name column
-        grid.addColumn(characteristicName -> characteristicName + ": " + characteristicsMap.get(characteristicName))
-                .setHeader("Characteristic Group");
+        grid.addComponentColumn(characteristic -> {
+            // 1. Stat Name (e.g., Strength)
+            Span name = new Span(characteristic.getName());
+            name.getStyle()
+                    .set("font-weight", "bold")
+                    .set("width", "120px");
+
+            // 2. The Stat breakdown (Base, Modifier, Penalty)
+            Span base = new Span(String.valueOf(characteristic.getBase()));
+            base.getStyle().set("color", "var(--lumo-secondary-text-color)").set("width", "30px");
+
+            Span mod = new Span("+" + characteristic.getModifier());
+            mod.getStyle().set("color", "var(--lumo-success-text-color)").set("width", "30px");
+
+            Span pen = new Span("-" + characteristic.getPenalty());
+            pen.getStyle().set("color", "var(--lumo-error-text-color)").set("width", "30px");
+
+            // 3. Total Target Number
+            int totalVal = characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty();
+            Span total = new Span(String.valueOf(totalVal));
+            total.getStyle()
+                    .set("margin-left", "auto") // Pushes total to the far right of the component
+                    .set("font-weight", "bold")
+                    .set("font-size", "var(--lumo-font-size-l)")
+                    .set("color", "var(--lumo-primary-text-color)");
+
+            // Assemble the "Row"
+            HorizontalLayout row = new HorizontalLayout(name, base, mod, pen, total);
+            row.setAlignItems(FlexComponent.Alignment.CENTER);
+            row.setWidthFull();
+            row.setPadding(false);
+            row.setSpacing(true);
+
+            return row;
+        }).setHeader("Characteristic Stat Block").setFlexGrow(1);
 
         // Set the Details Renderer to our new grouping layout
         grid.setItemDetailsRenderer(new ComponentRenderer<>(
@@ -236,21 +346,19 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         ));
 
         // DATA LOGIC: Get unique characteristics from the character's skill list
-        List<String> activeCharacteristics = character.getSkills().stream()
-                .map(Skill::getCharacteristic)
+        List<Characteristic> activeCharacteristics = character.getCharacteristics().stream()
                 .distinct()
-                .sorted()
                 .toList();
 
         grid.setItems(activeCharacteristics);
         return grid;
     }
 
-    private Renderer<String> createToggleDetailsRenderer(
-            Grid<String> grid) {
+    private Renderer<Characteristic> createToggleDetailsRenderer(
+            Grid<Characteristic> grid) {
 
         return LitRenderer
-                .<String> of("""
+                .<Characteristic> of("""
                     <vaadin-button
                         theme="tertiary icon"
                         aria-label="Toggle details"
@@ -273,13 +381,36 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         public CharacteristicDetailsLayout() {
             setPadding(true);
             setSpacing(false);
+            this.getStyle().set("display", "contents");
 
             // Configure the inner grid columns
-            innerGrid.addColumn(Skill::getName).setHeader("Skill Name").setAutoWidth(true);
+            innerGrid.addColumn(Skill::getName).setHeader("Skill Name").setWidth("145px");
             innerGrid.addColumn(Skill::getCategory).setHeader("Category").setAutoWidth(true);
-            innerGrid.addColumn(Skill::getStartValue).setHeader("S").setAutoWidth(true);
-            innerGrid.addColumn(Skill::getBonusValue).setHeader("B").setAutoWidth(true);
-            innerGrid.addColumn(Skill::getTotalValue).setHeader("T").setAutoWidth(true);
+
+            innerGrid.addColumn(Skill::getStartValue)
+                    .setHeader("S")
+                    .setWidth("45px")
+                    .setFlexGrow(0)
+                    .setTextAlign(ColumnTextAlign.CENTER);
+
+
+            innerGrid.addComponentColumn(skill -> {
+                Span span = new Span("+" + skill.getBonusValue());
+                span.getStyle().set("color", "var(--lumo-success-text-color)");
+                return span;
+            }).setHeader("B").setWidth("45px").setFlexGrow(0);
+
+            innerGrid.addComponentColumn(skill -> {
+                Span span = new Span("-" + skill.getPenaltyValue());
+                span.getStyle().set("color", "var(--lumo-error-text-color)");
+                return span;
+            }).setHeader("P").setWidth("45px").setFlexGrow(0);
+
+            innerGrid.addComponentColumn(skill -> {
+                Span span = new Span(String.valueOf(skill.getTotalValue()));
+                span.getStyle().set("font-weight", "bold");
+                return span;
+            }).setHeader("T").setWidth("45px").setFlexGrow(0);
 
 
             // Make the inner grid look clean
@@ -340,14 +471,15 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                 add(popover);
                 popover.setOpened(true);
             });
-
             add(innerGrid);
         }
 
-        public void setCharacteristic(String characteristicName) {
-            // Filter the main character's skill list
+        public void setCharacteristic(Characteristic characteristic) {
+            if (characteristic == null) return;
+
+            // Filter the main character's skill list based on the characteristic name
             List<Skill> filteredSkills = character.getSkills().stream()
-                    .filter(skill -> skill.getCharacteristic().equalsIgnoreCase(characteristicName))
+                    .filter(skill -> skill.getCharacteristic().equalsIgnoreCase(characteristic.getName()))
                     .toList();
 
             innerGrid.setItems(filteredSkills);
