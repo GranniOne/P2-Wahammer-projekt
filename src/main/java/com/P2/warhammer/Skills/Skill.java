@@ -12,14 +12,18 @@ public class Skill {
     String Characteristic;
     String Category;
     String Description;
+    Integer StartValue;
+    Integer BonusValue;
 
     public Skill() {}
 
-    public Skill(String Name, String Category, String Characteristic, String Description){
+    public Skill(String Name, String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue) {
         this.Name = Name;
         this.Category = Category;
         this.Characteristic = Characteristic;
         this.Description = Description;
+        this.StartValue = StartValue;
+        this.BonusValue = BonusValue;
     }
 
     @Override
@@ -65,5 +69,25 @@ public class Skill {
 
     public void setDescription(String description) {
         Description = description;
+    }
+
+    public Integer getStartValue() {
+        return StartValue;
+    }
+
+    public void setStartValue(Integer startValue) {
+        StartValue = startValue;
+    }
+
+    public Integer getBonusValue() {
+        return BonusValue;
+    }
+
+    public void setBonusValue(Integer bonusValue) {
+        BonusValue = bonusValue;
+    }
+
+    public Integer getTotalValue(){
+        return StartValue + BonusValue;
     }
 }

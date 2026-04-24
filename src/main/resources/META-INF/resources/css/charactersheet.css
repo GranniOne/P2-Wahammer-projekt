@@ -1,21 +1,66 @@
 .characterPage{
+    display: flex;
+    justify-content: center;
     width: 100%;
+    height: auto;
+    /*background-image: url("../images/test4.png");
+    background-repeat: no-repeat, repeat;
+    background-size: cover;
+
+     */
+
+}
+
+.content{
+    display: flex;
+    flex-direction: row;
+    width: 1200px;
+    height: 967px;
+    background: blueviolet;
+
+
+}
+
+.skillInfo {
+    width: 400px;
+    height: auto;
+    background: #47ff12;
+}
+
+.skillGrid {
     height: 100%;
 }
 
-.characteristics_body{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 10px;
+
+.characterInfo{
+    width: 800px;
+    height: auto;
+    background: blue;
 }
 
-.characteristics_box_in_body{
+
+
+
+
+.info {
     display: flex;
-    flex-direction: column;
+    width: 100%;
+    height: 50px;
+    direction: ltr;
     align-items: center;
-    width: 110px;
-    height: 94px;
-    border: 1px solid black;
-    align-self: center;
+
 }
+
+
+.DivName{
+    width: 500px;
+}
+
+.DivSpecies{
+    width: 200px;
+}
+
+.DivClass{
+    width: 20px;
+}
+
