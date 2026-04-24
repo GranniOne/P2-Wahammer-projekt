@@ -54,15 +54,17 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         Div CharacterField = new Div();
         Span CharacterTitleSpan = new Span("Characters");
         Div CharacterCards = new Div();
-
-        ownedCharacters.forEach(character -> {
-            Card card = new Card();
-            card.setTitle(character.getName());
-            card.getElement().addEventListener("click", event -> {
-                UI.getCurrent().navigate(CharacterView.class, QueryParameters.of("Character", character.getId()));
+        try {
+            ownedCharacters.forEach(character -> {
+                Card card = new Card();
+                card.setTitle(character.getName());
+                card.getElement().addEventListener("click", event -> {
+                    UI.getCurrent().navigate(CharacterView.class, QueryParameters.of("Character", character.getId()));
+                });
+                CharacterCards.add(card);
             });
-            CharacterCards.add(card);
-        });
+        }catch (Exception e){}
+
 
 
 
@@ -70,16 +72,20 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         Div CampaignField = new Div();
         Span CampaignTitleSpan = new Span("Campaigns");
         Div CampaignCards = new Div();
+        try {
 
-        campaigns.forEach(campaign -> {
-            Card card = new Card();
-            card.setTitle(Objects.equals(loadedUser.getId(), campaign.getGameMaster().getId()) ? "Gamemaster: " + campaign.getName() : "player: " +  campaign.getName());
-            card.getElement().addEventListener("click", event -> {
-                UI.getCurrent().navigate(CampaignView.class,QueryParameters.of("Campaign", campaign.getId()));
+        }catch (Exception e){
+            campaigns.forEach(campaign -> {
+                Card card = new Card();
+                card.setTitle(Objects.equals(loadedUser.getId(), campaign.getGameMaster().getId()) ? "Gamemaster: " + campaign.getName() : "player: " +  campaign.getName());
+                card.getElement().addEventListener("click", event -> {
+                    UI.getCurrent().navigate(CampaignView.class,QueryParameters.of("Campaign", campaign.getId()));
 
+                });
+                CampaignCards.add(card);
             });
-            CampaignCards.add(card);
-        });
+        }
+
 
         dashboard.setClassName("dashboardContent");
         characterContent.setClassName("characterContent");

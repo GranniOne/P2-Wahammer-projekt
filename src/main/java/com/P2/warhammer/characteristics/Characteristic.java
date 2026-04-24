@@ -2,12 +2,12 @@ package com.P2.warhammer.characteristics;
 
 public class Characteristic {
 
-    int base;
-    int modifier;
-    int penalty;
+    Integer base;
+    Integer modifier;
+    Integer penalty;
     String name;
 
-    public Characteristic(String name, int base, int modifier, int penalty){
+    public Characteristic(String name, Integer base, Integer modifier, Integer penalty){
         this.name = name;
         this.base = base;
         this.modifier = modifier;
@@ -15,27 +15,27 @@ public class Characteristic {
     }
     public String getCategory() {return "Characteristic";}
 
-    public int getBase() {
+    public Integer getBase() {
         return base;
     }
 
-    public int getModifier() {
+    public Integer getModifier() {
         return modifier;
     }
 
-    public int getPenalty() {
+    public Integer getPenalty() {
         return penalty;
     }
 
-    public void setBase(int base) {
+    public void setBase(Integer base) {
         this.base = base;
     }
 
-    public void setModifier(int modifier) {
+    public void setModifier(Integer modifier) {
         this.modifier = modifier;
     }
 
-    public void setPenalty(int penalty) {
+    public void setPenalty(Integer penalty) {
         this.penalty = penalty;
     }
 

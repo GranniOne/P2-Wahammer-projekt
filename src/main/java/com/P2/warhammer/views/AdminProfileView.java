@@ -55,10 +55,10 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
         this.add(layout);
 
         this.add(new Button("hello", event -> {
-            Character character = new Character("Testing",user,user, 1, 2);
-            List<Skill> Usedskills =  skillRepository.findAll();
-            character.setSkills(Usedskills);
-            characterService.addCharacter(character);
+            //Character character = new Character("Testing",user,user, 1, 2);
+            //List<Skill> Usedskills =  skillRepository.findAll();
+            //character.setSkills(Usedskills);
+            //characterService.addCharacter(character);
 
         }));
 

@@ -3,6 +3,7 @@ package com.P2.warhammer.characters;
 import com.P2.warhammer.Conditions.Condition;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.items.Armour;
 import com.P2.warhammer.items.Weapon;
 import com.P2.warhammer.campaigns.Campaign;
@@ -61,23 +62,17 @@ public class Character {
     List<Talent> talents = new ArrayList<>();
     List<Skill> skills = new ArrayList<>();
     List<Condition> conditions = new ArrayList<>();
-    List<Integer> characteristics = new ArrayList<>(); // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
+    List<Characteristic> characteristics; // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    public Character(String name, User user, User GameMaster, Integer age, Integer experience) {
+    public Character(String name, User user, User GameMaster, Integer age, Integer experience, List<Characteristic> characteristics) {
         this.name = name;
         this.user = user;
         this.GameMaster = GameMaster;
         this.age = age;
         this.experience = experience;
+        this.characteristics = characteristics;
 
-        //sets all armour values to zero
-        for (int i = 1; i <= 5; i++) {
-            armourValues.add(0);
-        }
-        for (int i = 1; i <= 10; i++) {
-            characteristics.add(0);
-        }
 
     }
 

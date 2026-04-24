@@ -126,9 +126,9 @@ public class CharacterCreatorView extends Div {
                 return;
             }
 
-            Character character = new Character(name,null,null, age, xp);
-            characterRepository.save(character);
-            System.out.println("Saved Charachter: " + character.getName());
+            //Character character = new Character(name,null,null, age, xp);
+            //characterRepository.save(character);
+            //System.out.println("Saved Charachter: " + character.getName());
         });
         add(saveButton);
     }
