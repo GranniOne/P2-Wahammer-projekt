@@ -123,7 +123,7 @@ public class CharacterCreatorView extends Div {
 
         moneyField.setValue(status.get(level-1) + " Brass coins");
         renderAllCharacterElements(statBox,infoBoxParent, currentCareer, level);
-        renderTalentElements(statBox, currentCareer);
+        renderTalentElements(statBox, currentCareer, level);
     }
 
 
@@ -311,11 +311,20 @@ public class CharacterCreatorView extends Div {
         characteristicsMap.values().forEach(characteristicsGrid::add); //foreach my beloved ❤️❤️❤️ ⸜(｡˃ ᵕ ˂ )⸝♡ °❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･
     }
 
-    private Div renderTalentElements(Div infoBoxParent, Career career){
+    private Div renderTalentElements(Div infoBoxParent, Career career, int level){
         Div characterTalentDiv = new Div();
-        Set<String> allowedTalents = new HashSet<>(career.getLevelTalentsList()); // se renderskillelements.
+        List<List<String>> allowedTalents = new ArrayList<>(career.getLevelTalentsList());
         talents.forEach(talent -> {
-            if (!allowedTalents.contains(talent.getName())){
+            boolean found = false;
+            for (int i = 0; i < level; i++) {
+                if (allowedTalents.get(i).contains(talent.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                System.out.println("breaks");
+                System.out.println(talent.getName());
                 return;
             }
 
@@ -443,7 +452,7 @@ public class CharacterCreatorView extends Div {
 
         renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid, career, level);
         statBox.add(characteristicsGrid);
-        statBox.add(renderTalentElements(infoBoxParent, career));
+        statBox.add(renderTalentElements(infoBoxParent, career, level));
         add(statBox);
 
     }
