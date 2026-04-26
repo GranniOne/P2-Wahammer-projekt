@@ -30,6 +30,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
+
 @PermitAll
 @PageTitle("Character Creator Page")
 @Route("characterCreator")
@@ -49,7 +50,8 @@ public class CharacterCreatorView extends Div {
     private final List<Race> race, raceItems, careerItem ;
     private final TalentRepository talentRepository;
 
-    Map<String, ArrayList<TextField>> characteristicValues = new HashMap<>();
+    Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
+    private final Random random = new Random();
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository) {
@@ -83,38 +85,41 @@ public class CharacterCreatorView extends Div {
         //CharacterSkillsGeneration(statBox,infoBoxParent);
     }
 
-    private TextField createField(String size, int max) {
-        TextField statField = new TextField();
+    private IntegerField createField(int max) {
+        IntegerField statField = new IntegerField();
+
         statField.setRequiredIndicatorVisible(true);
-        statField.setAllowedCharPattern("[0-9]");
-        statField.setPattern(size);
-        statField.setMinLength(1);
-        statField.setMaxLength(max);
-        statField.setI18n(new TextField.TextFieldI18n()
+
+        statField.setMin(0);
+        statField.setMax(max);
+
+        statField.setStepButtonsVisible(true);
+
+        statField.setI18n(new IntegerField.IntegerFieldI18n()
                 .setRequiredErrorMessage("Enter a number")
-                .setMaxLengthErrorMessage("Too large"));
+                .setMaxErrorMessage("Too large"));
 
         return statField;
     }
 
-    private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent, TextField socialClassField, TextField moneyField, TextField levelField){
+    private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent, TextField socialClassField, TextField moneyField, IntegerField levelField){
         Career currectCareer = (Career) e.getValue();
         statBox.removeAll();
         System.out.println("Value changed to " + e.getValue());
 
         //TODO Set characteristics, skills and talents
 
-        if (levelField.getValue().isEmpty()){
-            levelField.setValue("1");
+        if (levelField.getValue() == null){
+            levelField.setValue(1);
         }
-        int level = Integer.parseInt(levelField.getValue());
+        int level = levelField.getValue();
 
         socialClassField.setValue(currectCareer.getSocialClass());
 
         List<String> status = currectCareer.getLevelStatusList();
 
         moneyField.setValue(status.get(level-1) + " Brass coins");
-        CharacterSkillsGeneration(statBox,infoBoxParent);
+        renderAllCharacterElements(statBox,infoBoxParent);
         renderTalentElements(statBox);
     }
 
@@ -166,7 +171,7 @@ public class CharacterCreatorView extends Div {
         dropdownMenu.setItemLabelGenerator(Career::getName);
 
         div.add(dropdownMenu);
-        TextField levelField = createField("[1-4]", 1);
+        IntegerField levelField = createField( 4);
         levelField.setLabel("Level");
         div.add(levelField);
         div.add(socialClassField);
@@ -187,12 +192,12 @@ public class CharacterCreatorView extends Div {
 
         Map<String, Characteristic> characterHashmapCharacteristics = new HashMap<>();
 
-        for (Map.Entry<String, ArrayList<TextField>> characteristicElement : characteristicValues.entrySet()) {
+        for (Map.Entry<String, ArrayList<IntegerField>> characteristicElement : characteristicValues.entrySet()) {
             String key = characteristicElement.getKey();
-            ArrayList<TextField> values = characteristicElement.getValue();
-            int baseValue = Integer.parseInt(values.get(0).getValue());
-            int modifierValue = Integer.parseInt(values.get(1).getValue());
-            int penaltyValue = Integer.parseInt(values.get(2).getValue());
+            ArrayList<IntegerField> values = characteristicElement.getValue();
+            int baseValue = values.get(0).getValue();
+            int modifierValue = values.get(1).getValue();
+            int penaltyValue = values.get(2).getValue();
 
             Characteristic characteristic = new Characteristic(key, baseValue, modifierValue, penaltyValue);
 
@@ -260,7 +265,7 @@ public class CharacterCreatorView extends Div {
         }
     }
 
-    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid){
+    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, int characteristicValue){
         //TODO make this loop only run for race skills and career skills
 
         skills.forEach(skill -> {
@@ -276,13 +281,24 @@ public class CharacterCreatorView extends Div {
                     infoBoxParent.setVisible(true);
                 });
 
-                TextField charValueField = new TextField ();
+                IntegerField charValueField = new IntegerField();
                 charValueField.setReadOnly(true);
-                charValueField.setValue("Characteristic value goes here");
+                charValueField.setValue(characteristicValue);
+                IntegerField modifierField = createField(99);
+                IntegerField penaltyField = createField(99);
+                IntegerField totalField = createField(99);
+                totalField.setReadOnly(true);
 
-                //TextField baseField = createField("[0-99]", 2);
-                TextField modifierField = createField("[0-99]", 2);
-                TextField penaltyField = createField("[0-99]", 2);
+                Runnable updateTotal = () -> {
+                    int total = myParse(charValueField) + myParse(modifierField) - myParse(penaltyField);
+
+                    totalField.setValue(total);
+                };
+
+                charValueField.addValueChangeListener(e -> updateTotal.run());
+                modifierField.addValueChangeListener(e -> updateTotal.run());
+                penaltyField.addValueChangeListener(e -> updateTotal.run());
+
                 skillDiv.add(skillButton);
                 skillDiv.add(charValueField);
                 //skillDiv.add(baseField);
@@ -331,8 +347,17 @@ public class CharacterCreatorView extends Div {
         return characterTalentDiv;
     }
 
+    int myParse(IntegerField integerField){ //bare så den ikke går i stykker hvis ikke alle felter er fyldte. den sparer så der ikke er like 4 linjer med ren if-statements
+        if (integerField.isEmpty()){
+            return 0;
+        }
+        int value = integerField.getValue();
+        return value;
+    }
+
+
     //renders characteristics and puts them into a hashmap used for skills rendering
-    private void renderCharacteristics(String characteristicName, Map<String, CharacteristicsDiv> characteristicsMap){
+    private void renderCharacteristicsElements(String characteristicName, Map<String, CharacteristicsDiv> characteristicsMap){
         CharacteristicsDiv charDiv = new CharacteristicsDiv(characteristicName);
         characteristicsMap.put(characteristicName, charDiv);
 
@@ -344,16 +369,40 @@ public class CharacterCreatorView extends Div {
         charField.setReadOnly(true);
         charField.setValue(characteristicName);
 
-        TextField raceField = new TextField ();
+        IntegerField raceField = new IntegerField ();
         raceField.setReadOnly(true);
-        raceField.setValue("Species bonus goes here plz fix x3");
-
-        TextField baseField = createField("[0-99]", 2);
-        TextField modifierField = createField("[0-99]", 2);
-        TextField penaltyField = createField("[0-99]", 2);
+        raceField.setValue(20);//Species bonus goes here plz fix x3
 
 
-        ArrayList<TextField> fieldArray = new ArrayList<> (
+        IntegerField baseField = createField(99);
+        baseField.setLabel("base");
+        IntegerField modifierField = createField(99);
+        modifierField.setLabel("mod");
+        IntegerField penaltyField = createField(99);
+        penaltyField.setLabel("penalty");
+        IntegerField totalField = new IntegerField();
+        totalField.setLabel("total");
+
+        Button rollButton = new Button("Roll charateristic");
+        rollButton.addClickListener(event -> {
+            int die1 = random.nextInt(10) + 1;
+            int die2 = random.nextInt(10) + 1;
+            baseField.setValue(die1+die2);
+        });
+
+        Runnable updateTotal = () -> {
+            int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+
+            totalField.setValue(total);
+        };
+        baseField.addValueChangeListener(e -> updateTotal.run());
+        modifierField.addValueChangeListener(e -> updateTotal.run());
+        penaltyField.addValueChangeListener(e -> updateTotal.run());
+        raceField.addValueChangeListener(e -> updateTotal.run());
+
+
+
+        ArrayList<IntegerField> fieldArray = new ArrayList<> (
             List.of(
                 baseField,
                 modifierField,
@@ -367,9 +416,12 @@ public class CharacterCreatorView extends Div {
         charDiv.add(baseField);
         charDiv.add(modifierField);
         charDiv.add(penaltyField);
+        charDiv.add(totalField);
+        charDiv.add(rollButton);
+
     }
 
-    private void CharacterSkillsGeneration(Div statBox,Div infoBoxParent) {
+    private void renderAllCharacterElements(Div statBox, Div infoBoxParent) {
 
         //initializes hashmap for characteristics. used to put skills into characteristics
         Map<String, CharacteristicsDiv> characteristicsMap = new HashMap<>();
@@ -382,10 +434,10 @@ public class CharacterCreatorView extends Div {
         //add characteristics to hashmap and create visual elements
         List<String> characteristicsStringList = List.of("Weapon Skill", "Ballistic Skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
         for (String characteristicName : characteristicsStringList){
-           renderCharacteristics(characteristicName, characteristicsMap);
+           renderCharacteristicsElements(characteristicName, characteristicsMap);
         }
 
-        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid);
+        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid, 20);
 
 
         /*

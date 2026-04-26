@@ -1,9 +1,12 @@
 package com.P2.warhammer.Race;
 
+import com.P2.warhammer.characteristics.Characteristic;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Document(collection = "race")
 
@@ -14,14 +17,24 @@ public class Race {
     String dice;
     String career;
     String species;
+    Map<String, ArrayList<Integer>> basecharacteristicMap;
 
     public Race() {}
 
-    public Race(String species, String  race, String dice, String career){
+    public Race(String species, String  race, String dice, String career, Map<String, ArrayList<Integer>> basecharacteristicMap){
         this.race = race;
         this.dice = dice;
         this.career = career;
         this.species = species;
+        this.basecharacteristicMap = basecharacteristicMap;
+    }
+
+    public Map<String, ArrayList<Integer>> getBasecharacteristicMap() {
+        return basecharacteristicMap;
+    }
+
+    public void setBasecharacteristicMap(Map<String, ArrayList<Integer>> basecharacteristicMap) {
+        this.basecharacteristicMap = basecharacteristicMap;
     }
 
     public String getId(){return id;}
