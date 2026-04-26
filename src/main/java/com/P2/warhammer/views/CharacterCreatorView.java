@@ -265,7 +265,7 @@ public class CharacterCreatorView extends Div {
         }
     }
 
-    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, int characteristicValue){
+    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid){
         //TODO make this loop only run for race skills and career skills
 
         skills.forEach(skill -> {
@@ -281,30 +281,37 @@ public class CharacterCreatorView extends Div {
                     infoBoxParent.setVisible(true);
                 });
 
-                IntegerField charValueField = new IntegerField();
-                charValueField.setReadOnly(true);
-                charValueField.setValue(characteristicValue);
-                IntegerField modifierField = createField(99);
-                IntegerField penaltyField = createField(99);
-                IntegerField totalField = createField(99);
-                totalField.setReadOnly(true);
+                IntegerField skillCharValueField = new IntegerField();
+                skillCharValueField.setReadOnly(true);
+                IntegerField sourceTotal = skillGrid.getTotalField();
+
+
+                IntegerField skillModifierField = createField(99);
+                IntegerField skillPenaltyField = createField(99);
+                IntegerField skillTotalField = createField(99);
+                skillTotalField.setReadOnly(true);
+                skillCharValueField.setValue(sourceTotal.getValue());
 
                 Runnable updateTotal = () -> {
-                    int total = myParse(charValueField) + myParse(modifierField) - myParse(penaltyField);
-
-                    totalField.setValue(total);
+                    int total = myParse(skillCharValueField) + myParse(skillModifierField) - myParse(skillPenaltyField); skillTotalField.setValue(total);
                 };
 
-                charValueField.addValueChangeListener(e -> updateTotal.run());
-                modifierField.addValueChangeListener(e -> updateTotal.run());
-                penaltyField.addValueChangeListener(e -> updateTotal.run());
+                sourceTotal.addValueChangeListener(e -> {
+                    skillCharValueField.setValue(sourceTotal.getValue());
+                    updateTotal.run();
+                });
+
+
+
+                skillCharValueField.addValueChangeListener(e -> updateTotal.run());
+                skillModifierField.addValueChangeListener(e -> updateTotal.run());
+                skillPenaltyField.addValueChangeListener(e -> updateTotal.run());
 
                 skillDiv.add(skillButton);
-                skillDiv.add(charValueField);
-                //skillDiv.add(baseField);
-                skillDiv.add(modifierField);
-                skillDiv.add(penaltyField);
-
+                skillDiv.add(skillCharValueField);
+                skillDiv.add(skillModifierField);
+                skillDiv.add(skillPenaltyField);
+                skillDiv.add(skillTotalField);
                 skillGrid.add(skillDiv);
             }
         });
@@ -361,6 +368,7 @@ public class CharacterCreatorView extends Div {
         CharacteristicsDiv charDiv = new CharacteristicsDiv(characteristicName);
         characteristicsMap.put(characteristicName, charDiv);
 
+
         charDiv.getStyle()
                 .set("grid-template-columns", "180px 80px 120px")
                 .set("background-color", "#F5A3BE");
@@ -394,12 +402,13 @@ public class CharacterCreatorView extends Div {
             int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
 
             totalField.setValue(total);
+            charDiv.setTotalField(totalField);
         };
         baseField.addValueChangeListener(e -> updateTotal.run());
         modifierField.addValueChangeListener(e -> updateTotal.run());
         penaltyField.addValueChangeListener(e -> updateTotal.run());
         raceField.addValueChangeListener(e -> updateTotal.run());
-
+        charDiv.setTotalField(totalField);
 
 
         ArrayList<IntegerField> fieldArray = new ArrayList<> (
@@ -437,7 +446,7 @@ public class CharacterCreatorView extends Div {
            renderCharacteristicsElements(characteristicName, characteristicsMap);
         }
 
-        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid, 20);
+        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid);
 
 
         /*
