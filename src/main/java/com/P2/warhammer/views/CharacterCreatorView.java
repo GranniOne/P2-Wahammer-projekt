@@ -52,6 +52,7 @@ public class CharacterCreatorView extends Div {
 
     Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
     private final Random random = new Random();
+    private List<String> currentSkillList;
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository) {
@@ -103,7 +104,7 @@ public class CharacterCreatorView extends Div {
     }
 
     private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent, TextField socialClassField, TextField moneyField, IntegerField levelField){
-        Career currectCareer = (Career) e.getValue();
+        Career currentCareer = (Career) e.getValue();
         statBox.removeAll();
 
 
@@ -114,13 +115,15 @@ public class CharacterCreatorView extends Div {
         }
         int level = levelField.getValue();
 
-        socialClassField.setValue(currectCareer.getSocialClass());
+        socialClassField.setValue(currentCareer.getSocialClass());
 
-        List<String> status = currectCareer.getLevelStatusList();
+        List<String> status = currentCareer.getLevelStatusList();
+
+
 
         moneyField.setValue(status.get(level-1) + " Brass coins");
-        renderAllCharacterElements(statBox,infoBoxParent, currectCareer);
-        renderTalentElements(statBox, currectCareer);
+        renderAllCharacterElements(statBox,infoBoxParent, currentCareer, level);
+        renderTalentElements(statBox, currentCareer);
     }
 
 
@@ -237,17 +240,25 @@ public class CharacterCreatorView extends Div {
     }
 
 
-    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, Career career){
+    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, Career career, int level){
         //TODO make this loop only run for race skills and career skills
 
-        List<String> allowedSkills = new ArrayList<>(career.getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
+        List<List<String>> allowedSkills = new ArrayList<>(career.getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
         System.out.println("det her er allowedSkills: " + allowedSkills);
         skills.forEach(skill -> {                                          //kører igennem databasen og looper for alle skills
-            if (!allowedSkills.contains(skill.getName())){                      //ser om skillet er i hashsettet
+            boolean found = false;
+            for (int i = 0; i < level; i++) {
+                if (allowedSkills.get(i).contains(skill.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
                 System.out.println("breaks");
                 System.out.println(skill.getName());
                 return;
             }
+
             System.out.println("works");
             System.out.println(skill.getName());
             CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
@@ -414,7 +425,7 @@ public class CharacterCreatorView extends Div {
 
     }
 
-    private void renderAllCharacterElements(Div statBox, Div infoBoxParent, Career career) {
+    private void renderAllCharacterElements(Div statBox, Div infoBoxParent, Career career, int level) {
 
         //initializes hashmap for characteristics. used to put skills into characteristics
         Map<String, CharacteristicsDiv> characteristicsMap = new HashMap<>();
@@ -430,7 +441,7 @@ public class CharacterCreatorView extends Div {
            renderCharacteristicsElements(characteristicName, characteristicsMap);
         }
 
-        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid, career);
+        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid, career, level);
         statBox.add(characteristicsGrid);
         statBox.add(renderTalentElements(infoBoxParent, career));
         add(statBox);
