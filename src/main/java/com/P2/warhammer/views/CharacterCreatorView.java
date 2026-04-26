@@ -105,7 +105,7 @@ public class CharacterCreatorView extends Div {
     private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent, TextField socialClassField, TextField moneyField, IntegerField levelField){
         Career currectCareer = (Career) e.getValue();
         statBox.removeAll();
-        System.out.println("Value changed to " + e.getValue());
+
 
         //TODO Set characteristics, skills and talents
 
@@ -119,8 +119,8 @@ public class CharacterCreatorView extends Div {
         List<String> status = currectCareer.getLevelStatusList();
 
         moneyField.setValue(status.get(level-1) + " Brass coins");
-        renderAllCharacterElements(statBox,infoBoxParent);
-        renderTalentElements(statBox);
+        renderAllCharacterElements(statBox,infoBoxParent, currectCareer);
+        renderTalentElements(statBox, currectCareer);
     }
 
 
@@ -133,7 +133,6 @@ public class CharacterCreatorView extends Div {
 
         Button button1 = new Button("Roll for Species", e -> {
             int roll = ThreadLocalRandom.current().nextInt(1, 101);
-            System.out.println("Rolled: " + roll);
 
             Race raceTable = raceRepository.findById("species_table").orElseThrow();
 
@@ -143,7 +142,6 @@ public class CharacterCreatorView extends Div {
                     .findFirst()
                     .orElse("Unknown");
 
-            System.out.println("Result species: " + result);
             dropdownMenu.setValue(result);
         });
 
@@ -202,8 +200,6 @@ public class CharacterCreatorView extends Div {
             Characteristic characteristic = new Characteristic(key, baseValue, modifierValue, penaltyValue);
 
             characterHashmapCharacteristics.put(key, characteristic);
-            System.out.println("success");
-            System.out.println(baseValue + "" + modifierValue + "" + penaltyValue);
 
         }
         return characterHashmapCharacteristics;
@@ -240,35 +236,20 @@ public class CharacterCreatorView extends Div {
         add(saveButton);
     }
 
-    //TODO vi skal opdatere UI'en og køre denne her funktion for at vise
-    private void SetCharacteristics(int level, Career career){
-        List<String> careerCharacteristicList = career.getLevelCharacterticsList();
-        List<String> characterCharacteristicList = new ArrayList<>();
-        for (int i = 0; i < level+2 && i < careerCharacteristicList.size(); i++) {
-            characterCharacteristicList.add(careerCharacteristicList.get(i));
-        }
-    }
 
-    private void SetTalents(int level, Career career){
-        List<String> careerTalentList = career.getLevelTalentsList();
-        List<String> characterTalentList = new ArrayList<>();
-        for (int i = 0; i < level+2 && i < careerTalentList.size(); i++) {
-            characterTalentList.add(careerTalentList.get(i));
-        }
-    }
-
-    private void SetSkills(int level, Career career){
-        List<String> careerSkillList = career.getLevelSkillsList();
-        List<String> characterSkillList = new ArrayList<>();
-        for (int i = 0; i < level+2 && i < careerSkillList.size(); i++) {
-            characterSkillList.add(careerSkillList.get(i));
-        }
-    }
-
-    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid){
+    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, Career career){
         //TODO make this loop only run for race skills and career skills
 
-        skills.forEach(skill -> {
+        List<String> allowedSkills = new ArrayList<>(career.getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
+        System.out.println("det her er allowedSkills: " + allowedSkills);
+        skills.forEach(skill -> {                                          //kører igennem databasen og looper for alle skills
+            if (!allowedSkills.contains(skill.getName())){                      //ser om skillet er i hashsettet
+                System.out.println("breaks");
+                System.out.println(skill.getName());
+                return;
+            }
+            System.out.println("works");
+            System.out.println(skill.getName());
             CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
             if (skillGrid != null) {
                 Div skillDiv = new Div();
@@ -319,10 +300,13 @@ public class CharacterCreatorView extends Div {
         characteristicsMap.values().forEach(characteristicsGrid::add); //foreach my beloved ❤️❤️❤️ ⸜(｡˃ ᵕ ˂ )⸝♡ °❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･
     }
 
-    private Div renderTalentElements(Div infoBoxParent){
+    private Div renderTalentElements(Div infoBoxParent, Career career){
         Div characterTalentDiv = new Div();
+        Set<String> allowedTalents = new HashSet<>(career.getLevelTalentsList()); // se renderskillelements.
         talents.forEach(talent -> {
-
+            if (!allowedTalents.contains(talent.getName())){
+                return;
+            }
 
             Div talentDiv = new Div();
 
@@ -430,7 +414,7 @@ public class CharacterCreatorView extends Div {
 
     }
 
-    private void renderAllCharacterElements(Div statBox, Div infoBoxParent) {
+    private void renderAllCharacterElements(Div statBox, Div infoBoxParent, Career career) {
 
         //initializes hashmap for characteristics. used to put skills into characteristics
         Map<String, CharacteristicsDiv> characteristicsMap = new HashMap<>();
@@ -446,76 +430,11 @@ public class CharacterCreatorView extends Div {
            renderCharacteristicsElements(characteristicName, characteristicsMap);
         }
 
-        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid);
-
-
-        /*
-        skillGrid.getStyle()
-                .set("display", "grid")
-                .set("grid-template-columns", "repeat(1, 1fr)")
-                .set("gap", "10px");
-
-        skills.forEach(skill -> {
-            Div skillItem = new Div();
-            skillItem.getStyle()
-                    .set("display", "grid")
-                    .set("grid-template-columns", "180px 80px 120px")
-                    .set("flex-direction", "column")
-                    .set("gap", "5px");
-
-            Button skillButton = new Button(skill.getName(), e -> {
-                infoBoxParent.removeAll();
-                InfoCreator(skill,infoBoxParent);
-                infoBoxParent.setVisible(true);
-            });
-            skillItem.add(skillButton);
-            skillButtonArray.add(skillButton);
-
-            TextField baseField = createField("[0-99]", 2);
-            TextField modifierField = createField("[0-99]", 2);
-
-            baseFieldArray.add(baseField);
-            modFieldArray.add(modifierField);
-
-           /*
-            //TODO denne her skal kun være på characteristics. man kan ikke rulle skills og talents i character creatoren kun i spillearket
-            Button randomButton = new Button("roll die", e -> {
-                int randomValue = (int) (Math.random() * 100);
-                baseField.setValue(String.valueOf(randomValue));
-            });
-
-            skillItem.add(skillButton, baseField, modifierField);
-            skillGrid.add(skillItem);
-        });
-
-
-        statBox.add(skillGrid);
-
-        */
-
-         /* TODO denne her er sin egen ting xd
-        Button saveButton = new Button("Save Character", e -> {
-            //TODO save character to database
-            //lige nu printer denne her bare values fra de fields som ikke er tomme
-            for (int i = 0; i < baseFieldArray.size(); i++) {
-                String name = skillButtonArray.get(i).getText();
-                String baseValue = baseFieldArray.get(i).getValue();
-                String modValue = modFieldArray.get(i).getValue();
-                if (!baseValue.isEmpty() && !modValue.isEmpty()) {
-                    System.out.println(name + ": " + Integer.parseInt(baseValue)+Integer.parseInt(modValue));
-                }
-            }
-
-        });
-
-
-        statBox.add(saveButton);
- */
-
+        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid, career);
         statBox.add(characteristicsGrid);
-        statBox.add(renderTalentElements(infoBoxParent));
+        statBox.add(renderTalentElements(infoBoxParent, career));
         add(statBox);
-        System.out.println(statBox);
+
     }
 
     private void SkillInfoCreator(Skill skill, Div infoBoxParent) {
@@ -586,13 +505,5 @@ public class CharacterCreatorView extends Div {
         infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4);
         return infoBoxTextContainer;
     }
-/*
-    private @NonNull Div getCharacteristicDiv(Characteristic characteristic) {
-        Div infoBoxTextContainer = new Div();
-        Div infoLine1 = new Div(new Text(characteristic.getCategory()));
-        Div infoLine2 = new Div(new Text(characteristic.getName()));
-        infoBoxTextContainer.add(infoLine1, infoLine2);
-        return infoBoxTextContainer;
-    }
-*/
+
 }
