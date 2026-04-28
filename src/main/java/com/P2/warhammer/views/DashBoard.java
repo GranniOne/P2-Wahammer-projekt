@@ -73,10 +73,9 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         Span CampaignTitleSpan = new Span("Campaigns");
         Div CampaignCards = new Div();
         try {
-
-        }catch (Exception e){
             campaigns.forEach(campaign -> {
                 Card card = new Card();
+                System.out.println(campaign.toString());
                 card.setTitle(Objects.equals(loadedUser.getId(), campaign.getGameMaster().getId()) ? "Gamemaster: " + campaign.getName() : "player: " +  campaign.getName());
                 card.getElement().addEventListener("click", event -> {
                     UI.getCurrent().navigate(CampaignView.class,QueryParameters.of("Campaign", campaign.getId()));
@@ -84,6 +83,9 @@ public class DashBoard extends Div implements BeforeEnterObserver {
                 });
                 CampaignCards.add(card);
             });
+
+        }catch (Exception e){
+
         }
 
 

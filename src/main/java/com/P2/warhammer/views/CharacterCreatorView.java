@@ -28,7 +28,7 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-
+import java.util.stream.Collector;
 
 
 @PermitAll
@@ -53,6 +53,8 @@ public class CharacterCreatorView extends Div {
     Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
     private final Random random = new Random();
     private List<String> currentSkillList;
+
+    List<Characteristic> characteristics;
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository) {
@@ -232,9 +234,9 @@ public class CharacterCreatorView extends Div {
                 xp = 0;
             }
 
-            Character character = new Character(name,null,null, age, xp, characterHashmapCharacteristics());
-            characterRepository.save(character);
-            System.out.println("Saved Charachter: " + character.getName());
+            //Character character = new Character(name,null,null, age, xp, characterHashmapCharacteristics());
+            //characterRepository.save(character);
+            //System.out.println("Saved Charachter: " + character.getName());
         });
         add(saveButton);
     }
