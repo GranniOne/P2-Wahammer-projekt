@@ -73,6 +73,8 @@ public class Character {
         this.experience = experience;
         this.characteristics = characteristics;
 
+        //sets all armour values to zero
+
 
     }
 

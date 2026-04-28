@@ -2,6 +2,7 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.layout.CharacterCard;
@@ -14,6 +15,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;

@@ -53,9 +53,7 @@ public class Skill {
         return Description;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    public void setId(String id) {this.id = id;}
 
     public void setName(String name) {
         Name = name;
