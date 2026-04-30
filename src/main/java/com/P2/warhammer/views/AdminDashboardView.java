@@ -47,8 +47,8 @@ public class AdminDashboardView extends Div {
         grid.addComponentColumn(user -> new Button("nulstil adgangskode",event -> {
             openDialog(user,event.getSource().getText());
         })).setHeader("nulstil adgangskode");
-        grid.addComponentColumn(user -> new Button("delete  " + user.getUsername(), event -> {
-            openDialog(user,event.getSource().getText());
+        grid.addComponentColumn(user -> new Button("delete " + user.getUsername(), event -> {
+            openDialog(user,"delete");
         })).setHeader("Delete user");
         grid.addComponentColumn(user -> new Button("Access Profile " + user.getUsername(), event -> {
             UI.getCurrent().navigate("admin-dashboard/UserProfile/"+ user.getId() +"/");
@@ -65,10 +65,19 @@ public class AdminDashboardView extends Div {
         dialog.setHeaderTitle(
                 String.format(" %s user \"%s\"?",option, user.getUsername()));
         dialog.add("Are you sure you want to delete this user permanently?");
+        System.out.println(option);
 
         Button deleteButton = new Button(option, e -> {
-            user.setPassword("1234abcd");
-            userService.saveUser(user);
+            System.out.println(option);
+            if(option.equals("delete")){
+
+                userService.deleteUser(user);
+            }
+            if(option.equals("nulstil adgangskode")){
+                user.setPassword("1234abcd");
+                userService.saveUser(user);
+            }
+
             dialog.close();
             UI.getCurrent().getPage().reload();
         });
