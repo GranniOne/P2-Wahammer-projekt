@@ -3,6 +3,7 @@ package com.P2.warhammer.characters;
 import com.P2.warhammer.Conditions.Condition;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Talents.Talent;
+import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.items.Armour;
 import com.P2.warhammer.items.Weapon;
@@ -15,6 +16,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -26,8 +28,6 @@ import java.util.List;
 
  */
 @Document(collection = "characters")
-@Getter
-@Setter
 public class Character {
 
     @Id
@@ -56,6 +56,10 @@ public class Character {
     int goldCrowns = 0;
     int statusLevel = 0; //your "class gold". see Excel sheet
 
+    Career career;
+
+    List<String> characteristicsNameArray = Arrays.asList(("Weapon Skill,Ballistics Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
+
     List<Object> inventory = new ArrayList<>();
     List<Armour> equippedArmour = new ArrayList<>();
     List<Weapon> equippedWeapons = new ArrayList<>();
@@ -73,11 +77,232 @@ public class Character {
         this.experience = experience;
         this.characteristics = characteristics;
 
+
+
+
         //sets all armour values to zero
 
 
     }
 
+    public Character() {
+        this.characteristics = new ArrayList<>();
+
+
+        for (int i = 0; i < 10; i++){
+            characteristics.add(new Characteristic(characteristicsNameArray.get(i),0,0,0,0));
+        }
+
+    }
+
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public User getGameMaster() {
+        return GameMaster;
+    }
+
+    public void setGameMaster(User gameMaster) {
+        GameMaster = gameMaster;
+    }
+
+    public Campaign getCampaign() {
+        return campaign;
+    }
+
+    public void setCampaign(Campaign campaign) {
+        this.campaign = campaign;
+    }
+
+    public String getRace() {
+        return race;
+    }
+
+    public void setRace(String race) {
+        this.race = race;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public int getExperience() {
+        return experience;
+    }
+
+    public void setExperience(int experience) {
+        this.experience = experience;
+    }
+
+    public int getAdvantage() {
+        return advantage;
+    }
+
+    public void setAdvantage(int advantage) {
+        this.advantage = advantage;
+    }
+
+    public int getMaxWounds() {
+        return maxWounds;
+    }
+
+    public void setMaxWounds(int maxWounds) {
+        this.maxWounds = maxWounds;
+    }
+
+    public int getDamageTaken() {
+        return damageTaken;
+    }
+
+    public void setDamageTaken(int damageTaken) {
+        this.damageTaken = damageTaken;
+    }
+
+    public List<Integer> getArmourValues() {
+        return armourValues;
+    }
+
+    public void setArmourValues(List<Integer> armourValues) {
+        this.armourValues = armourValues;
+    }
+
+    public int getCorruptionMax() {
+        return corruptionMax;
+    }
+
+    public void setCorruptionMax(int corruptionMax) {
+        this.corruptionMax = corruptionMax;
+    }
+
+    public int getCorruptionTaken() {
+        return corruptionTaken;
+    }
+
+    public void setCorruptionTaken(int corruptionTaken) {
+        this.corruptionTaken = corruptionTaken;
+    }
+
+    public int getPfennings() {
+        return Pfennings;
+    }
+
+    public void setPfennings(int pfennings) {
+        Pfennings = pfennings;
+    }
+
+    public int getSilverShillings() {
+        return silverShillings;
+    }
+
+    public void setSilverShillings(int silverShillings) {
+        this.silverShillings = silverShillings;
+    }
+
+    public int getGoldCrowns() {
+        return goldCrowns;
+    }
+
+    public void setGoldCrowns(int goldCrowns) {
+        this.goldCrowns = goldCrowns;
+    }
+
+    public int getStatusLevel() {
+        return statusLevel;
+    }
+
+    public void setStatusLevel(int statusLevel) {
+        this.statusLevel = statusLevel;
+    }
+
+    public Career getCareer() {
+        return career;
+    }
+
+    public void setCareer(Career career) {
+        this.career = career;
+    }
+
+    public List<Object> getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(List<Object> inventory) {
+        this.inventory = inventory;
+    }
+
+    public List<Armour> getEquippedArmour() {
+        return equippedArmour;
+    }
+
+    public void setEquippedArmour(List<Armour> equippedArmour) {
+        this.equippedArmour = equippedArmour;
+    }
+
+    public List<Weapon> getEquippedWeapons() {
+        return equippedWeapons;
+    }
+
+    public void setEquippedWeapons(List<Weapon> equippedWeapons) {
+        this.equippedWeapons = equippedWeapons;
+    }
+
+    public List<Talent> getTalents() {
+        return talents;
+    }
+
+    public void setTalents(List<Talent> talents) {
+        this.talents = talents;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
+    public List<Condition> getConditions() {
+        return conditions;
+    }
+
+    public void setConditions(List<Condition> conditions) {
+        this.conditions = conditions;
+    }
+
+    public List<Characteristic> getCharacteristics() {
+        return characteristics;
+    }
+
+    public void setCharacteristics(List<Characteristic> characteristics) {
+        this.characteristics = characteristics;
+    }
 
     @Override
     public String toString() {

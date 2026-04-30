@@ -13,7 +13,7 @@ public class CareerService {
         this.repository = repository;
     }
 
-    public Career addCareer(String Id, String Name, List<String> levelCharacterticsList, List<String> levelTrappingsList, List<String> levelStatusList, List<List<String>> levelTalentsList, List<List<String>> levelSkillsList, String socialClass) {
+    public Career addCareer(String Id, String Name, List<String> levelCharacterticsList, List<String> levelTrappingsList, List<Integer> levelStatusList, List<List<String>> levelTalentsList, List<List<String>> levelSkillsList, String socialClass) {
         return repository.save(new Career(Id, Name, levelCharacterticsList, levelTrappingsList, levelStatusList, levelTalentsList, levelSkillsList, socialClass));
     }
 

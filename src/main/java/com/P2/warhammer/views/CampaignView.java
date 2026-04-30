@@ -41,8 +41,8 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
         this.campaignRepository = campaignRepository;
         this.characterRepository = characterRepository;
 
-        setClassName("div-page");
-        Content.setClassName("content");
+        setClassName("div-page-compaign");
+        Content.setClassName("campaign-content");
         layout.setClassName("campaign-view");
         header.setClassName("header");
         add(Content);
@@ -68,7 +68,7 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
             List<Character> characters = currentCampaign.getCharacters();
             makeCharactersCards(characters,currentCampaign);
 
-            ComboBox<Character> comboBox = new ComboBox<>("all characters in campaign");
+            ComboBox<Character> comboBox = new ComboBox<>("All characters in campaign");
             comboBox.setItems(characters);
             comboBox.setItemLabelGenerator(Character::getName);
             header.add(comboBox);

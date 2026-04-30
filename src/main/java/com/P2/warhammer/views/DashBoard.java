@@ -5,17 +5,22 @@ package com.P2.warhammer.views;
 import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.characters.Character;
+import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.card.Card;
 import com.vaadin.flow.component.dependency.StyleSheet;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import com.vaadin.flow.server.VaadinSession;
@@ -33,11 +38,16 @@ import java.util.Objects;
 @PermitAll
 public class DashBoard extends Div implements BeforeEnterObserver {
     private final UserService userService;
+    private final CharacterService characterService;
+    private final CampaignService campaignService;
+
     User loadedUser;
     List<Character> ownedCharacters;
     List<Campaign> campaigns;
     DashBoard(UserService userService, CharacterService  characterService, CampaignService  campaignService) {
+        this.characterService =  characterService;
         this.userService = userService;
+        this.campaignService = campaignService;
         try{
             loadedUser = Utilities.getUserFromAuthentication();
             ownedCharacters =  characterService.getCharactersByUser(loadedUser);
@@ -56,12 +66,35 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         Div CharacterCards = new Div();
         try {
             ownedCharacters.forEach(character -> {
-                Card card = new Card();
-                card.setTitle(character.getName());
-                card.getElement().addEventListener("click", event -> {
+                HorizontalLayout characterCard = new HorizontalLayout();
+                characterCard.setAlignItems(FlexComponent.Alignment.CENTER);
+                characterCard.addClassName("character-card");
+                characterCard.setPadding(true);
+
+                characterCard.add(new H5(character.getName()));
+
+                Button characterViewButton = new Button("View", e -> {
                     UI.getCurrent().navigate(CharacterView.class, QueryParameters.of("Character", character.getId()));
+
                 });
-                CharacterCards.add(card);
+                characterCard.addToEnd(characterViewButton);
+
+                Button characterEditButton = new Button("Edit", e ->{
+                    UI.getCurrent().navigate(CharacterCreatorView.class, QueryParameters.of("Character", character.getId()));
+
+
+                });
+                characterCard.addToEnd(characterEditButton);
+
+                Button deleteCharacterButton = new Button("Delete", e -> {
+                    openDialog(character);
+                });
+                characterCard.addToEnd(deleteCharacterButton);
+
+
+
+
+                CharacterCards.add(characterCard);
             });
         }catch (Exception e){}
 
@@ -74,14 +107,43 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         Div CampaignCards = new Div();
         try {
             campaigns.forEach(campaign -> {
-                Card card = new Card();
+                HorizontalLayout campaignCard = new HorizontalLayout();
+                campaignCard.setAlignItems(FlexComponent.Alignment.CENTER);
+                campaignCard.addClassName("campaign-card");
+                campaignCard.setPadding(true);
+
+                campaignCard.add(new H5(Objects.equals(loadedUser.getId(), campaign.getGameMaster().getId()) ? "Gamemaster: " + campaign.getName() : "Player: " + campaign.getName()));
+
+                Button campaignViewButton = new Button("View", e -> {
+                    UI.getCurrent().navigate(CampaignView.class,QueryParameters.of("Campaign", campaign.getId()));
+                });
+                campaignCard.addToEnd(campaignViewButton);
+                if(campaign.getGameMaster().getId().equals(loadedUser.getId())){
+                    Button campaignEditButton = new Button("Edit", e ->{
+                        UI.getCurrent().navigate(CampaignCreatorView.class, QueryParameters.of("Campaign", campaign.getId()));
+                    });
+                    campaignCard.addToEnd(campaignEditButton);
+
+                    Button deleteCharacterButton = new Button("Delete", e -> {
+                        openDialog(campaign);
+                    });
+                    campaignCard.addToEnd(deleteCharacterButton);
+                }
+
+
+
+
+
+
+
+                /*Card card = new Card();
                 System.out.println(campaign.toString());
                 card.setTitle(Objects.equals(loadedUser.getId(), campaign.getGameMaster().getId()) ? "Gamemaster: " + campaign.getName() : "player: " +  campaign.getName());
                 card.getElement().addEventListener("click", event -> {
                     UI.getCurrent().navigate(CampaignView.class,QueryParameters.of("Campaign", campaign.getId()));
 
-                });
-                CampaignCards.add(card);
+                });*/
+                CampaignCards.add(campaignCard);
             });
 
         }catch (Exception e){
@@ -122,9 +184,34 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         dashboard.add(characterContent,CampaignContent);
         add(dashboard);
 
+    }
+
+    private void openDialog(Object o) {
+        Dialog dialog = new Dialog();
+        dialog.open();
+        Button cancelButton = new Button("Cancel", e -> {
+            dialog.close();
+        });
+
+        Button confirmButton = new Button("Confirm", e -> {
+            if (o instanceof Character){
+                characterService.deleteCharacterFromId(((Character)o).getId());
+            }
+            if (o instanceof Campaign){
+                campaignService.deleteCampaignById(((Campaign)o).getId());
+            }
+            dialog.close();
+            UI.getCurrent().getPage().reload();
+
+        });
+
+        confirmButton.getStyle().set("margin-left", "auto");
+        confirmButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
 
 
-
+        dialog.add("Confirm deletion? Data cannot be restored");
+        dialog.getFooter().add(cancelButton);
+        dialog.getFooter().add(confirmButton);
 
     }
 
@@ -135,11 +222,9 @@ public class DashBoard extends Div implements BeforeEnterObserver {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
 
-
-
             }
 
-                  ;
+
         }
 
     }

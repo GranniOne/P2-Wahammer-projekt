@@ -42,6 +42,8 @@ public class CharacterService {
         return repository.findById(Id).get();
     }
 
+    public void deleteCharacterFromId(String Id){repository.deleteCharacterById(Id);}
+
     public List<Character> getCharactersByUser(User user) {
         return repository.getCharactersByUser(user);
     }

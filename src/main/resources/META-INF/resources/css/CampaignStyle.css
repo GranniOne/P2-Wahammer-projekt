@@ -1,5 +1,5 @@
 
-.div-page {
+.div-page-compaign {
     display: flex;
     justify-content: center;
     height: 100%;
@@ -7,7 +7,7 @@
     background: yellow;
     flex-direction: column;
 }
-.content{
+.campaign-content{
     display: flex;
     flex-direction: column;
     align-self: center;

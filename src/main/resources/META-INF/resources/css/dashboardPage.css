@@ -61,10 +61,18 @@
     margin-top: auto;
 }
 
+.character-card {
+    background: #d67500;
+}
+
 .CampaignCards {
     height: 90%;
     width: 100%;
     background: darkviolet;
     margin-top: auto;
 
+}
+
+.campaign-card {
+    background: #670093;
 }

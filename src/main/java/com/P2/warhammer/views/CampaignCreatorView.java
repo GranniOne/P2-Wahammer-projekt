@@ -6,6 +6,7 @@ import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -25,6 +26,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.dom.Style;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.security.core.Authentication;
@@ -36,16 +39,43 @@ import java.util.stream.Collectors;
 @PermitAll
 @StyleSheet("charactercreator.css")
 @Route("campaigncreator")
-public class CampaignCreatorView extends Div {
+public class CampaignCreatorView extends Div implements BeforeEnterObserver {
 
     private final CampaignService campaignService;
     private final UserService userService;
     private final Binder<User> binder;
+    private final Binder<Campaign> campaignNameBinder;
+    private final Binder<List<User>> campaignUsers;
+    Campaign campaign;
+
+
 
     CampaignCreatorView(CampaignService campaignService, UserService userService) {
         this.campaignService = campaignService;
         this.userService = userService;
         binder = new Binder<>();
+        this.campaignNameBinder = new Binder<>();
+        this.campaignUsers = new Binder<>();
+    }
+
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        String campaignId = beforeEnterEvent.getLocation().getQueryParameters().getSingleParameter("Campaign").orElse(null);
+        TextField campaignTextField = new TextField();
+        campaignNameBinder.forField(campaignTextField).bind(Campaign::getName, Campaign::setName);
+
+        if (campaignId != null ){
+            campaign = campaignService.getCampaignnById(campaignId);
+            campaignNameBinder.readBean(campaign);
+
+
+        }else{
+            campaign = new Campaign();
+        }
+
+
+
         Grid<User> grid = new Grid<>(User.class, false);
         grid.getStyle().setHeight("600px");
 
@@ -53,13 +83,14 @@ public class CampaignCreatorView extends Div {
         Div layout = new Div();
         layout.getStyle().setHeight("70%").setWidth("70%").setBackground("darkslategrey").setAlignSelf(Style.AlignSelf.CENTER).setFlexDirection(Style.FlexDirection.COLUMN).setDisplay(Style.Display.FLEX).setGap("25px");
 
-        H3 title = new H3("Create campaign");
+        H3 title = new H3("Campaign");
         layout.add(title);
         title.getStyle().setJustifyContent(Style.JustifyContent.CENTER).setDisplay(Style.Display.FLEX);
 
 
-        TextField campaignTextField = new TextField();
+
         campaignTextField.setLabel("Campaign name:");
+
         layout.add(campaignTextField);
 
         Span addUserText = new Span("Add user to campaign (e-mail):");
@@ -79,7 +110,7 @@ public class CampaignCreatorView extends Div {
 
 
         addUserBody.add(addUserTextField);
-        List<User> users = new ArrayList<>();
+        List<User> users = campaign.getPlayers() == null ? new ArrayList<>() : campaign.getPlayers();
         grid.setItems(users);
         Button addUserButton = new Button("Add", event -> {
             if(binder.validate().isOk() && users.stream().noneMatch(u -> u.getEmail().equals(addUserTextField.getValue()))) {
@@ -97,38 +128,26 @@ public class CampaignCreatorView extends Div {
         grid.addComponentColumn(user -> new Button("X",event -> {
             users.remove(users.indexOf(user));
             grid.getDataProvider().refreshAll();
-        })).setHeader("Rem");
+        })).setHeader("Remove user");
 
 
         grid.addColumn(User::getEmail).setHeader("Added Users");
 
         layout.add(grid);
-        Button button = new Button("Create", event -> {
+        Button button = new Button("Save", event -> {
             if(campaignTextField.getValue().isEmpty()){
                 return;
             }
-            Campaign newCampaign = new Campaign(campaignTextField.getValue(),Utilities.getUserFromAuthentication());
-            newCampaign.setPlayers(users);
-            campaignService.addCompletedCampaign(newCampaign);
+            campaign.setPlayers(users);
+            campaignService.addCompletedCampaign(campaign);
             UI.getCurrent().navigate(DashBoard.class);
         });
         button.getStyle().set("display", "flex").setAlignSelf(Style.AlignSelf.CENTER);
         layout.add(button);
 
-
-
-
-
-
-
-
-
-
         add(layout);
+
     }
-
-
-
 }
 
 

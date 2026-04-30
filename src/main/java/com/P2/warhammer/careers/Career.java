@@ -23,7 +23,7 @@ public class Career {
 
     List<String> levelCharacterticsList = new ArrayList<>();
     List<String> levelTrappingsList = new ArrayList<>();
-    List<String> levelStatusList = new ArrayList<>();
+    List<Integer> levelStatusList = new ArrayList<>();
     List<List<String>> levelTalentsList = new ArrayList<>();
     List<List<String>> levelSkillsList = new ArrayList<>();
     String socialClass = "";
@@ -64,11 +64,11 @@ public class Career {
         this.levelTrappingsList = levelTrappingsList;
     }
 
-    public List<String> getLevelStatusList() {
+    public List<Integer> getLevelStatusList() {
         return levelStatusList;
     }
 
-    public void setLevelStatusList(List<String> levelStatusList) {
+    public void setLevelStatusList(List<Integer> levelStatusList) {
         this.levelStatusList = levelStatusList;
     }
 
@@ -96,7 +96,7 @@ public class Career {
         this.socialClass = socialClass;
     }
 
-    public Career(String Id, String Name, List<String> levelCharacterticsList, List<String> levelTrappingsList, List<String> levelStatusList, List<List<String>> levelTalentsList, List<List<String>> levelSkillsList, String socialClass) {
+    public Career(String Id, String Name, List<String> levelCharacterticsList, List<String> levelTrappingsList, List<Integer> levelStatusList, List<List<String>> levelTalentsList, List<List<String>> levelSkillsList, String socialClass) {
         Id = Id;
         Name = Name;
         this.levelCharacterticsList = levelCharacterticsList;

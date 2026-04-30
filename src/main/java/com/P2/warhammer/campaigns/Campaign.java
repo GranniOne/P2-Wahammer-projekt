@@ -36,6 +36,7 @@ public class Campaign {
         this.players = new ArrayList<>();
 
     }
+    public Campaign(){}
 
     public String getName() {
         return name;

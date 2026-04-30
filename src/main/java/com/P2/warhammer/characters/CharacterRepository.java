@@ -24,4 +24,5 @@ public interface CharacterRepository extends MongoRepository<Character, String> 
     List<Character> findByCampaign(Campaign campaign);
 
 
+    void deleteCharacterById(String id);
 }

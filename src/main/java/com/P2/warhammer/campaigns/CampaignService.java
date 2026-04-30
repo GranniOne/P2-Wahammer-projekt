@@ -34,6 +34,14 @@ public class CampaignService {
         return repository.save(campaign);
     }
 
+    public Campaign getCampaignnById(String id){
+        return repository.findCampaignById(id);
+    }
+
+    public void deleteCampaignById(String id){
+        repository.deleteById(id);
+    }
+
     public List<Campaign> getAllCampaigns() {
         return repository.findAll();
     }

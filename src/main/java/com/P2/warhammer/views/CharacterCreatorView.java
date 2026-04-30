@@ -1,11 +1,8 @@
 package com.P2.warhammer.views;
 
-import com.P2.warhammer.Race.Race;
-import com.P2.warhammer.Race.RaceEntry;
 import com.P2.warhammer.Race.RaceRepository;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
-import com.P2.warhammer.Talents.Talent;
 import com.P2.warhammer.Talents.TalentRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
@@ -13,29 +10,25 @@ import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
-import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.Text;
+import com.P2.warhammer.characters.CharacterService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
-import org.jspecify.annotations.NonNull;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collector;
 
 
 @PermitAll
 @PageTitle("Character Creator Page")
 @Route("characterCreator")
 @StyleSheet("css/characterStyle.css")
-public class CharacterCreatorView extends Div {
+public class CharacterCreatorView extends Div implements HasUrlParameter<String> {
+    /*
     private final List<Button> skillButtonArray = new ArrayList<>();
     private final SkillRepository skillRepository;
     private final List<Skill> skills;
@@ -49,6 +42,7 @@ public class CharacterCreatorView extends Div {
     private final RaceRepository raceRepository;
     private final List<Race> race, raceItems, careerItem ;
     private final TalentRepository talentRepository;
+    private final CharacterService characterService;
 
     Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
     private final Random random = new Random();
@@ -56,44 +50,69 @@ public class CharacterCreatorView extends Div {
 
     List<Characteristic> characteristics;
 
+     */
 
-    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository) {
+    Random random = new Random();
+    private final SkillRepository skillRepository;
+    private final CharacterRepository characterRepository;
+    private final CharacterService characterService;
+    private final CareerRepository careerRepository;
+    private final TalentRepository talentRepository;
+    private final RaceRepository raceRepository;
+    private List<Career> careers;
+    private List<Skill> skills;
+    private Character globalCharacter;
+    Div statBox = new Div();
+
+
+
+    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers) {
         this.skillRepository = skillRepository;
-        this.skills = skillRepository.findAll();
-        this.talentRepository = talentRepository;
-        this.talents = talentRepository.findAll();
-
         this.characterRepository = characterRepository;
-
+        this.talentRepository = talentRepository;
         this.raceRepository = raceRepository;
-        this.race = raceRepository.findAll();
-        this.raceItems = race.stream().filter(r -> r.getRace() != null && !r.getRace().isBlank()).toList();
-
         this.careerRepository = careerRepository;
-        this.careers = careerRepository.findAll();
-        this.careerItem = race.stream().filter(r-> r.getCareer() != null && !r.getCareer().isBlank()).toList();
+        this.characterService = characterService;
 
         setClassName("div-page");
         getStyle().set("position", "relative");
 
-        Div statBox = new Div();
-
-        Div infoBoxParent = new Div();
-
-        saveCharacterButtonCreator();
-        add(RaceBox());
-        add(CareerBox(statBox, infoBoxParent));
-
-        //commented out as we only need to see these elements when a career is chosen
-        //CharacterSkillsGeneration(statBox,infoBoxParent);
     }
+    @Override
+    public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String Id) {
+        String parameterCharacter = beforeEvent.getLocation().getQueryParameters().getSingleParameter("Character").orElse("");
+
+            if(!parameterCharacter.isEmpty()){
+                try {
+                    globalCharacter = characterService.getCharacterFromId(parameterCharacter);
+                } catch (NullPointerException e) {
+
+                }
+            }else{
+                globalCharacter =  new Character();
+            }
+
+
+
+
+        this.careers = careerRepository.findAll();
+
+        this.skills = skillRepository.findAll();
+
+
+
+        this.add(careerBox());
+        this.add(statBox);
+    }
+
+
 
     private IntegerField createField(int max) {
         IntegerField statField = new IntegerField();
 
         statField.setRequiredIndicatorVisible(true);
 
-        statField.setMin(0);
+        statField.setMin(1);
         statField.setMax(max);
 
         statField.setStepButtonsVisible(true);
@@ -105,28 +124,227 @@ public class CharacterCreatorView extends Div {
         return statField;
     }
 
-    private void renderCharSkillsTalent(AbstractField.ComponentValueChangeEvent e, Div statBox, Div infoBoxParent, TextField socialClassField, TextField moneyField, IntegerField levelField){
-        Career currentCareer = (Career) e.getValue();
-        statBox.removeAll();
-
-
-        //TODO Set characteristics, skills and talents
-
-        if (levelField.getValue() == null){
-            levelField.setValue(1);
+    int myParse(IntegerField integerField){ //bare så den ikke går i stykker hvis ikke alle felter er fyldte. den sparer så der ikke er like 4 linjer med ren if-statements
+        if (integerField.isEmpty()){
+            return 0;
         }
-        int level = levelField.getValue();
-
-        socialClassField.setValue(currentCareer.getSocialClass());
-
-        List<String> status = currentCareer.getLevelStatusList();
-
-
-
-        moneyField.setValue(status.get(level-1) + " Brass coins");
-        renderAllCharacterElements(statBox,infoBoxParent, currentCareer, level);
-        renderTalentElements(statBox, currentCareer, level);
+        int value = integerField.getValue();
+        return value;
     }
+
+    private Div careerBox(){
+        Div div = new Div();
+
+        TextField socialClassField = new TextField();
+        socialClassField.setReadOnly(true);
+        socialClassField.setLabel("Social Class");
+
+        TextField statusField = new TextField();
+        statusField.setReadOnly(true);
+        statusField.setLabel("Status");
+
+        ComboBox<Career> dropdownMenu = new ComboBox<>("Choose a career");
+
+        dropdownMenu.setItems(careers);
+        dropdownMenu.setItemLabelGenerator(Career::getName);
+
+        div.add(dropdownMenu);
+        IntegerField levelField = createField( 4);
+        levelField.setLabel("Level");
+        levelField.setValue(1);
+        levelField.setReadOnly(true);
+
+        div.add(levelField);
+        div.add(socialClassField);
+        div.add(statusField);
+
+        if (!dropdownMenu.isEmpty()){
+            levelField.setReadOnly(false);
+        }
+
+        //adds listener so the skills talents and characteristics can change when another career or level is selected
+        levelField.addValueChangeListener(e ->
+                careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
+        );
+        dropdownMenu.addValueChangeListener(e ->
+                careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
+        );
+        return div;
+    }
+
+
+    private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
+
+        renderCharacteristicsDivs();
+        levelField.setReadOnly(false);
+        Career currentCareer = dropdownMenu.getValue();
+
+        try {
+            socialClassField.setValue(currentCareer.getSocialClass());
+
+            if (levelField.getValue() == null) {
+                levelField.setValue(1);
+            }
+            int level = levelField.getValue();
+
+            List<Integer> status = currentCareer.getLevelStatusList();
+            moneyField.setValue("Your status is " + status.get(level - 1) + " Brass coins");
+
+            globalCharacter.setCareer(currentCareer);
+            globalCharacter.setStatusLevel(status.get(level - 1));
+        }catch (Exception e){
+            System.out.println("Klassen eksisterer ikke");
+        }
+
+
+    }
+
+
+    private void renderCharacteristicsDivs(){
+
+        Div characteristicsStatBox = new Div();
+
+
+        for (Characteristic characterCharacteristic : globalCharacter.getCharacteristics()){
+            CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
+            charDiv.getStyle()
+                    .set("grid-template-columns", "180px 80px 120px")
+                    .set("background-color", "#F5A3BE");
+
+            TextField charField = new TextField ();
+            charField.setReadOnly(true);
+            charField.setValue(characterCharacteristic.getName());
+
+            IntegerField raceField = new IntegerField ();
+            raceField.setReadOnly(true);
+            raceField.setValue(20);//Species bonus goes here plz fix x3
+
+            IntegerField baseField = createField(99);
+            baseField.setLabel("Rolled");
+            IntegerField modifierField = createField(99);
+            modifierField.setLabel("Modifier");
+            IntegerField penaltyField = createField(99);
+            penaltyField.setLabel("Penalty");
+            IntegerField totalField = new IntegerField();
+            totalField.setLabel("Total");
+
+
+            Button rollButton = new Button("Roll charateristic");
+            rollButton.addClickListener(event -> {
+                int die1 = random.nextInt(10) + 1;
+                int die2 = random.nextInt(10) + 1;
+                baseField.setValue(die1+die2);
+            });
+
+            Runnable updateTotal = () -> {
+                int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+
+                totalField.setValue(total);
+                charDiv.setTotalField(totalField);
+
+                //SOMEHOW UPDATE SKILL ELEMENTS HERE
+
+                characterCharacteristic.setBase(baseField.getValue());
+                characterCharacteristic.setModifier(modifierField.getValue());
+                characterCharacteristic.setPenalty(penaltyField.getValue());
+                characterCharacteristic.setBase(raceField.getValue());
+            };
+            baseField.addValueChangeListener(e -> updateTotal.run());
+            modifierField.addValueChangeListener(e -> updateTotal.run());
+            penaltyField.addValueChangeListener(e -> updateTotal.run());
+            raceField.addValueChangeListener(e -> updateTotal.run());
+            charDiv.setTotalField(totalField);
+
+
+            charDiv.add(charField,raceField,baseField,modifierField,penaltyField,totalField,rollButton);
+
+
+            //RENDER SKILL ELEMENTS HERE
+            //
+
+
+            characteristicsStatBox.add(charDiv);
+        }
+
+        statBox.removeAll();
+        statBox.add(characteristicsStatBox);
+    }
+
+
+/*
+
+private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, Career career, int level){
+        //TODO make this loop only run for race skills and career skills
+
+        List<List<String>> allowedSkills = new ArrayList<>(career.getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
+        System.out.println("det her er allowedSkills: " + allowedSkills);
+        skills.forEach(skill -> {                                          //kører igennem databasen og looper for alle skills
+            boolean found = false;
+            for (int i = 0; i < level; i++) {
+                if (allowedSkills.get(i).contains(skill.getName())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                System.out.println("breaks");
+                System.out.println(skill.getName());
+                return;
+            }
+
+
+            CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
+            if (skillGrid != null) {
+                Div skillDiv = new Div();
+
+                skillDiv.getStyle().set("background-color", "#F5B0A3");
+
+                Button skillButton = new Button(skill.getName(), e -> {
+                    infoBoxParent.removeAll();
+                    SkillInfoCreator(skill,infoBoxParent);
+                    infoBoxParent.setVisible(true);
+                });
+
+                IntegerField skillCharValueField = new IntegerField();
+                skillCharValueField.setReadOnly(true);
+                IntegerField sourceTotal = skillGrid.getTotalField();
+
+
+                IntegerField skillModifierField = createField(99);
+                IntegerField skillPenaltyField = createField(99);
+                IntegerField skillTotalField = createField(99);
+                skillTotalField.setReadOnly(true);
+                skillCharValueField.setValue(sourceTotal.getValue());
+
+                Runnable updateTotal = () -> {
+                    int total = myParse(skillCharValueField) + myParse(skillModifierField) - myParse(skillPenaltyField);
+
+                    skillTotalField.setValue(total);
+                };
+
+                sourceTotal.addValueChangeListener(e -> {
+                    skillCharValueField.setValue(sourceTotal.getValue());
+                    updateTotal.run();
+                });
+
+
+
+                skillCharValueField.addValueChangeListener(e -> updateTotal.run());
+                skillModifierField.addValueChangeListener(e -> updateTotal.run());
+                skillPenaltyField.addValueChangeListener(e -> updateTotal.run());
+
+                skillDiv.add(skillButton);
+                skillDiv.add(skillCharValueField);
+                skillDiv.add(skillModifierField);
+                skillDiv.add(skillPenaltyField);
+                skillDiv.add(skillTotalField);
+                skillGrid.add(skillDiv);
+            }
+        });
+
+        characteristicsMap.values().forEach(characteristicsGrid::add);
+    }
+
 
 
 
@@ -155,42 +373,11 @@ public class CharacterCreatorView extends Div {
         return div1;
     }
 
-    //gets all careers and adds them to a dropdown menu in a div it returns. i will code it such that when you add a career it is saved to the character and then you can change it later.
-    //no multi-jobbing >:(
-    private Div CareerBox(Div statBox, Div infoBoxParent){
-        Div div = new Div();
 
-        TextField socialClassField = new TextField();
-        socialClassField.setReadOnly(true);
-        socialClassField.setLabel("Social Class");
-
-        TextField statusField = new TextField();
-        statusField.setReadOnly(true);
-        statusField.setLabel("Status");
-
-        ComboBox<Career> dropdownMenu = new ComboBox<>("Choose a career");
-
-        dropdownMenu.setItems(careers);
-        dropdownMenu.setItemLabelGenerator(Career::getName);
-
-        div.add(dropdownMenu);
-        IntegerField levelField = createField( 4);
-        levelField.setLabel("Level");
-        div.add(levelField);
-        div.add(socialClassField);
-        div.add(statusField);
+*/
 
 
-
-        //adds listener so the skills talents and characteristics can change when another career is selected
-        dropdownMenu.addValueChangeListener(e ->
-            renderCharSkillsTalent(e, statBox, infoBoxParent, socialClassField, statusField, levelField)
-        );
-
-
-        return div;
-    }
-
+/*
     private Map<String, Characteristic> characterHashmapCharacteristics(){
 
         Map<String, Characteristic> characterHashmapCharacteristics = new HashMap<>();
@@ -210,7 +397,8 @@ public class CharacterCreatorView extends Div {
         return characterHashmapCharacteristics;
     }
 
-
+*/
+    /*
     private void saveCharacterButtonCreator() {
         TextField nameField = new TextField("Character Name");
         IntegerField ageField = new IntegerField("Character age");
@@ -242,76 +430,7 @@ public class CharacterCreatorView extends Div {
     }
 
 
-    private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, Career career, int level){
-        //TODO make this loop only run for race skills and career skills
 
-        List<List<String>> allowedSkills = new ArrayList<>(career.getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
-        System.out.println("det her er allowedSkills: " + allowedSkills);
-        skills.forEach(skill -> {                                          //kører igennem databasen og looper for alle skills
-            boolean found = false;
-            for (int i = 0; i < level; i++) {
-                if (allowedSkills.get(i).contains(skill.getName())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                System.out.println("breaks");
-                System.out.println(skill.getName());
-                return;
-            }
-
-            System.out.println("works");
-            System.out.println(skill.getName());
-            CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
-            if (skillGrid != null) {
-                Div skillDiv = new Div();
-
-                skillDiv.getStyle().set("background-color", "#F5B0A3");
-
-                Button skillButton = new Button(skill.getName(), e -> {
-                    infoBoxParent.removeAll();
-                    SkillInfoCreator(skill,infoBoxParent);
-                    infoBoxParent.setVisible(true);
-                });
-
-                IntegerField skillCharValueField = new IntegerField();
-                skillCharValueField.setReadOnly(true);
-                IntegerField sourceTotal = skillGrid.getTotalField();
-
-
-                IntegerField skillModifierField = createField(99);
-                IntegerField skillPenaltyField = createField(99);
-                IntegerField skillTotalField = createField(99);
-                skillTotalField.setReadOnly(true);
-                skillCharValueField.setValue(sourceTotal.getValue());
-
-                Runnable updateTotal = () -> {
-                    int total = myParse(skillCharValueField) + myParse(skillModifierField) - myParse(skillPenaltyField); skillTotalField.setValue(total);
-                };
-
-                sourceTotal.addValueChangeListener(e -> {
-                    skillCharValueField.setValue(sourceTotal.getValue());
-                    updateTotal.run();
-                });
-
-
-
-                skillCharValueField.addValueChangeListener(e -> updateTotal.run());
-                skillModifierField.addValueChangeListener(e -> updateTotal.run());
-                skillPenaltyField.addValueChangeListener(e -> updateTotal.run());
-
-                skillDiv.add(skillButton);
-                skillDiv.add(skillCharValueField);
-                skillDiv.add(skillModifierField);
-                skillDiv.add(skillPenaltyField);
-                skillDiv.add(skillTotalField);
-                skillGrid.add(skillDiv);
-            }
-        });
-
-        characteristicsMap.values().forEach(characteristicsGrid::add); //foreach my beloved ❤️❤️❤️ ⸜(｡˃ ᵕ ˂ )⸝♡ °❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･°❀⋆.ೃ࿔*:･
-    }
 
     private Div renderTalentElements(Div infoBoxParent, Career career, int level){
         Div characterTalentDiv = new Div();
@@ -527,5 +646,7 @@ public class CharacterCreatorView extends Div {
         infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4);
         return infoBoxTextContainer;
     }
+
+     */
 
 }
