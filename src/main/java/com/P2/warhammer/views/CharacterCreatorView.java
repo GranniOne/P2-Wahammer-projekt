@@ -11,6 +11,7 @@ import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -98,6 +99,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         this.add(careerBox());
         this.add(statBox);
+
     }
 
 
@@ -125,6 +127,29 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
         int value = integerField.getValue();
         return value;
+    }
+
+
+    private void addTrappings(Career career, int level){ //TODO lille bug her med at den giver de samme trappings flere gange hvis man gemmer karakteren
+        List<Object> inventory = globalCharacter.getInventory();
+
+        for (int i = 0; i < level; i++) {
+            inventory.add(career.getLevelTrappingsList().get(i));
+        }
+
+        globalCharacter.setInventory(inventory);
+
+
+    }
+
+    private Div inventoryDiv(){
+        Div div = new Div();
+        for (Object inventoryItem : globalCharacter.getInventory()){
+             Div IvenDiv = new Div();
+            TextField itemField = new TextField(inventoryItem.toString());
+             IvenDiv.add(itemField);
+        }
+        return div;
     }
 
     private Div careerBox(){
@@ -168,8 +193,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
 
-    private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
 
+    private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
+        addTrappings(dropdownMenu.getValue(), levelField.getValue());
+        this.add(inventoryDiv());
         renderCharacteristicsDivs();
         levelField.setReadOnly(false);
         Career currentCareer = dropdownMenu.getValue();
