@@ -86,20 +86,15 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 try {
                     globalCharacter = characterService.getCharacterFromId(parameterCharacter);
                 } catch (NullPointerException e) {
-
+                    System.out.println("characterID is not linked to character");
                 }
             }else{
                 globalCharacter =  new Character();
             }
 
-
-
-
         this.careers = careerRepository.findAll();
 
         this.skills = skillRepository.findAll();
-
-
 
         this.add(careerBox());
         this.add(statBox);
@@ -204,7 +199,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Div characteristicsStatBox = new Div();
 
-
+        int characteristicNumber = 0;
         for (Characteristic characterCharacteristic : globalCharacter.getCharacteristics()){
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
             charDiv.getStyle()
@@ -213,14 +208,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             TextField charField = new TextField ();
             charField.setReadOnly(true);
+            charField.setLabel("Characteristic name");
             charField.setValue(characterCharacteristic.getName());
 
             IntegerField raceField = new IntegerField ();
             raceField.setReadOnly(true);
-            raceField.setValue(20);//Species bonus goes here plz fix x3
+            raceField.setLabel("Species bonus");
+            raceField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getRacemod());
 
             IntegerField baseField = createField(99);
-            baseField.setLabel("Rolled");
+            baseField.setLabel("Rolled stat");
             IntegerField modifierField = createField(99);
             modifierField.setLabel("Modifier");
             IntegerField penaltyField = createField(99);
@@ -260,10 +257,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
             //RENDER SKILL ELEMENTS HERE
-            //
 
 
             characteristicsStatBox.add(charDiv);
+            characteristicNumber++;
         }
 
         statBox.removeAll();
