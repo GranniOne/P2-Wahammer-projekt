@@ -6,6 +6,7 @@ import com.P2.warhammer.Talents.Talent;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.items.Armour;
+import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.items.Weapon;
 import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.users.User;
@@ -60,7 +61,7 @@ public class Character {
 
     List<String> characteristicsNameArray = Arrays.asList(("Weapon Skill,Ballistics Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
 
-    List<Object> inventory = new ArrayList<>();
+    List<WarhammerItem> inventory = new ArrayList<>();
     List<Armour> equippedArmour = new ArrayList<>();
     List<Weapon> equippedWeapons = new ArrayList<>();
     List<Talent> talents = new ArrayList<>();
@@ -248,11 +249,11 @@ public class Character {
         this.career = career;
     }
 
-    public List<Object> getInventory() {
+    public List<WarhammerItem> getInventory() {
         return inventory;
     }
 
-    public void setInventory(List<Object> inventory) {
+    public void setInventory(List<WarhammerItem> inventory) {
         this.inventory = inventory;
     }
 

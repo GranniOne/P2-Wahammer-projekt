@@ -12,9 +12,42 @@ public class WarhammerItem {
     int amount;
     int weight;
 
-    WarhammerItem(String name, int amount, int weight){
+    public WarhammerItem(String name, int amount, int weight){
         this.name = name;
         this.amount = amount;
+        this.weight = weight;
+    }
+
+    public WarhammerItem(String name, int amount) {
+        this.name = name;
+        this.amount = amount;
+    }
+
+    public WarhammerItem() {
+
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
         this.weight = weight;
     }
 }

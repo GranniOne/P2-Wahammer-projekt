@@ -1,6 +1,7 @@
 package com.P2.warhammer.characters;
 
 import com.P2.warhammer.characteristics.Characteristic;
+import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.User;
 import org.springframework.stereotype.Service;
 import java.util.List;

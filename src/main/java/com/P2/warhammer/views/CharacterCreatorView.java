@@ -11,6 +11,7 @@ import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
+import com.P2.warhammer.items.WarhammerItem;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -64,6 +65,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private List<Skill> skills;
     private Character globalCharacter;
     Div statBox = new Div();
+    Div inventoryDiv = new Div();
 
 
 
@@ -100,6 +102,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         this.add(careerBox());
         this.add(statBox);
 
+        inventoryDivCreator();
+        this.add(inventoryDiv);
     }
 
 
@@ -131,25 +135,48 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
     private void addTrappings(Career career, int level){ //TODO lille bug her med at den giver de samme trappings flere gange hvis man gemmer karakteren
-        List<Object> inventory = globalCharacter.getInventory();
+        List<WarhammerItem> inventory = globalCharacter.getInventory();
 
         for (int i = 0; i < level; i++) {
-            inventory.add(career.getLevelTrappingsList().get(i));
+            String newItems = career.getLevelTrappingsList().get(i);
+            String[] splitItems = newItems.split(",");
+
+            for (String item : splitItems) {
+                WarhammerItem addedItem = new WarhammerItem(item.trim(), 1); //TODO add amount of added trapping
+                inventory.add(addedItem);
+            }
+
         }
 
         globalCharacter.setInventory(inventory);
-
-
     }
 
-    private Div inventoryDiv(){
-        Div div = new Div();
-        for (Object inventoryItem : globalCharacter.getInventory()){
-             Div IvenDiv = new Div();
-            TextField itemField = new TextField(inventoryItem.toString());
-             IvenDiv.add(itemField);
+    private void inventoryDivCreator(){
+        boolean colorbool = true;
+        inventoryDiv.getStyle().set("background-color", "green");
+        for (WarhammerItem inventoryItem : globalCharacter.getInventory()){
+             Div inventoryElementDiv = new Div();
+             TextField itemField = new TextField();
+             itemField.setValue(inventoryItem.toString());
+             itemField.setReadOnly(true);
+
+             IntegerField trappingAmount = new IntegerField();
+             trappingAmount.setValue(inventoryItem.getAmount());
+
+             if (colorbool) {
+                 inventoryElementDiv.getStyle().set("background-color", "#88CF8F");
+             } else {
+                 inventoryElementDiv.getStyle().set("background-color", "#CF89A0");
+             }
+
+            inventoryElementDiv.add(itemField);
+
+            colorbool = !colorbool;
+
+            inventoryDiv.add(inventoryElementDiv);
         }
-        return div;
+
+
     }
 
     private Div careerBox(){
@@ -174,9 +201,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         levelField.setValue(1);
         levelField.setReadOnly(true);
 
+
+        Button addTrappingsButton = new Button("Add Trappings");
+        addTrappingsButton.addClickListener(event -> {
+            addTrappingFunction(levelField);
+        });
+
         div.add(levelField);
         div.add(socialClassField);
         div.add(statusField);
+        div.add(addTrappingsButton);
 
         if (!dropdownMenu.isEmpty()){
             levelField.setReadOnly(false);
@@ -189,14 +223,21 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.addValueChangeListener(e ->
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
+
         return div;
     }
 
+    private void addTrappingFunction(IntegerField levelField){
+        addTrappings(globalCharacter.getCareer(), levelField.getValue());
+        this.remove(inventoryDiv);
+        inventoryDiv.removeAll();
+        inventoryDivCreator();
+        this.add(inventoryDiv);
+    }
 
 
     private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
-        addTrappings(dropdownMenu.getValue(), levelField.getValue());
-        this.add(inventoryDiv());
+
         renderCharacteristicsDivs();
         levelField.setReadOnly(false);
         Career currentCareer = dropdownMenu.getValue();
@@ -214,6 +255,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             globalCharacter.setCareer(currentCareer);
             globalCharacter.setStatusLevel(status.get(level - 1));
+
         }catch (Exception e){
             System.out.println("Klassen eksisterer ikke");
         }
@@ -225,13 +267,21 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private void renderCharacteristicsDivs(){
 
         Div characteristicsStatBox = new Div();
-
+        characteristicsStatBox.getStyle().set("gap", "10px");
         int characteristicNumber = 0;
+        boolean colorbool = true;
         for (Characteristic characterCharacteristic : globalCharacter.getCharacteristics()){
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
             charDiv.getStyle()
-                    .set("grid-template-columns", "180px 80px 120px")
-                    .set("background-color", "#F5A3BE");
+                    .set("grid-template-columns", "180px 80px 120px");
+
+            if (colorbool) {
+                charDiv.getStyle().set("background-color", "#91BAB2");
+            } else {
+                charDiv.getStyle().set("background-color", "#F5A3BE");
+            }
+
+            colorbool = !colorbool;
 
             TextField charField = new TextField ();
             charField.setReadOnly(true);
