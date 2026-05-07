@@ -12,6 +12,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -93,7 +94,7 @@ public class SignupView extends Div implements BeforeEnterObserver {
             String ConfirmPassword = confirmPassword.getValue();
 
             if(binder.validate().isOk()) {
-                this.userService.AuthenticateUser(Firstname, Email, Password,ConfirmPassword);
+                this.AuthenticateUser(Firstname, Email, Password,ConfirmPassword);
                 UI.getCurrent().navigate(LoginView.class);
                 System.out.println("its good");
             }
@@ -113,6 +114,42 @@ public class SignupView extends Div implements BeforeEnterObserver {
 
         test.add(formLayout);
         add(test);
+    }
+
+    /**
+     * Creates a new user account after validating input fields.
+     * <p>
+     * This method performs the following validations:
+     * <ul>
+     *     <li>{@code username}, {@code email}, {@code password}, and {@code confirmedPassword} must not be empty</li>
+     *     <li>{@code password} and {@code confirmedPassword} must match</li>
+     *     <li>{@code email} must not already exist in the database</li>
+     * </ul>
+     * If all validations pass, the user is saved to the database.
+     *
+     * @param username the desired public username
+     * @param email the email for login and contact
+     * @param password the password for authentication
+     * @param confirmedPassword must match {@code password}
+     * @return {@code true} if the user was successfully created, {@code false} otherwise
+     */
+
+    public Boolean AuthenticateUser(String username, String email, String password, String confirmedPassword){
+
+
+        User user =  userService.findFromEmail(email);
+        Boolean test =
+                username.isEmpty() ||
+                        email.isEmpty() ||
+                        password.isEmpty() ||
+                        confirmedPassword.isEmpty() ||
+                        (password.equals(confirmedPassword));
+
+        //this statement does not appear to be working, needs fixing
+        userService.addUser(username, email, password);
+        System.out.println("User " + username + " authenticated successfully");
+        return user == null && !test;
+
     }
 
     @Override

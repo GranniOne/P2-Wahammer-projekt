@@ -67,72 +67,13 @@ public class UserService  {
     public void deleteUser(User user){
         this.repository.delete(user);
     }
-    /**
-     * Creates a new user account after validating input fields.
-     * <p>
-     * This method performs the following validations:
-     * <ul>
-     *     <li>{@code username}, {@code email}, {@code password}, and {@code confirmedPassword} must not be empty</li>
-     *     <li>{@code password} and {@code confirmedPassword} must match</li>
-     *     <li>{@code email} must not already exist in the database</li>
-     * </ul>
-     * If all validations pass, the user is saved to the database.
-     *
-     * @param username the desired public username
-     * @param email the email for login and contact
-     * @param password the password for authentication
-     * @param confirmedPassword must match {@code password}
-     * @return {@code true} if the user was successfully created, {@code false} otherwise
-     */
-    public Boolean AuthenticateUser(String username, String email, String password, String confirmedPassword){
-        String exception = "";
-
-        if(username.isEmpty()){
-            exception += "Username is empty";
-        }
-        if(email.isEmpty()){
-            exception += "\nEmail is empty";
-        }
-
-        if(password.isEmpty()){
-            exception += "\nPassword is empty ";
-        }
-        if(password.isEmpty()){
-            exception += "\nConfirm password is empty ";
-        }
-        if(!password.equals(confirmedPassword)){
-            exception += "\nThe password doesnt match ";
-        }
-
-        User user =  repository.findUserByEmail(email);
-        Boolean test =
-                username.isEmpty() ||
-                email.isEmpty() ||
-                password.isEmpty() ||
-                confirmedPassword.isEmpty() ||
-                (password.equals(confirmedPassword));
-
-        //this statement does not appear to be working, needs fixing
-        addUser(username, email, password);
-        System.out.println("User " + username + " authenticated successfully");
-        if(user == null && !test){
-
-                return true;
-        }else{
-            exception += "Email already registered";
-        }
-        Notification notification = Notification.show(exception);
-
-
-        return false;
-
-    }
 
     public List<User> getAllUsers() {
         return repository.findAll();
     }
 
-    public UserRepository getRepository() {
-        return repository;
+    public User  findUserById(String id) {
+        return this.repository.findDistinctById(id);
     }
+
 }
