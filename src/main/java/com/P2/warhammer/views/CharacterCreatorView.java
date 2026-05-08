@@ -1,8 +1,11 @@
 package com.P2.warhammer.views;
 
+import com.P2.warhammer.Race.Race;
+import com.P2.warhammer.Race.RaceEntry;
 import com.P2.warhammer.Race.RaceRepository;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.Talents.Talent;
 import com.P2.warhammer.Talents.TalentRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
@@ -12,7 +15,7 @@ import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.items.WarhammerItem;
-import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
@@ -23,6 +26,7 @@ import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 
 @PermitAll
@@ -63,6 +67,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private final RaceRepository raceRepository;
     private List<Career> careers;
     private List<Skill> skills;
+    private List<Talent> talents;
+    private List<Race> raceItems;
     private Character globalCharacter;
     Div statBox = new Div();
     Div inventoryDiv = new Div();
@@ -96,9 +102,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             }
 
         this.careers = careerRepository.findAll();
-
+        this.raceItems = raceRepository.findAll();
         this.skills = skillRepository.findAll();
+        this.talents = talentRepository.findAll();
 
+
+        this.add(raceBox());
         this.add(careerBox());
         this.add(statBox);
 
@@ -113,7 +122,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         statField.setRequiredIndicatorVisible(true);
 
-        statField.setMin(1);
+        statField.setMin(0);
         statField.setMax(max);
 
         statField.setStepButtonsVisible(true);
@@ -157,11 +166,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         for (WarhammerItem inventoryItem : globalCharacter.getInventory()){
              Div inventoryElementDiv = new Div();
              TextField itemField = new TextField();
-             itemField.setValue(inventoryItem.toString());
+             itemField.setValue(inventoryItem.getName());
              itemField.setReadOnly(true);
 
-             IntegerField trappingAmount = new IntegerField();
-             trappingAmount.setValue(inventoryItem.getAmount());
+             IntegerField itemAmount = new IntegerField();
+            itemAmount.setValue(inventoryItem.getAmount());
 
              if (colorbool) {
                  inventoryElementDiv.getStyle().set("background-color", "#88CF8F");
@@ -170,6 +179,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
              }
 
             inventoryElementDiv.add(itemField);
+            inventoryElementDiv.add(itemAmount);
 
             colorbool = !colorbool;
 
@@ -199,6 +209,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         IntegerField levelField = createField( 4);
         levelField.setLabel("Level");
         levelField.setValue(1);
+        levelField.setMin(1);
         levelField.setReadOnly(true);
 
 
@@ -227,6 +238,38 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         return div;
     }
 
+    private Div raceBox(){
+        Div raceBoxDiv = new Div();
+
+        ComboBox<String> dropdownMenu = new ComboBox<>("Choose a species");
+        dropdownMenu.setItems(raceItems.stream().map(Race::getRace).filter(Objects::nonNull).toList());
+
+        Button button1 = new Button("Roll for Species", e -> {
+            int roll = ThreadLocalRandom.current().nextInt(1, 101);
+
+            Race raceTable = raceRepository.findById("species_table").orElseThrow();
+
+            String result = raceTable.getEntries().stream()
+                    .filter(entry -> roll >= entry.getMin() && roll <= entry.getMax())
+                    .map(RaceEntry::getSpecies)
+                    .findFirst()
+                    .orElse("Unknown");
+
+            dropdownMenu.setValue(result);
+        });
+
+        raceBoxDiv.add(dropdownMenu);
+        raceBoxDiv.add(button1);
+
+
+        //change race
+        dropdownMenu.addValueChangeListener(e ->
+                globalCharacter.setRace(dropdownMenu.getValue())
+        );
+
+        return raceBoxDiv;
+    }
+
     private void addTrappingFunction(IntegerField levelField){
         addTrappings(globalCharacter.getCareer(), levelField.getValue());
         this.remove(inventoryDiv);
@@ -237,8 +280,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
     private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
-
+        statBox.removeAll();
         renderCharacteristicsDivs();
+        renderTalentsDivs(dropdownMenu.getValue(), levelField.getValue());
         levelField.setReadOnly(false);
         Career currentCareer = dropdownMenu.getValue();
 
@@ -265,7 +309,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
     private void renderCharacteristicsDivs(){
-
         Div characteristicsStatBox = new Div();
         characteristicsStatBox.getStyle().set("gap", "10px");
         int characteristicNumber = 0;
@@ -295,12 +338,18 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             IntegerField baseField = createField(99);
             baseField.setLabel("Rolled stat");
+            baseField.setValue(0);
             IntegerField modifierField = createField(99);
             modifierField.setLabel("Modifier");
+            modifierField.setValue(0);
             IntegerField penaltyField = createField(99);
             penaltyField.setLabel("Penalty");
+            penaltyField.setValue(0);
+
+
             IntegerField totalField = new IntegerField();
             totalField.setLabel("Total");
+            totalField.setValue(0);
 
 
             Button rollButton = new Button("Roll charateristic");
@@ -332,18 +381,101 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             charDiv.add(charField,raceField,baseField,modifierField,penaltyField,totalField,rollButton);
 
-
-            //RENDER SKILL ELEMENTS HERE
-
-
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
         }
 
-        statBox.removeAll();
+
         statBox.add(characteristicsStatBox);
     }
 
+
+    private void renderTalentsDivs(Career career, int level){
+        Div characterTalentDiv = new Div();
+        List<List<String>> careerTalents = career.getLevelTalentsList();
+        boolean colorbool = true;
+        for (int talentIndex = 0; talentIndex < talents.size(); talentIndex++) {
+            Talent talent = talents.get(talentIndex);
+            boolean foundTalentInDatabase = false;
+            for (int i = 0; i < level; i++) {
+                List<String> currentCareerLevelTalents = careerTalents.get(i);
+                if (currentCareerLevelTalents.contains(talent.getName())) {
+                    foundTalentInDatabase = true;
+                    break;
+                }
+            }
+            if (!foundTalentInDatabase) {
+                continue;
+            }
+
+
+            Div talentDiv = new Div();
+
+            if (colorbool) {
+                talentDiv.getStyle().set("background-color", "#91BAB2");
+            } else {
+                talentDiv.getStyle().set("background-color", "#F5A3BE");
+            }
+            colorbool = !colorbool;
+
+            TextField talentField = new TextField();
+            talentField.setReadOnly(true);
+            talentField.setValue(talent.getName());
+
+            IntegerField talentTakenField = new IntegerField();
+
+            List<Talent> globalCharacterTalents = globalCharacter.getTalents();
+
+            boolean foundInList = false;
+            for (Talent t : globalCharacterTalents) {
+                if (t.getName().equals(talent.getName())) {
+                    foundInList = true;
+                    talentTakenField.setValue(t.getAmountTaken());
+                    break;
+                }
+            }
+            if (!foundInList) {
+                talentTakenField.setValue(0);
+            }
+
+            talentTakenField.setMax(1);
+            talentTakenField.setMin(0);
+
+            talentTakenField.addValueChangeListener(e ->
+                    updateTalents(e, talent)
+            );
+
+
+            talentDiv.add(talentField);
+            talentDiv.add(talentTakenField);
+
+
+            characterTalentDiv.add(talentDiv);
+
+        }
+
+        statBox.add(characterTalentDiv);
+    }
+
+
+    private void updateTalents(AbstractField.ComponentValueChangeEvent<IntegerField, Integer> e, Talent talent){
+        int amountTakenValue = e.getValue();
+        List<Talent> currentTalents = globalCharacter.getTalents();
+        for (Talent t : currentTalents) {
+            if (t.getName().equals(talent.getName())) {
+                t.setAmountTaken(amountTakenValue);
+                break;
+            }
+        }
+
+        if (amountTakenValue > 0){
+            currentTalents.add(talent);
+            System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
+        }else{
+            currentTalents.remove(talent);
+        }
+        globalCharacter.setTalents(currentTalents);
+    }
 
 /*
 
@@ -419,36 +551,13 @@ private void renderSkillElements(Map<String, CharacteristicsDiv> characteristics
         characteristicsMap.values().forEach(characteristicsGrid::add);
     }
 
-
-
-
-    private Div RaceBox(){
-        Div div1 = new Div();
-
-        ComboBox<String> dropdownMenu = new ComboBox<>("choose a species");
-        dropdownMenu.setItems(raceItems.stream().map(Race::getRace).toList());
-
-        Button button1 = new Button("Roll for Species", e -> {
-            int roll = ThreadLocalRandom.current().nextInt(1, 101);
-
-            Race raceTable = raceRepository.findById("species_table").orElseThrow();
-
-            String result = raceTable.getEntries().stream()
-                    .filter(entry -> roll >= entry.getMin() && roll <= entry.getMax())
-                    .map(RaceEntry::getSpecies)
-                    .findFirst()
-                    .orElse("Unknown");
-
-            dropdownMenu.setValue(result);
-        });
-
-        div1.add(dropdownMenu);
-        div1.add(button1);
-        return div1;
-    }
-
-
 */
+
+
+
+
+
+
 
 
 /*
@@ -502,6 +611,13 @@ private void renderSkillElements(Map<String, CharacteristicsDiv> characteristics
         });
         add(saveButton);
     }
+
+
+
+
+
+
+
 
 
 

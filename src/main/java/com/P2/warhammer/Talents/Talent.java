@@ -12,6 +12,7 @@ public class Talent {
     String Characteristic;
     String Category;
     String Description;
+    int amountTaken;
 
     public Talent() {}
 
@@ -20,6 +21,14 @@ public class Talent {
         this.Category = Category;
         this.Characteristic = Characteristic;
         this.Description = Description;
+    }
+
+    public Talent(String Name, String Category, String Characteristic, String Description, int amountTaken){
+        this.Name = Name;
+        this.Category = Category;
+        this.Characteristic = Characteristic;
+        this.Description = Description;
+        this.amountTaken = amountTaken;
     }
 
     @Override
@@ -65,5 +74,13 @@ public class Talent {
 
     public void setDescription(String description) {
         Description = description;
+    }
+
+    public int getAmountTaken() {
+        return amountTaken;
+    }
+
+    public void setAmountTaken(int amountTaken) {
+        this.amountTaken = amountTaken;
     }
 }
