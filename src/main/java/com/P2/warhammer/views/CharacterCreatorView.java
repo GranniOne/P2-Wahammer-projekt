@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -70,6 +71,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private List<Talent> talents;
     private List<Race> raceItems;
     private Character globalCharacter;
+    private final List<IntegerField> baseFieldsList = new ArrayList<>();
+    private final List<IntegerField> modifierFieldsList = new ArrayList<>();
+    private final List<IntegerField> penaltyFieldsList = new ArrayList<>();
+    private final List<IntegerField> raceFieldsList = new ArrayList<>();
     Div statBox = new Div();
     Div inventoryDiv = new Div();
 
@@ -110,7 +115,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         this.add(raceBox());
         this.add(careerBox());
         this.add(statBox);
-
+        renderCharacteristicsDivs();
+        //renderTalentsDivs(dropdownMenu.getValue(), levelField.getValue());
         inventoryDivCreator();
         this.add(inventoryDiv);
     }
@@ -280,9 +286,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
     private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
-        statBox.removeAll();
-        renderCharacteristicsDivs();
-        renderTalentsDivs(dropdownMenu.getValue(), levelField.getValue());
         levelField.setReadOnly(false);
         Career currentCareer = dropdownMenu.getValue();
 
@@ -314,6 +317,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         int characteristicNumber = 0;
         boolean colorbool = true;
         for (Characteristic characterCharacteristic : globalCharacter.getCharacteristics()){
+            System.out.println(characterCharacteristic.getBase());
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
             charDiv.getStyle()
                     .set("grid-template-columns", "180px 80px 120px");
@@ -335,16 +339,20 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             raceField.setReadOnly(true);
             raceField.setLabel("Species bonus");
             raceField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getRacemod());
+            raceFieldsList.add(raceField);
 
             IntegerField baseField = createField(99);
             baseField.setLabel("Rolled stat");
-            baseField.setValue(0);
+            baseField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getBase());
+            baseFieldsList.add(baseField);
             IntegerField modifierField = createField(99);
             modifierField.setLabel("Modifier");
-            modifierField.setValue(0);
+            modifierField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getModifier());
+            modifierFieldsList.add(baseField);
             IntegerField penaltyField = createField(99);
             penaltyField.setLabel("Penalty");
-            penaltyField.setValue(0);
+            penaltyField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getPenalty());
+            penaltyFieldsList.add(baseField);
 
 
             IntegerField totalField = new IntegerField();
@@ -359,25 +367,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 baseField.setValue(die1+die2);
             });
 
-            Runnable updateTotal = () -> {
-                int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+            Runnable update = () ->
+                    updateCharacteristic(baseField, modifierField, penaltyField, raceField, totalField, characterCharacteristic);
 
-                totalField.setValue(total);
-                charDiv.setTotalField(totalField);
-
-                //SOMEHOW UPDATE SKILL ELEMENTS HERE
-
-                characterCharacteristic.setBase(baseField.getValue());
-                characterCharacteristic.setModifier(modifierField.getValue());
-                characterCharacteristic.setPenalty(penaltyField.getValue());
-                characterCharacteristic.setBase(raceField.getValue());
-            };
-            baseField.addValueChangeListener(e -> updateTotal.run());
-            modifierField.addValueChangeListener(e -> updateTotal.run());
-            penaltyField.addValueChangeListener(e -> updateTotal.run());
-            raceField.addValueChangeListener(e -> updateTotal.run());
-            charDiv.setTotalField(totalField);
-
+            baseField.addValueChangeListener(e -> update.run());
+            modifierField.addValueChangeListener(e -> update.run());
+            penaltyField.addValueChangeListener(e -> update.run());
+            raceField.addValueChangeListener(e -> update.run());
 
             charDiv.add(charField,raceField,baseField,modifierField,penaltyField,totalField,rollButton);
 
@@ -389,6 +385,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         statBox.add(characteristicsStatBox);
     }
 
+    private void updateCharacteristic(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Characteristic characterCharacteristic){
+        int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+
+        totalField.setValue(total);
+
+        characterCharacteristic.setBase(baseField.getValue());
+        characterCharacteristic.setModifier(modifierField.getValue());
+        characterCharacteristic.setPenalty(penaltyField.getValue());
+
+    }
 
     private void renderTalentsDivs(Career career, int level){
         Div characterTalentDiv = new Div();
@@ -467,7 +473,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 break;
             }
         }
-
         if (amountTakenValue > 0){
             currentTalents.add(talent);
             System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
