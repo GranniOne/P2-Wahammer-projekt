@@ -24,6 +24,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.*;
@@ -71,10 +72,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private List<Talent> talents;
     private List<Race> raceItems;
     private Character globalCharacter;
-    private final List<IntegerField> baseFieldsList = new ArrayList<>();
-    private final List<IntegerField> modifierFieldsList = new ArrayList<>();
-    private final List<IntegerField> penaltyFieldsList = new ArrayList<>();
-    private final List<IntegerField> raceFieldsList = new ArrayList<>();
+    Div talentBox = new Div();
     Div statBox = new Div();
     Div inventoryDiv = new Div();
 
@@ -116,7 +114,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         this.add(careerBox());
         this.add(statBox);
         renderCharacteristicsDivs();
-        //renderTalentsDivs(dropdownMenu.getValue(), levelField.getValue());
+        this.add(talentBox);
         inventoryDivCreator();
         this.add(inventoryDiv);
     }
@@ -289,6 +287,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         levelField.setReadOnly(false);
         Career currentCareer = dropdownMenu.getValue();
 
+
+        talentBox.removeAll();
+        renderTalentsDivs(currentCareer, levelField.getValue());
         try {
             socialClassField.setValue(currentCareer.getSocialClass());
 
@@ -339,20 +340,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             raceField.setReadOnly(true);
             raceField.setLabel("Species bonus");
             raceField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getRacemod());
-            raceFieldsList.add(raceField);
-
             IntegerField baseField = createField(99);
             baseField.setLabel("Rolled stat");
             baseField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getBase());
-            baseFieldsList.add(baseField);
             IntegerField modifierField = createField(99);
             modifierField.setLabel("Modifier");
             modifierField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getModifier());
-            modifierFieldsList.add(baseField);
             IntegerField penaltyField = createField(99);
             penaltyField.setLabel("Penalty");
             penaltyField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getPenalty());
-            penaltyFieldsList.add(baseField);
+
 
 
             IntegerField totalField = new IntegerField();
@@ -397,6 +394,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void renderTalentsDivs(Career career, int level){
+
         Div characterTalentDiv = new Div();
         List<List<String>> careerTalents = career.getLevelTalentsList();
         boolean colorbool = true;
@@ -428,28 +426,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             talentField.setReadOnly(true);
             talentField.setValue(talent.getName());
 
-            IntegerField talentTakenField = new IntegerField();
-
-            List<Talent> globalCharacterTalents = globalCharacter.getTalents();
-
-            boolean foundInList = false;
-            for (Talent t : globalCharacterTalents) {
-                if (t.getName().equals(talent.getName())) {
-                    foundInList = true;
-                    talentTakenField.setValue(t.getAmountTaken());
-                    break;
-                }
-            }
-            if (!foundInList) {
-                talentTakenField.setValue(0);
-            }
-
-            talentTakenField.setMax(1);
-            talentTakenField.setMin(0);
-
-            talentTakenField.addValueChangeListener(e ->
-                    updateTalents(e, talent)
-            );
+            IntegerField talentTakenField = getIntegerField(talent);
 
 
             talentDiv.add(talentField);
@@ -460,7 +437,32 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         }
 
-        statBox.add(characterTalentDiv);
+        talentBox.add(characterTalentDiv);
+    }
+        //extracted method. skriv lige hvis i for lyst til at optimere den
+    private @NonNull IntegerField getIntegerField(Talent talent) {
+        IntegerField talentTakenField = new IntegerField();
+
+        List<Talent> globalCharacterTalents = globalCharacter.getTalents();
+
+        boolean foundInList = false;
+        for (Talent t : globalCharacterTalents) {
+            if (t.getName().equals(talent.getName())) {
+                foundInList = true;
+                talentTakenField.setValue(t.getAmountTaken());
+                break;
+            }
+        }
+        if (!foundInList) {
+            talentTakenField.setValue(0);
+        }
+
+        talentTakenField.setMin(0);
+
+        talentTakenField.addValueChangeListener(e ->
+                updateTalents(e, talent)
+        );
+        return talentTakenField;
     }
 
 
