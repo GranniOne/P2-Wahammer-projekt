@@ -109,7 +109,7 @@ vaadin-login-form vaadin-password-field {
 }
 
 /* Login button */
-vaadin-login-form [slot="submit"] {
+vaadin-login-form [slot="submit"], .signup {
     padding: 0.5em 1em;
     border-radius: 5px;
     background-color: #5c0000;
