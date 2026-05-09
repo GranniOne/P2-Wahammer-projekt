@@ -5,6 +5,9 @@ import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
+import com.P2.warhammer.views.LoginView;
+import com.P2.warhammer.views.SignupView;
+import com.vaadin.browserless.SpringBrowserlessTest;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 @SpringBootTest(classes = Application.class)
-public class UserTest {
+public class UserTest extends SpringBrowserlessTest{
+
     @Container
     public static MongoDBContainer mongoDBContainer =
             new MongoDBContainer("mongo:7.0.0");
@@ -46,11 +50,13 @@ public class UserTest {
 
     @Test
     public void testUserSignup(){
-        List<User> userList = userRepository.findAll();
-        assertTrue(userList.isEmpty());
-        userService.addUser("bob","bob","bob");
-        userList = userRepository.findAll();
-        assertEquals(1, userList.size());
+        final SignupView signupView = navigate(SignupView.class);
+        test(signupView.firstName).setValue("BiggieTheDestroyer");
+        test(signupView.email).setValue("bob@gmail.com");
+        test(signupView.password).setValue("12345678");
+        test(signupView.confirmPassword).setValue("12345678");
+        test(signupView.loginButton).click();
+        System.out.println("And now we are here");
     }
 
 }

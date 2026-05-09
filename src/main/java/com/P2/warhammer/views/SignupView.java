@@ -33,6 +33,11 @@ import com.vaadin.flow.theme.lumo.LumoUtility;
 public class SignupView extends Div implements BeforeEnterObserver {
     private final UserService userService;
     private final Binder<User> binder;
+    public TextField firstName;
+    public EmailField email;
+    public PasswordField password;
+    public PasswordField confirmPassword;
+    public Button loginButton;
 
     SignupView(UserService userService){
         this.userService = userService;
@@ -44,11 +49,11 @@ public class SignupView extends Div implements BeforeEnterObserver {
         test.setClassName("div-signupform");
 
 
-        TextField firstName = new TextField("Username"); //det var ikke mig
-        EmailField email = new EmailField("Email address");
+        firstName = new TextField("Username"); //det var ikke mig
+        email = new EmailField("Email address");
         email.setManualValidation(true);
-        PasswordField password = new PasswordField("Password");
-        PasswordField confirmPassword = new PasswordField("Confirm password");
+        password = new PasswordField("Password");
+        confirmPassword = new PasswordField("Confirm password");
 
         binder = new Binder<>();
 
@@ -87,7 +92,7 @@ public class SignupView extends Div implements BeforeEnterObserver {
         binder.setStatusLabel(beanValidationErrors);
         binder.setBean(new User());
 
-        Button loginButton = new Button("Sign up", new Icon(VaadinIcon.ARROW_RIGHT), buttonClickEvent -> {
+        loginButton = new Button("Sign up", new Icon(VaadinIcon.ARROW_RIGHT), buttonClickEvent -> {
             String Firstname = firstName.getValue();
             String Email = email.getValue().toLowerCase();
             String Password = password.getValue();
