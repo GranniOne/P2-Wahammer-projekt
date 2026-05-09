@@ -13,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MongoDBContainer;
@@ -49,14 +51,16 @@ public class UserTest extends SpringBrowserlessTest{
     }
 
     @Test
+    @WithAnonymousUser
     public void testUserSignup(){
         final SignupView signupView = navigate(SignupView.class);
-        test(signupView.firstName).setValue("BiggieTheDestroyer");
-        test(signupView.email).setValue("bob@gmail.com");
+        test(signupView.firstName).setValue("BiggieBob");
+        test(signupView.email).setValue("coolaid@gmail.com");
         test(signupView.password).setValue("12345678");
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
-        System.out.println("And now we are here");
+        User query_user = userRepository.findUserByEmail("coolaid@gmail.com");
+        System.out.println(query_user);
     }
 
 }
