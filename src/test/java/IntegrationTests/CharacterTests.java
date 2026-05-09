@@ -32,6 +32,7 @@ public class CharacterTests {
     public void setUp(){
     }
 
+
     @Test
     void Test(){
     }
