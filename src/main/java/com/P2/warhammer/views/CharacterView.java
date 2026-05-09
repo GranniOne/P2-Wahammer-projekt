@@ -15,6 +15,8 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -329,22 +331,31 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     .set("color", "var(--lumo-primary-text-color)");
 
             // 4. Create random number roller
-            Div randomButtonBox = new Div();
 
-            Button randomButton = new Button("Random");
-            TextField randomButtonField = new TextField();
+            Div randomButtonBox = new Div();
+            Button randomButton = new Button("X");
             randomButton.addClickListener(event -> {
-                int randomValue = new Random().nextInt(100);
-                String result = randomValue > totalVal ? ("Dice rolled is " + randomValue + " (over total)") : ("Dice rolled is " + randomValue + " (under total)");
-                randomButtonField.setValue(result);
+                int randomValue = new Random().nextInt(100)+1;
+
+                boolean rolledOverTotal = randomValue >= totalVal;
+
+                String result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + totalVal + ")" : "Dice rolled is " +randomValue + " (under " +totalVal + ")";
+
+                Notification rollNotification = Notification.show(result);
+
+                if (rolledOverTotal) {
+                    rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                } else {
+                    rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                }
             });
 
-            randomButtonBox.add(randomButtonField);
+
             randomButtonBox.add(randomButton);
 
 
             // Assemble the "Row"
-            HorizontalLayout row = new HorizontalLayout(name, base, mod, pen, total, randomButton, randomButtonField);
+            HorizontalLayout row = new HorizontalLayout(name, base, mod, pen, total, randomButton);
             row.setAlignItems(FlexComponent.Alignment.CENTER);
             row.setWidthFull();
             row.setPadding(false);
@@ -425,6 +436,31 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                 span.getStyle().set("font-weight", "bold");
                 return span;
             }).setHeader("T").setWidth("45px").setFlexGrow(0);
+
+            // Create random number roller
+            innerGrid.addComponentColumn(skill -> {
+                Div randomButtonBox = new Div();
+                Button randomButton = new Button("X");
+                randomButton.addClickListener(event -> {
+                    int randomValue = new Random().nextInt(100)+1;
+
+                    boolean rolledOverTotal = randomValue >= skill.getTotalValue();
+
+                    String result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + skill.getTotalValue() + ")" : "Dice rolled is " +randomValue + " (under " +skill.getTotalValue() + ")";
+
+                    Notification rollNotification = Notification.show(result);
+
+                    if (rolledOverTotal) {
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    } else {
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    }
+                });
+
+
+                randomButtonBox.add(randomButton);
+                return  randomButtonBox;
+            });
 
 
             // Make the inner grid look clean
