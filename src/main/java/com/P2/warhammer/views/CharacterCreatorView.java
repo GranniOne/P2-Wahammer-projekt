@@ -196,6 +196,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private Div careerBox(){
         Div div = new Div();
 
+        TextField nameField = new TextField();
+        nameField.setLabel("Character name");
+
         TextField socialClassField = new TextField();
         socialClassField.setReadOnly(true);
         socialClassField.setLabel("Social Class");
@@ -230,6 +233,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         if (!dropdownMenu.isEmpty()){
             levelField.setReadOnly(false);
         }
+
+        nameField.addValueChangeListener(e ->
+                globalCharacter.setName(nameField.getValue())
+        );
 
         //adds listener so the skills talents and characteristics can change when another career or level is selected
         levelField.addValueChangeListener(e ->

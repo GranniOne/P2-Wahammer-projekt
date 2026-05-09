@@ -203,20 +203,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         return careers;
     }
 
-    private Div createRandomButton(){ //TODO tilføj denne funktion det sted der skal være en diceroller og et resultatfelt
-        Div randomButtonBox = new Div();
-
-        Button randomButton = new Button("Random");
-        TextField randomButtonField = new TextField();
-        randomButton.addClickListener(event -> {
-            int randomValue = new Random().nextInt(100);
-            randomButtonField.setValue(String.valueOf(randomValue+1));
-        });
-
-        randomButtonBox.add(randomButtonField);
-        randomButtonBox.add(randomButton);
-        return randomButtonBox;
-    }
 
     private Div createBodySection() {
         Div body = new Div();
@@ -342,8 +328,23 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     .set("font-size", "var(--lumo-font-size-l)")
                     .set("color", "var(--lumo-primary-text-color)");
 
+            // 4. Create random number roller
+            Div randomButtonBox = new Div();
+
+            Button randomButton = new Button("Random");
+            TextField randomButtonField = new TextField();
+            randomButton.addClickListener(event -> {
+                int randomValue = new Random().nextInt(100);
+                String result = randomValue > totalVal ? ("Dice rolled is " + randomValue + " (over total)") : ("Dice rolled is " + randomValue + " (under total)");
+                randomButtonField.setValue(result);
+            });
+
+            randomButtonBox.add(randomButtonField);
+            randomButtonBox.add(randomButton);
+
+
             // Assemble the "Row"
-            HorizontalLayout row = new HorizontalLayout(name, base, mod, pen, total);
+            HorizontalLayout row = new HorizontalLayout(name, base, mod, pen, total, randomButton, randomButtonField);
             row.setAlignItems(FlexComponent.Alignment.CENTER);
             row.setWidthFull();
             row.setPadding(false);
