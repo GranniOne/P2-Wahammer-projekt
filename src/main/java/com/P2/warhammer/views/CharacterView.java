@@ -8,6 +8,7 @@ import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
@@ -32,10 +33,7 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 @PermitAll
@@ -203,6 +201,21 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         );
 
         return careers;
+    }
+
+    private Div createRandomButton(){ //TODO tilføj denne funktion det sted der skal være en diceroller og et resultatfelt
+        Div randomButtonBox = new Div();
+
+        Button randomButton = new Button("Random");
+        TextField randomButtonField = new TextField();
+        randomButton.addClickListener(event -> {
+            int randomValue = new Random().nextInt(100);
+            randomButtonField.setValue(String.valueOf(randomValue+1));
+        });
+
+        randomButtonBox.add(randomButtonField);
+        randomButtonBox.add(randomButton);
+        return randomButtonBox;
     }
 
     private Div createBodySection() {
