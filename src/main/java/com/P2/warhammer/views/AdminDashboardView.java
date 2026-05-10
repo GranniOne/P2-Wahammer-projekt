@@ -64,7 +64,7 @@ public class AdminDashboardView extends Div {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(
                 String.format(" %s user \"%s\"?",option, user.getUsername()));
-        dialog.add("Are you sure you want to delete this user permanently?");
+        dialog.add("Are you sure you want to" + option + "this user permanently?");
         System.out.println(option);
 
         Button deleteButton = new Button(option, e -> {
