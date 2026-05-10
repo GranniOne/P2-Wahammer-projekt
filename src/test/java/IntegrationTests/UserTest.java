@@ -5,6 +5,7 @@ import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
+import com.P2.warhammer.views.DashBoard;
 import com.P2.warhammer.views.LoginView;
 import com.P2.warhammer.views.SignupView;
 import com.vaadin.browserless.SpringBrowserlessTest;
@@ -56,7 +57,6 @@ public class UserTest extends SpringBrowserlessTest{
     }
 
     @Test
-    @WithAnonymousUser
     public void testUserSignup(){
         final SignupView signupView = navigate(SignupView.class);
         test(signupView.firstName).setValue("BiggieBob");
@@ -65,7 +65,11 @@ public class UserTest extends SpringBrowserlessTest{
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
         User query_user = userRepository.findUserByEmail("coolaid@gmail.com");
+        final LoginView loginView = navigate(LoginView.class);
         System.out.println(query_user);
+        LoginFormTester<LoginForm> loginForm = test(loginView.loginForm);
+        loginForm.login("coolaid@gmail.com", "12345678");
+
     }
 
     @Test
@@ -73,6 +77,7 @@ public class UserTest extends SpringBrowserlessTest{
         final LoginView loginView = navigate(LoginView.class);
         LoginFormTester<LoginForm> loginForm = test(loginView.loginForm);
         loginForm.login("bob", "dennis");
+        loginForm.click();
     }
 
 }
