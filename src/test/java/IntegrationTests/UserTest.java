@@ -13,12 +13,16 @@ import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.browserless.TreeOnFailureExtension;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginFormTester;
+import lombok.With;
+import org.apache.catalina.Role;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -60,7 +64,10 @@ public class UserTest extends SpringBrowserlessTest{
     @Override
     protected void initVaadinEnvironment() {
         userRepository.deleteAll();
+        // normal user
         userRepository.save(new User("Dennis", "dennis@gmail.com", "12345678"));
+        // admin user (hardcoded i system til at give bob@gmail.com admin role)
+        userRepository.save(new User("Dennis", "bob@gmail.com", "12345678"));
         super.initVaadinEnvironment();
     }
 
@@ -94,5 +101,22 @@ public class UserTest extends SpringBrowserlessTest{
         assertTrue(exception.getMessage().contains("invalidated"));
     }
 
+    // tjekker om bruger med email har en admin role og ikke user role
+    @Test
+    @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
+    public void testConfirmAdminRole(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertTrue(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
 
+        assertFalse(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+    }
+
+    @Test
+    @WithMockUser(username = "bob@gmail.com", roles = "USER")
+    public void testConfirmUserRole(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertFalse(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+
+        assertTrue(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+    }
 }
