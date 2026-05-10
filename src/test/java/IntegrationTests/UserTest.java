@@ -141,4 +141,20 @@ public class UserTest extends SpringBrowserlessTest {
         User userToGetResetPasswordAfter = userRepository.findUserByEmail("dennis@gmail.com");
         assertEquals("1234abcd", userToGetResetPasswordBefore.getPassword());
     }
+
+    @Test
+    @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
+    public void testAdminDeleteUser() {
+        AdminDashboardView adminDashboardView = navigate(AdminDashboardView.class);
+        User userToBeDeleted = userRepository.findUserByEmail("dennis@gmail.com");
+        assertNotNull(userToBeDeleted);
+
+        adminDashboardView.openDialog(userToBeDeleted, "delete");
+        Button dialogDeleteUserButton = $(Button.class).withText("delete").single();
+        dialogDeleteUserButton.click();
+
+
+        User userToBeDeletedAfter = userRepository.findUserByEmail("dennis@gmail.com");
+        assertNull(userToBeDeletedAfter);
+    }
 }
