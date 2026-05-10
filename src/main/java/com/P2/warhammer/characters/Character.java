@@ -47,6 +47,7 @@ public class Character {
     int advantage = 0;
     int maxWounds = 0;
     int damageTaken = 0;
+    int level = 1;
     List<Integer> armourValues = new ArrayList<>(); // I think we can just say that the first
 
     int corruptionMax = 0;
@@ -70,19 +71,13 @@ public class Character {
     List<Characteristic> characteristics; // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    public Character(String name, User user, User GameMaster, Integer age, Integer experience, List<Characteristic> characteristics) {
+    public Character(String name, User user, User GameMaster, Integer age, Integer experience, List<Characteristic> characteristics, int level) {
         this.name = name;
         this.user = user;
         this.GameMaster = GameMaster;
         this.age = age;
         this.experience = experience;
         this.characteristics = characteristics;
-
-
-
-
-        //sets all armour values to zero
-
 
     }
 
@@ -96,6 +91,13 @@ public class Character {
 
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
     public String getId() {
         return id;

@@ -31,8 +31,8 @@ public class CharacterService {
      * @return
      */
 
-    public Character CreateAndAddCharacter(String name, User user, User GameMaster, int age, int xp, List<Characteristic> characteristics) {
-        return repository.save(new Character(name, user, GameMaster, age, xp, characteristics));
+    public Character CreateAndAddCharacter(String name, User user, User GameMaster, int age, int xp, List<Characteristic> characteristics, int level) {
+        return repository.save(new Character(name, user, GameMaster, age, xp, characteristics, level));
 
     }
     public Character addCharacter(Character character) {
