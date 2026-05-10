@@ -8,9 +8,13 @@ import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.views.LoginView;
 import com.P2.warhammer.views.SignupView;
 import com.vaadin.browserless.SpringBrowserlessTest;
+import com.vaadin.browserless.TreeOnFailureExtension;
+import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.login.LoginFormTester;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithAnonymousUser;
@@ -27,6 +31,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
+@ExtendWith(TreeOnFailureExtension.class)
 @SpringBootTest(classes = Application.class)
 public class UserTest extends SpringBrowserlessTest{
 
@@ -61,6 +66,13 @@ public class UserTest extends SpringBrowserlessTest{
         test(signupView.loginButton).click();
         User query_user = userRepository.findUserByEmail("coolaid@gmail.com");
         System.out.println(query_user);
+    }
+
+    @Test
+    public void testUserLogin(){
+        final LoginView loginView = navigate(LoginView.class);
+        LoginFormTester<LoginForm> loginForm = test(loginView.loginForm);
+        loginForm.login("bob", "dennis");
     }
 
 }
