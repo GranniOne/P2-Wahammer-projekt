@@ -11,12 +11,17 @@ import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
 import com.P2.warhammer.views.CampaignCreatorView;
+import com.P2.warhammer.views.CampaignView;
+import com.P2.warhammer.views.DashBoard;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.browserless.TreeOnFailureExtension;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
+import lombok.With;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +40,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
-@ExtendWith(TreeOnFailureExtension.class)
 @SpringBootTest(classes = Application.class)
 public class CampaignTest extends SpringBrowserlessTest {
 
@@ -72,15 +76,26 @@ public class CampaignTest extends SpringBrowserlessTest {
 
         characterRepository.deleteAll();
         List<Characteristic> characteristics = new ArrayList<Characteristic>();
-        characterRepository.save(new Character("Mukibuki", dennis, null, 12, 12, characteristics));
+        characterRepository.save(new Character("Mukibuki", marley, null, 12, 12, characteristics));
 
         campaignRepository.deleteAll();
+        // Oprette en test kampagne som Marley er med i og hvor Dennis er gamemaster
+        Campaign testCampaign = new Campaign();
+        testCampaign.setName("Test Campaign");
+        testCampaign.setGameMaster(dennis);
+        ArrayList<User> players = new ArrayList<>();
+        players.add(marley);
+        testCampaign.setPlayers(players);
+        campaignRepository.save(testCampaign);
+        System.out.println(campaignRepository.findAll().getFirst());
+
         super.initVaadinEnvironment();
     }
 
     @Test
     @WithMockUser(username = "dennis@gmail.com")
-    protected void testCampaignCreation(){
+    public void testCampaignCreation(){
+        campaignRepository.deleteAll();
         // tjekker repo er tomt
         List<Campaign> campaigns = campaignRepository.findAll();
         assertTrue(campaigns.isEmpty());
@@ -103,6 +118,26 @@ public class CampaignTest extends SpringBrowserlessTest {
         Campaign savedCampaign = campaigns.get(0);
         assertEquals("Test Campaign", savedCampaign.getName());
         assertEquals("marley@gmail.com", savedCampaign.getPlayers().getFirst().getEmail());
-        assertTrue(savedCampaign.getGameMaster().toString().equals(Utilities.getUserFromAuthentication().toString()));
+        // tjekker om gamemaster er samme som bruger der har sessionen (Den der lige har oprettet)
+        assertEquals(savedCampaign.getGameMaster().getId(), Utilities.getUserFromAuthentication().getId());
+    }
+
+    @Test
+    @WithMockUser(username = "marley@gmail.com")
+    public void testUserAddingCharacterToCampaign(){
+        // Først tjek den eneste kampagne i repo ikke har nogen karakterer
+        assertTrue(campaignRepository.findAll().getFirst().getCharacters().isEmpty());
+
+        // Marley navigerer til campaign view for at tilføje en karakter
+        DashBoard dashBoard = navigate(DashBoard.class);
+        test($(Button.class, $(Div.class).withClassName("CampaignCards").single()).withTextContaining("View").single()).click();
+        test($(ComboBox.class).single()).selectItem("Mukibuki");
+        test($(Button.class).withClassName("add-character").single()).click();
+
+        // Tjekker om karakter er tilføjet til kampagne
+        assertFalse(campaignRepository.findAll().getFirst().getCharacters().isEmpty());
+        // tjekker om karakter i kampagne er den samme som karakteren i repo der er blevet tilføjet
+        assertEquals(campaignRepository.findAll().getFirst().getCharacters().getFirst().getId(),
+                characterRepository.findAll().getFirst().getId());
     }
 }

@@ -71,7 +71,6 @@ public class UserTest extends SpringBrowserlessTest {
         userRepository.save(new User("Dennis", "dennis@gmail.com", "12345678"));
         // admin user (hardcoded i system til at give bob@gmail.com admin role)
         userRepository.save(new User("Bob", "bob@gmail.com", "12345678"));
-        userRepository.save(new User("Dan", "coolio@gmail.com", "12345678"));
         super.initVaadinEnvironment(); // sætter vaadin mock sessionen op
     }
 
@@ -95,7 +94,7 @@ public class UserTest extends SpringBrowserlessTest {
     public void testUserLogoutThrowsInvalidatedSessionError() {
         DashBoard dashBoard = navigate(DashBoard.class);
         Navigation navigation = $(Navigation.class).single();
-
+        assertTrue(navigation.logoutButton.isEnabled());
 
         IllegalStateException exception = assertThrows(
                 IllegalStateException.class,
