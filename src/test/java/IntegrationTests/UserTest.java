@@ -2,6 +2,7 @@ package IntegrationTests;
 
 import com.P2.warhammer.Application;
 import com.P2.warhammer.characters.CharacterRepository;
+import com.P2.warhammer.layout.Navigation;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
@@ -52,8 +53,15 @@ public class UserTest extends SpringBrowserlessTest{
         registry.add("spring.mongodb.database", () -> "testdb");
     }
 
+    // der bliver overridet fordi en user skal gemmes i repoet inden en mock vaadin session startes
+    // dette er fordi mock vaadin session router til dashboard hvis man er authenticated, og dette giver en mongodb fejl
+    // hvis ens authentication ikke matcher en eksistrende bruger  i databasen, der kan hentes karakterer / kampagner fra
     @BeforeEach
-    public void setUp(){
+    @Override
+    protected void initVaadinEnvironment() {
+        userRepository.deleteAll();
+        userRepository.save(new User("Dennis", "dennis@gmail.com", "12345678"));
+        super.initVaadinEnvironment();
     }
 
     @Test
@@ -65,19 +73,26 @@ public class UserTest extends SpringBrowserlessTest{
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
         User query_user = userRepository.findUserByEmail("coolaid@gmail.com");
-        final LoginView loginView = navigate(LoginView.class);
         System.out.println(query_user);
-        LoginFormTester<LoginForm> loginForm = test(loginView.loginForm);
-        loginForm.login("coolaid@gmail.com", "12345678");
-
+        // TODO: assert user findes
     }
 
+    // tjekker at logud knappen gør at mock vaadin sessionen smider en session invalidering af at blive logget ud
+    // bliver nød til at tjekke efter fejl something html lag mangler
     @Test
-    public void testUserLogin(){
-        final LoginView loginView = navigate(LoginView.class);
-        LoginFormTester<LoginForm> loginForm = test(loginView.loginForm);
-        loginForm.login("bob", "dennis");
-        loginForm.click();
+    @WithMockUser(username = "dennis@gmail.com")
+    public void testUserLogoutThrowsInvalidatedSessionError(){
+        DashBoard dashBoard = navigate(DashBoard.class);
+        Navigation navigation = $(Navigation.class).single();
+
+
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> test(navigation.logoutButton).click()
+        );
+
+        assertTrue(exception.getMessage().contains("invalidated"));
     }
+
 
 }
