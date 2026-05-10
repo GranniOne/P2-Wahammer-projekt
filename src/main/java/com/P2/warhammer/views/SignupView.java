@@ -52,6 +52,9 @@ public class SignupView extends Div implements BeforeEnterObserver {
         firstName = new TextField("Username"); //det var ikke mig
         email = new EmailField("Email address");
         email.setManualValidation(true);
+        email.setI18n(new EmailField.EmailFieldI18n()
+                .setPatternErrorMessage("Enter a valid email address"));
+
         password = new PasswordField("Password");
         confirmPassword = new PasswordField("Confirm password");
 
@@ -68,7 +71,6 @@ public class SignupView extends Div implements BeforeEnterObserver {
         //email validation
         binder.forField(email)
                 .asRequired()
-                .withValidator(new EmailValidator("Invalid email format"))
                 .withValidator(emailvalue -> this.userService.findFromEmail(emailvalue) == null,"Email address already exists")
                 .bind(User::getEmail, User::setEmail);
 
