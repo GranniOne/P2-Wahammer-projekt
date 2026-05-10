@@ -6,11 +6,14 @@ import com.P2.warhammer.layout.Navigation;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
+import com.P2.warhammer.views.AdminDashboardView;
 import com.P2.warhammer.views.DashBoard;
 import com.P2.warhammer.views.LoginView;
 import com.P2.warhammer.views.SignupView;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.browserless.TreeOnFailureExtension;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginFormTester;
 import lombok.With;
@@ -39,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Testcontainers
 @ExtendWith(TreeOnFailureExtension.class)
 @SpringBootTest(classes = Application.class)
-public class UserTest extends SpringBrowserlessTest{
+public class UserTest extends SpringBrowserlessTest {
 
     @Container
     public static MongoDBContainer mongoDBContainer =
@@ -67,12 +70,13 @@ public class UserTest extends SpringBrowserlessTest{
         // normal user
         userRepository.save(new User("Dennis", "dennis@gmail.com", "12345678"));
         // admin user (hardcoded i system til at give bob@gmail.com admin role)
-        userRepository.save(new User("Dennis", "bob@gmail.com", "12345678"));
-        super.initVaadinEnvironment();
+        userRepository.save(new User("Bob", "bob@gmail.com", "12345678"));
+        userRepository.save(new User("Dan", "coolio@gmail.com", "12345678"));
+        super.initVaadinEnvironment(); // sætter vaadin mock sessionen op
     }
 
     @Test
-    public void testUserSignup(){
+    public void testUserSignup() {
         final SignupView signupView = navigate(SignupView.class);
         test(signupView.firstName).setValue("BiggieBob");
         test(signupView.email).setValue("coolaid@gmail.com");
@@ -88,7 +92,7 @@ public class UserTest extends SpringBrowserlessTest{
     // bliver nød til at tjekke efter fejl something html lag mangler
     @Test
     @WithMockUser(username = "dennis@gmail.com")
-    public void testUserLogoutThrowsInvalidatedSessionError(){
+    public void testUserLogoutThrowsInvalidatedSessionError() {
         DashBoard dashBoard = navigate(DashBoard.class);
         Navigation navigation = $(Navigation.class).single();
 
@@ -104,7 +108,7 @@ public class UserTest extends SpringBrowserlessTest{
     // tjekker om bruger med email har en admin role og ikke user role
     @Test
     @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
-    public void testConfirmAdminRole(){
+    public void testConfirmAdminRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         assertTrue(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
 
@@ -112,11 +116,29 @@ public class UserTest extends SpringBrowserlessTest{
     }
 
     @Test
-    @WithMockUser(username = "bob@gmail.com", roles = "USER")
-    public void testConfirmUserRole(){
+    @WithMockUser(username = "dennis@gmail.com", roles = "USER")
+    public void testConfirmUserRole() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         assertFalse(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
 
         assertTrue(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+    }
+
+    @Test
+    @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
+    public void testAdminPasswordReset() {
+        AdminDashboardView adminDashboardView = navigate(AdminDashboardView.class);
+        User userToGetResetPasswordBefore = userRepository.findUserByEmail("dennis@gmail.com");
+        assertEquals("12345678", userToGetResetPasswordBefore.getPassword());
+
+        // efterligner at trykke "nulstil adgangskode" ud fra en user som kører nedenstående
+        adminDashboardView.openDialog(userToGetResetPasswordBefore, "nulstil adgangskode");
+
+        // finder reset button knap i dialog og trykker på den
+        Button dialogResetPassWordButton = $(Button.class).withText("nulstil adgangskode").single();
+        dialogResetPassWordButton.click();
+
+        User userToGetResetPasswordAfter = userRepository.findUserByEmail("dennis@gmail.com");
+        assertEquals("1234abcd", userToGetResetPasswordBefore.getPassword());
     }
 }

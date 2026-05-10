@@ -60,7 +60,7 @@ public class AdminDashboardView extends Div {
         add(grid);
     }
 
-    private void openDialog(User user,String option) {
+    public void openDialog(User user,String option) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(
                 String.format(" %s user \"%s\"?",option, user.getUsername()));
