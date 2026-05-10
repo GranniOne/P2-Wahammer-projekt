@@ -139,7 +139,10 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
                 return;
             }
             campaign.setPlayers(users);
+            campaign.setName(campaignTextField.getValue());
+            campaign.setGameMaster(Utilities.getUserFromAuthentication());
             campaignService.addCompletedCampaign(campaign);
+            System.out.println("Test");
             UI.getCurrent().navigate(DashBoard.class);
         });
         button.getStyle().set("display", "flex").setAlignSelf(Style.AlignSelf.CENTER);
