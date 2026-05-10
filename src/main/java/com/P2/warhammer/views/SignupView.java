@@ -18,6 +18,7 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
+import com.vaadin.flow.data.validator.RegexpValidator;
 import com.vaadin.flow.data.validator.StringLengthValidator;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -52,8 +53,7 @@ public class SignupView extends Div implements BeforeEnterObserver {
         firstName = new TextField("Username"); //det var ikke mig
         email = new EmailField("Email address");
         email.setManualValidation(true);
-        email.setI18n(new EmailField.EmailFieldI18n()
-                .setPatternErrorMessage("Enter a valid email address"));
+
 
         password = new PasswordField("Password");
         confirmPassword = new PasswordField("Confirm password");
@@ -73,6 +73,8 @@ public class SignupView extends Div implements BeforeEnterObserver {
                 .asRequired()
                 .withValidator(emailvalue -> this.userService.findFromEmail(emailvalue) == null,"Email address already exists")
                 .bind(User::getEmail, User::setEmail);
+
+        email.setI18n(new EmailField.EmailFieldI18n().setPatternErrorMessage("Enter a valid email address"));
 
         //password validation
         binder.forField(password)
