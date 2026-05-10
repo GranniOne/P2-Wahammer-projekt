@@ -9,6 +9,7 @@ import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
+import com.P2.warhammer.utilities.Utilities;
 import com.P2.warhammer.views.CampaignCreatorView;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.browserless.TreeOnFailureExtension;
@@ -31,8 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Testcontainers
 @ExtendWith(TreeOnFailureExtension.class)
@@ -81,8 +81,11 @@ public class CampaignTest extends SpringBrowserlessTest {
     @Test
     @WithMockUser(username = "dennis@gmail.com")
     protected void testCampaignCreation(){
+        // tjekker repo er tomt
         List<Campaign> campaigns = campaignRepository.findAll();
         assertTrue(campaigns.isEmpty());
+
+        // user går ind i kampagnekreatør
         CampaignCreatorView campaignCreatorView = navigate(CampaignCreatorView.class);
         TextField campaignNameTextField = $(CampaignCreatorView.class).thenOnFirst(TextField.class).single();
         test(campaignNameTextField).setValue("Test Campaign");
@@ -94,8 +97,12 @@ public class CampaignTest extends SpringBrowserlessTest {
         test(addUserButton).click();
 
         test($(Button.class).withText("Save").single()).click();
-        campaigns = campaignRepository.findAll();
-        System.out.println(campaigns);
 
+        //henter kampagne og ser om den svarer til den gemte
+        campaigns = campaignRepository.findAll();
+        Campaign savedCampaign = campaigns.get(0);
+        assertEquals("Test Campaign", savedCampaign.getName());
+        assertEquals("marley@gmail.com", savedCampaign.getPlayers().getFirst().getEmail());
+        assertTrue(savedCampaign.getGameMaster().toString().equals(Utilities.getUserFromAuthentication().toString()));
     }
 }
