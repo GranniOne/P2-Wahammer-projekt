@@ -1,7 +1,6 @@
 package com.P2.warhammer.users;
-import org.springframework.data.annotation.Id;
+
 import org.springframework.data.mongodb.repository.MongoRepository;
-import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,7 +21,6 @@ public interface UserRepository extends MongoRepository<User, String> {
      * @param email the email of the user
      * @return the {@link User} with the specified email, or null if none found
      */
-    @Query("{email:'?0'}")
     User findUserByEmail(String email);
 
     User findUserByUsername(String username);

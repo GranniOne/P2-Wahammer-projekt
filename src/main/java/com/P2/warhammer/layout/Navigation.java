@@ -21,6 +21,8 @@ import jakarta.annotation.security.PermitAll;
 @PermitAll
 public class Navigation extends AppLayout {
 
+    public Button logoutButton;
+
     Navigation(AuthenticationContext authenticationContext) {
 
         boolean authenticated = Utilities.authentication();
@@ -41,7 +43,7 @@ public class Navigation extends AppLayout {
             Button admindashboard = new Button("admin dashboard", e -> UI.getCurrent().navigate("admin-dashboard"));
             Button characterCreatorbutton = new Button("button", e -> UI.getCurrent().navigate(CharacterCreatorView.class, QueryParameters.of("Character","65f1a2b3c4d5e6f7a8b90123")));
 
-            Button logoutButton = new Button("Log out", e -> authenticationContext.logout());
+            logoutButton = new Button("Log out", e -> authenticationContext.logout());
 
             homeButton.setIcon(new Icon(VaadinIcon.HOME));
             profileButton.setIcon(new Icon(VaadinIcon.USER));

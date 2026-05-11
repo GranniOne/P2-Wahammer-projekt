@@ -39,7 +39,7 @@ public class AdminProfileView extends Div implements BeforeEnterObserver {
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         userID = beforeEnterEvent.getRouteParameters().get("userID").get();
-        User user = userService.getRepository().findDistinctById(userID);
+        User user = userService.findUserById(userID);
         Div layout = new Div();
         layout.getStyle().set("display", "grid")
                 .set("grid-template-columns",

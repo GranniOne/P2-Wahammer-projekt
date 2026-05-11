@@ -18,7 +18,7 @@ import com.vaadin.flow.router.*;
 @StyleSheet("css/loginStyle.css")
 public class LoginView extends Div implements BeforeEnterObserver{
 
-    private final LoginForm loginForm = new LoginForm();
+    public final LoginForm loginForm = new LoginForm();
     private final UserService userService;
 
 
@@ -37,7 +37,6 @@ public class LoginView extends Div implements BeforeEnterObserver{
         i18n.setAdditionalInformation("Warhammer is a really insane roleplaying game, so login at your own discretion (～￣▽￣)～ ～(￣▽￣～)");
 
         loginForm.setI18n(i18n);
-
         loginForm.setClassName("loginform");
 
         setClassName("div-page");
@@ -52,12 +51,14 @@ public class LoginView extends Div implements BeforeEnterObserver{
         loginformDiv.add(loginForm);
 
 
-
-
-
-        Button RegisterButton = new Button("Log in", new Icon(VaadinIcon.ARROW_RIGHT), buttonClickEvent -> {
+        Button RegisterButton = new Button("signup", new Icon(VaadinIcon.ARROW_RIGHT), buttonClickEvent -> {
             UI.getCurrent().navigate("signup");
         });
+        RegisterButton.setClassName("signup");
+        RegisterButton.getStyle().setMarginTop("100px");
+        loginformDiv.add(RegisterButton);
+
+
 
 
         add(loginformDiv);

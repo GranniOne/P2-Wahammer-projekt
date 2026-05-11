@@ -8,8 +8,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.0.3</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>4.0.4</version>
+        <relativePath/>
     </parent>
 
     <groupId>com.p2.warhammer</groupId>
@@ -17,22 +17,14 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <java.version>25</java.version> <!-- Vaadin 25 + Boot 4.x requires Java 17+ -->
-        <vaadin.version>25.0.3</vaadin.version>
-        <spring-boot.version>4.0.2</spring-boot.version>
+        <java.version>25</java.version>
+        <vaadin.version>25.1.4</vaadin.version>
+        <spring-boot.version>4.0.4</spring-boot.version>
     </properties>
 
     <!-- Use Spring Boot dependency management for consistent versions -->
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
             <dependency>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-bom</artifactId>
@@ -102,7 +94,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
-            <version>6.0.3</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -133,6 +124,21 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
             <version>1.21.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>browserless-test-junit6</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
