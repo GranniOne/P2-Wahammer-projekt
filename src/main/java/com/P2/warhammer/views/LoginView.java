@@ -18,7 +18,7 @@ import com.vaadin.flow.router.*;
 @StyleSheet("css/loginStyle.css")
 public class LoginView extends Div implements BeforeEnterObserver{
 
-    private final LoginForm loginForm = new LoginForm();
+    public final LoginForm loginForm = new LoginForm();
     private final UserService userService;
 
 
