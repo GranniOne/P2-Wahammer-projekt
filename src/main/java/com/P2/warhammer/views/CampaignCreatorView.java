@@ -68,8 +68,6 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
         if (campaignId != null ){
             campaign = campaignService.getCampaignnById(campaignId);
             campaignNameBinder.readBean(campaign);
-
-
         }else{
             campaign = new Campaign();
         }
@@ -103,9 +101,13 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
 
         binder.forField(addUserTextField)
                 .asRequired()
-                .withValidator(new EmailValidator("Invalid email format"))
-                .withValidator(emailvalue -> this.userService.findFromEmail(emailvalue) != null,"User not found")
+                .withValidator(emailvalue -> this.userService.findFromEmail(emailvalue) != null,
+                        "User not found")
+                .withValidator(emailvalue -> !emailvalue.equals(Utilities.getUserFromAuthentication().getEmail()),
+                        "You cannot add yourself")
                 .bind(User::getEmail, User::setEmail);
+
+        addUserTextField.setI18n(new EmailField.EmailFieldI18n().setPatternErrorMessage("Enter a valid email address"));
 
 
 
