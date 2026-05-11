@@ -84,8 +84,58 @@ public class UserTest extends SpringBrowserlessTest {
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
         User query_user = userRepository.findUserByEmail("coolaid@gmail.com");
-        System.out.println(query_user);
-        // TODO: assert user findes
+        assertEquals("coolaid@gmail.com", query_user.getEmail());
+        assertEquals("12345678", query_user.getPassword());
+        assertEquals("BiggieBob", query_user.getUsername());
+    }
+
+    @Test
+    public void testUserSignupExistingEmail() {
+        final SignupView signupView = navigate(SignupView.class);
+        test(signupView.firstName).setValue("BiggieBob");
+        // bob@gmail.com exists from setup
+        test(signupView.email).setValue("bob@gmail.com");
+        test(signupView.password).setValue("12345678");
+        test(signupView.confirmPassword).setValue("12345678");
+        test(signupView.loginButton).click();
+
+        User query_user = userRepository.findUserByEmail("bob@gmail.com");
+        assertEquals("bob@gmail.com", query_user.getEmail());
+        assertEquals("12345678", query_user.getPassword());
+        assertNotEquals("BiggieBob", query_user.getUsername());
+        assertEquals("Bob", query_user.getUsername());
+    }
+
+    @Test
+    public void testUserSignupBadEmail() {
+        final SignupView signupView = navigate(SignupView.class);
+        test(signupView.firstName).setValue("BiggieBob");
+        test(signupView.email).setValue("badEmail");
+        test(signupView.password).setValue("12345678");
+        test(signupView.confirmPassword).setValue("12345678");
+        test(signupView.loginButton).click();
+        assertNull(userRepository.findUserByEmail("badEmail"));
+
+        test(signupView.firstName).setValue("BiggieBob");
+        test(signupView.email).setValue("anotherbad@email");
+        test(signupView.password).setValue("12345678");
+        test(signupView.confirmPassword).setValue("12345678");
+        test(signupView.loginButton).click();
+        assertNull(userRepository.findUserByEmail("anotherbad@email"));
+
+        test(signupView.firstName).setValue("BiggieBob");
+        test(signupView.email).setValue("@worst.email");
+        test(signupView.password).setValue("12345678");
+        test(signupView.confirmPassword).setValue("12345678");
+        test(signupView.loginButton).click();
+        assertNull(userRepository.findUserByEmail("@worst.email"));
+
+        test(signupView.firstName).setValue("BiggieBob");
+        test(signupView.email).setValue("horrendous email@mail.com");
+        test(signupView.password).setValue("12345678");
+        test(signupView.confirmPassword).setValue("12345678");
+        test(signupView.loginButton).click();
+        assertNull(userRepository.findUserByEmail("horrendous email@mail.com"));
     }
 
     // tjekker at logud knappen gør at mock vaadin sessionen smider en session invalidering af at blive logget ud
@@ -175,5 +225,22 @@ public class UserTest extends SpringBrowserlessTest {
     public void testUserDashboardRerouteAsAdmin(){
         AdminDashboardView adminDashboardView = navigate(AdminDashboardView.class);
         assertTrue($(AdminDashboardView.class).exists());
+    }
+
+    @Test
+    public void testTenUsersInDatabase(){
+        userRepository.deleteAll();
+        userRepository.save(new User( "Alice", "alice@example.com", "password123" ));
+        userRepository.save(new User( "Charlie", "charlie@example.com", "charlie456" ));
+        userRepository.save(new User( "Diana", "diana@example.com", "diana789" ));
+        userRepository.save(new User( "Ethan", "ethan@example.com", "ethan101" ));
+        userRepository.save(new User( "Fiona", "fiona@example.com", "fiona202" ));
+        userRepository.save(new User( "George", "george@example.com", "george303" ));
+        userRepository.save(new User( "Hannah", "hannah@example.com", "hannah404" ));
+        userRepository.save(new User( "Ian", "ian@example.com", "ian505" ));
+        userRepository.save(new User( "Julia", "julia@example.com", "julia606" ));
+        userRepository.save(new User( "Kevin", "kevin@example.com", "kevin707" ));
+        List<User> users = userRepository.findAll();
+        assertEquals(10, users.size());
     }
 }
