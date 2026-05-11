@@ -3,6 +3,7 @@ package com.P2.warhammer.Race;
 import com.P2.warhammer.characteristics.Characteristic;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,8 @@ public class Race {
     String dice;
     String career;
     String species;
+
+    @Field("dicerolls")
     Map<String, ArrayList<Integer>> basecharacteristicMap;
 
     public Race() {}

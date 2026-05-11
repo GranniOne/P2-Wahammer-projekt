@@ -15,10 +15,11 @@ public class Skill {
     Integer StartValue;
     Integer BonusValue;
     Integer PenaltyValue;
+    Boolean boughtBool;
 
     public Skill() {}
 
-    public Skill(String Name, String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue) {
+    public Skill(String Name, String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue, Boolean boughtBool) {
         this.Name = Name;
         this.Category = Category;
         this.Characteristic = Characteristic;
@@ -26,6 +27,7 @@ public class Skill {
         this.StartValue = StartValue;
         this.BonusValue = BonusValue;
         this.PenaltyValue = PenaltyValue;
+        this.boughtBool = boughtBool;
     }
 
     @Override
@@ -98,4 +100,14 @@ public class Skill {
     public void setPenaltyValue(Integer penaltyValue) {
         PenaltyValue = penaltyValue;
     }
+
+    public Boolean getBoughtBool() {
+        return boughtBool;
+    }
+
+    public void setBoughtBool(Boolean boughtBool) {
+        this.boughtBool = boughtBool;
+    }
 }
+
+

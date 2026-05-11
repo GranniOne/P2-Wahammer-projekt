@@ -13,8 +13,8 @@ public class TalentService {
         this.repository = repository;
     }
 
-    public Talent addTalent(String Name, String Category, String Characteristic, String Description) {
-        return repository.save(new Talent(Name, Category, Characteristic, Description));
+    public Talent addTalent(String Name, String Category, String Characteristic, String Description, int amountTaken) {
+        return repository.save(new Talent(Name, Category, Characteristic, Description, amountTaken));
 
     }
 

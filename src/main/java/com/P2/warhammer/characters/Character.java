@@ -6,6 +6,7 @@ import com.P2.warhammer.Talents.Talent;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.items.Armour;
+import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.items.Weapon;
 import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.users.User;
@@ -46,6 +47,7 @@ public class Character {
     int advantage = 0;
     int maxWounds = 0;
     int damageTaken = 0;
+    int level = 1;
     List<Integer> armourValues = new ArrayList<>(); // I think we can just say that the first
 
     int corruptionMax = 0;
@@ -60,7 +62,7 @@ public class Character {
 
     List<String> characteristicsNameArray = Arrays.asList(("Weapon Skill,Ballistics Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
 
-    List<Object> inventory = new ArrayList<>();
+    List<WarhammerItem> inventory = new ArrayList<>();
     List<Armour> equippedArmour = new ArrayList<>();
     List<Weapon> equippedWeapons = new ArrayList<>();
     List<Talent> talents = new ArrayList<>();
@@ -69,19 +71,13 @@ public class Character {
     List<Characteristic> characteristics; // will have this order: ws bs strength toughness initiative agility dexterity intelligence willpower fellowship
 
 
-    public Character(String name, User user, User GameMaster, Integer age, Integer experience, List<Characteristic> characteristics) {
+    public Character(String name, User user, User GameMaster, Integer age, Integer experience, List<Characteristic> characteristics, int level) {
         this.name = name;
         this.user = user;
         this.GameMaster = GameMaster;
         this.age = age;
         this.experience = experience;
         this.characteristics = characteristics;
-
-
-
-
-        //sets all armour values to zero
-
 
     }
 
@@ -95,6 +91,13 @@ public class Character {
 
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
     public String getId() {
         return id;
@@ -248,11 +251,11 @@ public class Character {
         this.career = career;
     }
 
-    public List<Object> getInventory() {
+    public List<WarhammerItem> getInventory() {
         return inventory;
     }
 
-    public void setInventory(List<Object> inventory) {
+    public void setInventory(List<WarhammerItem> inventory) {
         this.inventory = inventory;
     }
 
