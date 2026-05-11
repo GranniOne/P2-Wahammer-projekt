@@ -12,6 +12,7 @@ import com.P2.warhammer.views.LoginView;
 import com.P2.warhammer.views.SignupView;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.browserless.TreeOnFailureExtension;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.login.LoginForm;
@@ -155,5 +156,24 @@ public class UserTest extends SpringBrowserlessTest {
 
         User userToBeDeletedAfter = userRepository.findUserByEmail("dennis@gmail.com");
         assertNull(userToBeDeletedAfter);
+    }
+
+    @Test
+    @WithMockUser(username = "bob@gmail.com", roles = "USER")
+    public void testAdminDashboardRerouteAsUser(){
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+           navigate(AdminDashboardView.class);
+        });
+        assertThat(exception.getMessage()).contains("RouteNotFound");
+        assertTrue($(Html.class).withTextContaining("Could not navigate to 'admin-dashboard'").single().isVisible());
+        assertTrue($(Html.class).withTextContaining("Access is denied").single().isVisible());
+        assertFalse($(AdminDashboardView.class).exists());
+    }
+
+    @Test
+    @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
+    public void testUserDashboardRerouteAsAdmin(){
+        AdminDashboardView adminDashboardView = navigate(AdminDashboardView.class);
+        assertTrue($(AdminDashboardView.class).exists());
     }
 }
