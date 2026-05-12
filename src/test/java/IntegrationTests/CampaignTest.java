@@ -76,7 +76,7 @@ public class CampaignTest extends SpringBrowserlessTest {
 
         characterRepository.deleteAll();
         List<Characteristic> characteristics = new ArrayList<Characteristic>();
-        characterRepository.save(new Character("Mukibuki", marley, null, 12, 12, characteristics));
+        characterRepository.save(new Character("Mukibuki", marley, null, 12, 12, characteristics, 12));
 
         campaignRepository.deleteAll();
         // Oprette en test kampagne som Marley er med i og hvor Dennis er gamemaster
