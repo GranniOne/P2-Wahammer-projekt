@@ -17,6 +17,7 @@ import com.P2.warhammer.views.CampaignView;
 import com.P2.warhammer.views.DashBoard;
 import com.vaadin.browserless.SpringBrowserlessTest;
 import com.vaadin.browserless.TreeOnFailureExtension;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
@@ -38,12 +39,13 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+import javax.xml.stream.events.Characters;
+
 @Testcontainers
+@ExtendWith(TreeOnFailureExtension.class)
 @SpringBootTest(classes = Application.class)
 public class CampaignTest extends SpringBrowserlessTest {
-    @Container
-    public static MongoDBContainer mongoDBContainer =
-            new MongoDBContainer("mongo:7.0.0");
+    @Container public static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0.0");
 
     @Autowired private UserService userService;
 
@@ -55,27 +57,23 @@ public class CampaignTest extends SpringBrowserlessTest {
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.mongodb.uri",
-                mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
         registry.add("spring.mongodb.database", () -> "testdb");
     }
 
+    // TODO: ryk setup ned i tilhørende test udover usersne (vaadin session kan ikke klare sig uden usersne bliver sat op først)
     @BeforeEach
     @Override
     protected void initVaadinEnvironment() {
         userRepository.deleteAll();
-        User dennis =
-                new User("Dennis", "dennis@gmail.com", "12345678");
+        User dennis = new User("Dennis", "dennis@gmail.com", "12345678");
         userRepository.save(dennis);
-        User marley =
-                new User("Marley", "marley@gmail.com", "12345678");
+        User marley = new User("Marley", "marley@gmail.com", "12345678");
         userRepository.save(marley);
 
         characterRepository.deleteAll();
-        List<Characteristic> characteristics =
-                new ArrayList<Characteristic>();
-        characterRepository.save(new Character("Mukibuki",
-                marley, null, 12, 12, characteristics, 12));
+        List<Characteristic> characteristics = new ArrayList<Characteristic>();
+        characterRepository.save(new Character("Mukibuki", marley, null, 12, 12, characteristics, 12));
 
         campaignRepository.deleteAll();
         // Oprette en test kampagne som Marley er med i og hvor
@@ -87,12 +85,9 @@ public class CampaignTest extends SpringBrowserlessTest {
         players.add(marley);
         testCampaign.setPlayers(players);
         campaignRepository.save(testCampaign);
-        System.out.println(
-                campaignRepository.findAll().getFirst());
 
         super.initVaadinEnvironment();
     }
-
     @Test
     @WithMockUser(username = "dennis@gmail.com")
     public void testCampaignCreation() {
@@ -102,22 +97,14 @@ public class CampaignTest extends SpringBrowserlessTest {
         assertTrue(campaigns.isEmpty());
 
         // user går ind i kampagnekreatør
-        CampaignCreatorView campaignCreatorView =
-                navigate(CampaignCreatorView.class);
-        TextField campaignNameTextField =
-                $(CampaignCreatorView.class)
-                        .thenOnFirst(TextField.class)
-                        .single();
+        CampaignCreatorView campaignCreatorView = navigate(CampaignCreatorView.class);
+        TextField campaignNameTextField = $(CampaignCreatorView.class).thenOnFirst(TextField.class).single();
         test(campaignNameTextField).setValue("Test Campaign");
 
-        EmailField emailField =
-                $(CampaignCreatorView.class)
-                        .thenOnFirst(EmailField.class)
-                        .single();
+        EmailField emailField = $(CampaignCreatorView.class).thenOnFirst(EmailField.class).single();
         test(emailField).setValue("marley@gmail.com");
 
-        Button addUserButton =
-                $(Button.class).withText("Add").single();
+        Button addUserButton = $(Button.class).withText("Add").single();
         test(addUserButton).click();
 
         test($(Button.class).withText("Save").single()).click();
@@ -126,12 +113,10 @@ public class CampaignTest extends SpringBrowserlessTest {
         campaigns = campaignRepository.findAll();
         Campaign savedCampaign = campaigns.get(0);
         assertEquals("Test Campaign", savedCampaign.getName());
-        assertEquals("marley@gmail.com",
-                savedCampaign.getPlayers().getFirst().getEmail());
+        assertEquals("marley@gmail.com", savedCampaign.getPlayers().getFirst().getEmail());
         // tjekker om gamemaster er samme som bruger der har
         // sessionen (Den der lige har oprettet)
-        assertEquals(savedCampaign.getGameMaster().getId(),
-                Utilities.getUserFromAuthentication().getId());
+        assertEquals(savedCampaign.getGameMaster().getId(), Utilities.getUserFromAuthentication().getId());
     }
 
     @Test
@@ -139,39 +124,54 @@ public class CampaignTest extends SpringBrowserlessTest {
     public void testUserAddingCharacterToCampaign() {
         // Først tjek den eneste kampagne i repo ikke har nogen
         // karakterer
-        assertTrue(campaignRepository.findAll()
-                .getFirst()
-                .getCharacters()
-                .isEmpty());
+        assertTrue(campaignRepository.findAll().getFirst().getCharacters().isEmpty());
 
         // Marley navigerer til campaign view for at tilføje en
         // karakter
         DashBoard dashBoard = navigate(DashBoard.class);
-        test($(Button.class,
-                $(Div.class)
-                        .withClassName("CampaignCards")
-                        .single())
-                .withTextContaining("View")
-                .single())
+        test($(Button.class, $(Div.class).withClassName("CampaignCards").single()).withTextContaining("View").single())
                 .click();
         test($(ComboBox.class).single()).selectItem("Mukibuki");
-        test($(Button.class)
-                .withClassName("add-character")
-                .single())
-                .click();
+        test($(Button.class).withClassName("add-character").single()).click();
 
         // Tjekker om karakter er tilføjet til kampagne
-        assertFalse(campaignRepository.findAll()
-                .getFirst()
-                .getCharacters()
-                .isEmpty());
+        assertFalse(campaignRepository.findAll().getFirst().getCharacters().isEmpty());
         // tjekker om karakter i kampagne er den samme som
         // karakteren i repo der er blevet tilføjet
-        assertEquals(campaignRepository.findAll()
-                        .getFirst()
-                        .getCharacters()
-                        .getFirst()
-                        .getId(),
+        assertEquals(campaignRepository.findAll().getFirst().getCharacters().getFirst().getId(),
                 characterRepository.findAll().getFirst().getId());
+    }
+
+    @Test
+    @WithMockUser("marley@gmail.com")
+    public void testCharactersVisibleForGamemaster(){
+        campaignRepository.deleteAll();
+        characterRepository.deleteAll();
+
+        Campaign testCampaign = new Campaign();
+        testCampaign.setName("Destroyer campaign");
+        testCampaign.setGameMaster(userRepository.findUserByEmail("marley@gmail.com"));
+
+        // generer 5 chars, de bliver gemt i repoet så de kan få et document id af mongo, så campaign can lave documentrefs
+        for(int i = 0; i < 5; i++){
+            Character character = new Character(
+                    String.format("Mukibuki%d", i),
+                    userRepository.findUserByEmail("dennis@gmail.com"),
+                    userRepository.findUserByEmail("marley@gmail.com"),
+                    12, 12, new ArrayList<>(), 12);
+
+            characterRepository.save(character);
+        }
+        List<Character> charactersList = characterRepository.findAll();
+
+        testCampaign.setCharacters(charactersList);
+
+        campaignRepository.save(testCampaign);
+
+        // genindlæs dashboard side efter databasen er ændret ovenover
+        UI.getCurrent().getPage().reload();
+
+        fail();
+
     }
 }
