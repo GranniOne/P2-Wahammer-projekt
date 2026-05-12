@@ -28,9 +28,10 @@ import jakarta.annotation.security.PermitAll;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-
+import com.vaadin.flow.component.notification.Notification;
 import java.util.List;
 import java.util.Objects;
+
 
 @StyleSheet("css/dashboardPage.css")
 @PageTitle("dashboard Page")
@@ -160,11 +161,23 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         CharacterCards.setClassName("CharacterCards");
 
         Button addCampaignButton =  new Button("Add Campaign",buttonClickEvent -> {
-            UI.getCurrent().navigate(CampaignCreatorView.class);
+            if (campaigns.size() >= 5) {
+                Notification.show("Campaign limit of 5 reached", 1000,
+                        Notification.Position.MIDDLE);
+            }
+            else {
+                UI.getCurrent().navigate(CampaignCreatorView.class);
+            }
         });
 
         Button addCharacterButton =  new Button("Add Character",buttonClickEvent -> {
-            UI.getCurrent().navigate(CharacterCreatorView.class);
+            if (ownedCharacters.size() >= 5) {
+                Notification.show("Character limit of 5 reached", 1000,
+                        Notification.Position.MIDDLE);
+            }
+            else {
+                UI.getCurrent().navigate(CharacterCreatorView.class);
+            }
         });
 
         addCampaignButton.getStyle().setMarginLeft("20px").setBackground("black");
