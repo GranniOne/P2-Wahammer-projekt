@@ -1,5 +1,8 @@
 package IntegrationTests;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.P2.warhammer.Application;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.layout.Navigation;
@@ -17,6 +20,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.login.LoginFormTester;
+import java.util.List;
 import lombok.With;
 import org.apache.catalina.Role;
 import org.junit.jupiter.api.BeforeAll;
@@ -35,44 +39,44 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-import java.util.List;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
 @Testcontainers
 @ExtendWith(TreeOnFailureExtension.class)
 @SpringBootTest(classes = Application.class)
 public class UserTest extends SpringBrowserlessTest {
-
     @Container
     public static MongoDBContainer mongoDBContainer =
             new MongoDBContainer("mongo:7.0.0");
 
-    @Autowired
-    private UserService userService;
+    @Autowired private UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Autowired private UserRepository userRepository;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.mongodb.uri", mongoDBContainer::getReplicaSetUrl);
+        registry.add("spring.mongodb.uri",
+                mongoDBContainer::getReplicaSetUrl);
         registry.add("spring.mongodb.database", () -> "testdb");
     }
 
-    // der bliver overridet fordi en user skal gemmes i repoet inden en mock vaadin session startes
-    // dette er fordi mock vaadin session router til dashboard hvis man er authenticated, og dette giver en mongodb fejl
-    // hvis ens authentication ikke matcher en eksistrende bruger  i databasen, der kan hentes karakterer / kampagner fra
+    // der bliver overridet fordi en user skal gemmes i repoet
+    // inden en mock vaadin session startes dette er fordi mock
+    // vaadin session router til dashboard hvis man er
+    // authenticated, og dette giver en mongodb fejl hvis ens
+    // authentication ikke matcher en eksistrende bruger  i
+    // databasen, der kan hentes karakterer / kampagner fra
     @BeforeEach
     @Override
     protected void initVaadinEnvironment() {
         userRepository.deleteAll();
         // normal user
-        userRepository.save(new User("Dennis", "dennis@gmail.com", "12345678"));
-        // admin user (hardcoded i system til at give bob@gmail.com admin role)
-        userRepository.save(new User("Bob", "bob@gmail.com", "12345678"));
-        super.initVaadinEnvironment(); // sætter vaadin mock sessionen op
+        userRepository.save(
+                new User("Dennis", "dennis@gmail.com", "12345678"));
+        // admin user (hardcoded i system til at give
+        // bob@gmail.com admin role)
+        userRepository.save(
+                new User("Bob", "bob@gmail.com", "12345678"));
+        super.initVaadinEnvironment(); // sætter vaadin mock
+        // sessionen op
     }
 
     @Test
@@ -83,7 +87,8 @@ public class UserTest extends SpringBrowserlessTest {
         test(signupView.password).setValue("12345678");
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
-        User query_user = userRepository.findUserByEmail("coolaid@gmail.com");
+        User query_user =
+                userRepository.findUserByEmail("coolaid@gmail.com");
         assertEquals("coolaid@gmail.com", query_user.getEmail());
         assertEquals("12345678", query_user.getPassword());
         assertEquals("BiggieBob", query_user.getUsername());
@@ -99,7 +104,8 @@ public class UserTest extends SpringBrowserlessTest {
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
 
-        User query_user = userRepository.findUserByEmail("bob@gmail.com");
+        User query_user =
+                userRepository.findUserByEmail("bob@gmail.com");
         assertEquals("bob@gmail.com", query_user.getEmail());
         assertEquals("12345678", query_user.getPassword());
         assertNotEquals("BiggieBob", query_user.getUsername());
@@ -121,25 +127,31 @@ public class UserTest extends SpringBrowserlessTest {
         test(signupView.password).setValue("12345678");
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
-        assertNull(userRepository.findUserByEmail("anotherbad@email"));
+        assertNull(
+                userRepository.findUserByEmail("anotherbad@email"));
 
         test(signupView.firstName).setValue("BiggieBob");
         test(signupView.email).setValue("@worst.email");
         test(signupView.password).setValue("12345678");
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
-        assertNull(userRepository.findUserByEmail("@worst.email"));
+        assertNull(
+                userRepository.findUserByEmail("@worst.email"));
 
         test(signupView.firstName).setValue("BiggieBob");
-        test(signupView.email).setValue("horrendous email@mail.com");
+        test(signupView.email)
+                .setValue("horrendous email@mail.com");
         test(signupView.password).setValue("12345678");
         test(signupView.confirmPassword).setValue("12345678");
         test(signupView.loginButton).click();
-        assertNull(userRepository.findUserByEmail("horrendous email@mail.com"));
+        assertNull(userRepository.findUserByEmail(
+                "horrendous email@mail.com"));
     }
 
-    // tjekker at logud knappen gør at mock vaadin sessionen smider en session invalidering af at blive logget ud
-    // bliver nød til at tjekke efter fejl something html lag mangler
+    // tjekker at logud knappen gør at mock vaadin sessionen
+    // smider en session invalidering af at blive logget ud
+    // bliver nød til at tjekke efter fejl something html lag
+    // mangler
     @Test
     @WithMockUser(username = "dennis@gmail.com")
     public void testUserLogoutThrowsInvalidatedSessionError() {
@@ -147,99 +159,145 @@ public class UserTest extends SpringBrowserlessTest {
         Navigation navigation = $(Navigation.class).single();
         assertTrue(navigation.logoutButton.isEnabled());
 
-        IllegalStateException exception = assertThrows(
-                IllegalStateException.class,
-                () -> test(navigation.logoutButton).click()
-        );
+        IllegalStateException exception =
+                assertThrows(IllegalStateException.class,
+                        () -> test(navigation.logoutButton).click());
 
-        assertTrue(exception.getMessage().contains("invalidated"));
+        assertTrue(
+                exception.getMessage().contains("invalidated"));
     }
 
-    // tjekker om bruger med email har en admin role og ikke user role
+    // tjekker om bruger med email har en admin role og ikke user
+    // role
     @Test
     @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
     public void testConfirmAdminRole() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        assertTrue(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+        Authentication authentication =
+                SecurityContextHolder.getContext()
+                        .getAuthentication();
+        assertTrue(
+                authentication.getAuthorities().stream().anyMatch(
+                        a -> a.getAuthority().equals("ROLE_ADMIN")));
 
-        assertFalse(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+        assertFalse(
+                authentication.getAuthorities().stream().anyMatch(
+                        a -> a.getAuthority().equals("ROLE_USER")));
     }
 
     @Test
     @WithMockUser(username = "dennis@gmail.com", roles = "USER")
     public void testConfirmUserRole() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        assertFalse(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
+        Authentication authentication =
+                SecurityContextHolder.getContext()
+                        .getAuthentication();
+        assertFalse(
+                authentication.getAuthorities().stream().anyMatch(
+                        a -> a.getAuthority().equals("ROLE_ADMIN")));
 
-        assertTrue(authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER")));
+        assertTrue(
+                authentication.getAuthorities().stream().anyMatch(
+                        a -> a.getAuthority().equals("ROLE_USER")));
     }
 
     @Test
     @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
     public void testAdminPasswordReset() {
-        AdminDashboardView adminDashboardView = navigate(AdminDashboardView.class);
-        User userToGetResetPasswordBefore = userRepository.findUserByEmail("dennis@gmail.com");
-        assertEquals("12345678", userToGetResetPasswordBefore.getPassword());
+        AdminDashboardView adminDashboardView =
+                navigate(AdminDashboardView.class);
+        User userToGetResetPasswordBefore =
+                userRepository.findUserByEmail("dennis@gmail.com");
+        assertEquals("12345678",
+                userToGetResetPasswordBefore.getPassword());
 
-        // efterligner at trykke "nulstil adgangskode" ud fra en user som kører nedenstående
-        adminDashboardView.openDialog(userToGetResetPasswordBefore, "nulstil adgangskode");
+        // efterligner at trykke "nulstil adgangskode" ud fra en
+        // user som kører nedenstående
+        adminDashboardView.openDialog(
+                userToGetResetPasswordBefore, "nulstil adgangskode");
 
         // finder reset button knap i dialog og trykker på den
-        Button dialogResetPassWordButton = $(Button.class).withText("nulstil adgangskode").single();
+        Button dialogResetPassWordButton =
+                $(Button.class)
+                        .withText("nulstil adgangskode")
+                        .single();
         dialogResetPassWordButton.click();
 
-        User userToGetResetPasswordAfter = userRepository.findUserByEmail("dennis@gmail.com");
-        assertEquals("1234abcd", userToGetResetPasswordBefore.getPassword());
+        User userToGetResetPasswordAfter =
+                userRepository.findUserByEmail("dennis@gmail.com");
+        assertEquals("1234abcd",
+                userToGetResetPasswordBefore.getPassword());
     }
 
     @Test
     @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
     public void testAdminDeleteUser() {
-        AdminDashboardView adminDashboardView = navigate(AdminDashboardView.class);
-        User userToBeDeleted = userRepository.findUserByEmail("dennis@gmail.com");
+        AdminDashboardView adminDashboardView =
+                navigate(AdminDashboardView.class);
+        User userToBeDeleted =
+                userRepository.findUserByEmail("dennis@gmail.com");
         assertNotNull(userToBeDeleted);
 
         adminDashboardView.openDialog(userToBeDeleted, "delete");
-        Button dialogDeleteUserButton = $(Button.class).withText("delete").single();
+        Button dialogDeleteUserButton =
+                $(Button.class).withText("delete").single();
         dialogDeleteUserButton.click();
 
-
-        User userToBeDeletedAfter = userRepository.findUserByEmail("dennis@gmail.com");
+        User userToBeDeletedAfter =
+                userRepository.findUserByEmail("dennis@gmail.com");
         assertNull(userToBeDeletedAfter);
     }
 
     @Test
     @WithMockUser(username = "bob@gmail.com", roles = "USER")
-    public void testAdminDashboardRerouteAsUser(){
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-           navigate(AdminDashboardView.class);
-        });
-        assertThat(exception.getMessage()).contains("RouteNotFound");
-        assertTrue($(Html.class).withTextContaining("Could not navigate to 'admin-dashboard'").single().isVisible());
-        assertTrue($(Html.class).withTextContaining("Access is denied").single().isVisible());
+    public void testAdminDashboardRerouteAsUser() {
+        IllegalArgumentException exception =
+                assertThrows(IllegalArgumentException.class,
+                        () -> { navigate(AdminDashboardView.class); });
+        assertThat(exception.getMessage())
+                .contains("RouteNotFound");
+        assertTrue(
+                $(Html.class)
+                        .withTextContaining(
+                                "Could not navigate to 'admin-dashboard'")
+                        .single()
+                        .isVisible());
+        assertTrue($(Html.class)
+                .withTextContaining("Access is denied")
+                .single()
+                .isVisible());
         assertFalse($(AdminDashboardView.class).exists());
     }
 
     @Test
     @WithMockUser(username = "bob@gmail.com", roles = "ADMIN")
-    public void testUserDashboardRerouteAsAdmin(){
-        AdminDashboardView adminDashboardView = navigate(AdminDashboardView.class);
+    public void testUserDashboardRerouteAsAdmin() {
+        AdminDashboardView adminDashboardView =
+                navigate(AdminDashboardView.class);
         assertTrue($(AdminDashboardView.class).exists());
     }
 
     @Test
-    public void testTenUsersInDatabase(){
+    public void testTenUsersInDatabase() {
         userRepository.deleteAll();
-        userRepository.save(new User( "Alice", "alice@example.com", "password123" ));
-        userRepository.save(new User( "Charlie", "charlie@example.com", "charlie456" ));
-        userRepository.save(new User( "Diana", "diana@example.com", "diana789" ));
-        userRepository.save(new User( "Ethan", "ethan@example.com", "ethan101" ));
-        userRepository.save(new User( "Fiona", "fiona@example.com", "fiona202" ));
-        userRepository.save(new User( "George", "george@example.com", "george303" ));
-        userRepository.save(new User( "Hannah", "hannah@example.com", "hannah404" ));
-        userRepository.save(new User( "Ian", "ian@example.com", "ian505" ));
-        userRepository.save(new User( "Julia", "julia@example.com", "julia606" ));
-        userRepository.save(new User( "Kevin", "kevin@example.com", "kevin707" ));
+        userRepository.save(new User(
+                "Alice", "alice@example.com", "password123"));
+        userRepository.save(new User(
+                "Charlie", "charlie@example.com", "charlie456"));
+        userRepository.save(
+                new User("Diana", "diana@example.com", "diana789"));
+        userRepository.save(
+                new User("Ethan", "ethan@example.com", "ethan101"));
+        userRepository.save(
+                new User("Fiona", "fiona@example.com", "fiona202"));
+        userRepository.save(new User(
+                "George", "george@example.com", "george303"));
+        userRepository.save(new User(
+                "Hannah", "hannah@example.com", "hannah404"));
+        userRepository.save(
+                new User("Ian", "ian@example.com", "ian505"));
+        userRepository.save(
+                new User("Julia", "julia@example.com", "julia606"));
+        userRepository.save(
+                new User("Kevin", "kevin@example.com", "kevin707"));
         List<User> users = userRepository.findAll();
         assertEquals(10, users.size());
     }
