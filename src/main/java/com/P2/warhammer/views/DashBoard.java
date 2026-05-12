@@ -78,11 +78,8 @@ public class DashBoard extends Div implements BeforeEnterObserver {
 
                 });
                 characterCard.addToEnd(characterViewButton);
-
                 Button characterEditButton = new Button("Edit", e ->{
                     UI.getCurrent().navigate(CharacterCreatorView.class, QueryParameters.of("Character", character.getId()));
-
-
                 });
                 characterCard.addToEnd(characterEditButton);
 
