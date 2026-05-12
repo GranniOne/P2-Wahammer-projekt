@@ -17,6 +17,7 @@ import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -69,6 +70,11 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
             campaign = campaignService.getCampaignnById(campaignId);
             campaignNameBinder.readBean(campaign);
         }else{
+            if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).size() >= 5){
+                UI.getCurrent().getPage().getHistory().back();
+                Notification.show("you have to many cmapaign", 5000, Notification.Position.MIDDLE);
+            }
+
             campaign = new Campaign();
         }
 
@@ -98,7 +104,6 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
         EmailField addUserTextField = new EmailField();
         addUserTextField.setManualValidation(true);
 
-
         binder.forField(addUserTextField)
                 .asRequired()
                 .withValidator(emailvalue -> this.userService.findFromEmail(emailvalue) != null,
@@ -108,6 +113,7 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
                 .bind(User::getEmail, User::setEmail);
 
         addUserTextField.setI18n(new EmailField.EmailFieldI18n().setPatternErrorMessage("Enter a valid email address"));
+
 
 
 
