@@ -272,7 +272,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         } catch (NullPointerException e) {
         }
 
-
         TextField statusField = new TextField();
         statusField.setReadOnly(true);
         statusField.setLabel("Status");
@@ -290,7 +289,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.setItems(careers);
         dropdownMenu.setItemLabelGenerator(Career::getName);
 
-        div.add(dropdownMenu);
         levelField = createField( 4);
         levelField.setLabel("Level");
         levelField.setValue(globalCharacter.getLevel());
@@ -316,6 +314,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
 
+        div.add(dropdownMenu, socialClassField, statusField, levelField, addTrappingsButton);
         return div;
     }
 
@@ -456,7 +455,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 IntegerField baseField = createField(99);
                 baseField.setLabel("Characteristic total");
-                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty());
+                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod());
                 baseField.setReadOnly(true);
                 baseField.setWidth("150px");
 
@@ -562,12 +561,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             penaltyField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getPenalty());
             penaltyField.setWidth("120px");
 
-
             IntegerField totalField = new IntegerField();
             totalField.setLabel("Total");
             totalField.setValue(0);
             totalField.setWidth("120px");
-
 
             Button rollButton = new Button("Roll charateristic");
             rollButton.addClickListener(event -> {
@@ -609,13 +606,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void updateCharacteristic(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Characteristic characterCharacteristic, Div charSkillDiv, Div baseCharDiv){
-        int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
-
-        totalField.setValue(total);
-
         characterCharacteristic.setBase(baseField.getValue());
         characterCharacteristic.setModifier(modifierField.getValue());
         characterCharacteristic.setPenalty(penaltyField.getValue());
+        characterCharacteristic.setRacemod(raceField.getValue());
+
+        int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+
+        totalField.setValue(total);
 
         charSkillDiv.removeAll();
         charSkillDiv.add(renderSkillDivs(characterCharacteristic));
