@@ -70,9 +70,10 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
             campaign = campaignService.getCampaignnById(campaignId);
             campaignNameBinder.readBean(campaign);
         }else{
-            if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).size() >= 5){
+            if(campaignService.
+                    getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).stream().filter(campaign -> campaign.getGameMaster().getId().equals(Utilities.getUserFromAuthentication().getId())).toList().size() >= 5){
                 UI.getCurrent().getPage().getHistory().back();
-                Notification.show("you have to many cmapaign", 5000, Notification.Position.MIDDLE);
+                Notification.show("You own to mane campaigns", 5000, Notification.Position.MIDDLE);
             }
 
             campaign = new Campaign();
@@ -150,7 +151,6 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
             campaign.setName(campaignTextField.getValue());
             campaign.setGameMaster(Utilities.getUserFromAuthentication());
             campaignService.addCompletedCampaign(campaign);
-            System.out.println("Test");
             UI.getCurrent().navigate(DashBoard.class);
         });
         button.getStyle().set("display", "flex").setAlignSelf(Style.AlignSelf.CENTER);
