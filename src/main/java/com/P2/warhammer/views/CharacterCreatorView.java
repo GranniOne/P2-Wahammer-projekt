@@ -74,6 +74,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
          */
     Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
+    Map<String, Runnable> characteristicUpdates = new HashMap<>();
 
     Random random = new Random();
     private final SkillRepository skillRepository;
@@ -137,9 +138,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         renderCharacteristicsDivs();
         inventoryDivCreator();
 
-        container.add(raceBox(), careerBox(), statBox, talentBox, inventoryDiv);
-
-
+        container.add(CharacterInfoBox(), raceBox(), careerBox(), statBox, talentBox, inventoryDiv);
         add(container);
     }
 
@@ -221,10 +220,48 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         this.characterService.addCharacter(globalCharacter);
     }
 
-    private Div careerBox(){
+    private Div CharacterInfoBox(){
         Div div = new Div();
 
+        TextField nameField = new TextField();
+        nameField.setLabel("Character name");
+        try {
+            nameField.setValue(globalCharacter.getName());
+        } catch (NullPointerException e) {
+        }
+        nameField.addValueChangeListener(e -> globalCharacter.setName(nameField.getValue()));
 
+        IntegerField ageField = new IntegerField();
+        ageField.setLabel("Age");
+        try {
+            ageField.setValue(globalCharacter.getAge());
+        } catch (NullPointerException e) {
+        }
+        ageField.addValueChangeListener(e -> globalCharacter.setAge(ageField.getValue()));
+
+        IntegerField xpField = new IntegerField();
+        xpField.setLabel("XP");
+        try {
+            xpField.setValue(globalCharacter.getExperience());
+        } catch (NullPointerException e) {
+        }
+        xpField.addValueChangeListener(e -> globalCharacter.setExperience(xpField.getValue()));
+
+        Button saveCharacterButton = new Button("Save Character", e -> {
+            saveCharacter();
+        });
+
+        div.add(nameField, ageField, xpField, saveCharacterButton);
+
+        nameField.addValueChangeListener(e ->
+                globalCharacter.setName(nameField.getValue())
+        );
+
+        return div;
+    }
+
+    private Div careerBox(){
+        Div div = new Div();
 
         TextField socialClassField = new TextField();
         socialClassField.setReadOnly(true);
@@ -243,37 +280,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             statusField.setValue(String.valueOf(globalCharacter.getCareer().getLevelStatusList().get(globalCharacter.getLevel())));
         } catch (NullPointerException e) {
         }
-
-
-        TextField nameField = new TextField();
-        nameField.setLabel("Character name");
-        try {
-            nameField.setValue(globalCharacter.getName());
-        } catch (NullPointerException e) {
-        }
-        nameField.addValueChangeListener(e -> globalCharacter.setName(nameField.getValue()));
-
-
-        IntegerField xpField = new IntegerField();
-        xpField.setLabel("XP");
-        try {
-            xpField.setValue(globalCharacter.getExperience());
-        } catch (NullPointerException e) {
-        }
-        xpField.addValueChangeListener(e -> globalCharacter.setExperience(xpField.getValue()));
-
-
-        IntegerField ageField = new IntegerField();
-        ageField.setLabel("Age");
-        try {
-            ageField.setValue(globalCharacter.getAge());
-        } catch (NullPointerException e) {
-        }
-        ageField.addValueChangeListener(e -> globalCharacter.setAge(ageField.getValue()));
-
-        Button saveCharacterButton = new Button("Save Character", e -> {
-            saveCharacter();
-        });
 
         ComboBox<Career> dropdownMenu = new ComboBox<>("Choose a career");
 
@@ -298,16 +304,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             addTrappingFunction(levelField);
         });
 
-        div.add(levelField,socialClassField,statusField,addTrappingsButton,nameField,xpField,ageField,saveCharacterButton);
-
-
         if (!dropdownMenu.isEmpty()){
             levelField.setReadOnly(false);
         }
-
-        nameField.addValueChangeListener(e ->
-                globalCharacter.setName(nameField.getValue())
-        );
 
         //adds listener so the skills talents and characteristics can change when another career or level is selected
         levelField.addValueChangeListener(e ->
@@ -396,7 +395,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         levelField.setReadOnly(false);
         Career currentCareer = dropdownMenu.getValue();
 
-
         talentBox.removeAll();
         renderTalentsDivs(currentCareer, levelField.getValue());
         try {
@@ -412,6 +410,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             globalCharacter.setCareer(currentCareer);
             globalCharacter.setStatusLevel(status.get(level - 1));
+
+            characteristicUpdates.values().forEach(Runnable::run);
 
         }catch (Exception e){
             System.out.println("Klassen eksisterer ikke");
@@ -580,6 +580,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             Runnable update = () ->
                     updateCharacteristic(baseField, modifierField, penaltyField, raceField, totalField, characterCharacteristic, charSkillDiv, charDiv);
+
+            characteristicUpdates.put(characterCharacteristic.getName(), update);
 
             baseField.addValueChangeListener(e -> update.run());
             modifierField.addValueChangeListener(e -> update.run());
