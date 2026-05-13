@@ -183,6 +183,20 @@ public class CampaignTest extends SpringBrowserlessTest {
             assertTrue($(Span.class, $(CampaignView.class).single()).withText(String.format("Mukibuki%d", i)).single().isVisible());
         }
         // TODO: måske ogs lige tjek om om man kan view chars side
+    }
+
+    @Test
+    @WithMockUser("dennis@gmail.com")
+    public void testFiveCampaignLimit(){
+        // opsætter 4 ekstrea dummy campaigns til med marley som gm, udnytter setup kampagnen
+        for(int i = 2; i < 6; i ++){
+            Campaign campaign = campaignRepository.findAll().getFirst();
+            campaign.setName(String.format("%s %d", campaign.getName(), i));
+            campaign.setId(Integer.toString(i));
+            campaignRepository.save(campaign);
+        }
+
+        campaignRepository.findAll().forEach(campaign -> System.out.println(campaign.getName()));
 
     }
 }
