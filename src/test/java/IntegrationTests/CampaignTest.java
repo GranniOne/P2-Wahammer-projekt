@@ -22,6 +22,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -196,7 +197,19 @@ public class CampaignTest extends SpringBrowserlessTest {
             campaignRepository.save(campaign);
         }
 
-        campaignRepository.findAll().forEach(campaign -> System.out.println(campaign.getName()));
+        // genindlæs dashboard side efter databasen er ændret ovenover
+        UI.getCurrent().getPage().reload();
+        test($(Button.class).withText("Add Campaign").single()).click();
+
+        // tjekker om notifikation om limit er reached er tilstede
+        if($(Notification.class).withText("Campaign limit of 5 reached").exists()){
+            assertTrue($(Notification.class).withText("Campaign limit of 5 reached").single().isVisible());
+        }
+
+        // sikrer bruger ikke er blevet reroutet til campaign creator
+        assertFalse($(CampaignCreatorView.class).exists());
+        assertTrue($(DashBoard.class).single().isVisible());
+
 
     }
 }
