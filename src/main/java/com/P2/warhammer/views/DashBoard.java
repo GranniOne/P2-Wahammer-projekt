@@ -45,6 +45,7 @@ public class DashBoard extends Div implements BeforeEnterObserver {
     User loadedUser;
     List<Character> ownedCharacters;
     List<Campaign> campaigns;
+    List<Campaign> gameMasterCampaigns;
     DashBoard(UserService userService, CharacterService  characterService, CampaignService  campaignService) {
         this.characterService =  characterService;
         this.userService = userService;
@@ -53,6 +54,8 @@ public class DashBoard extends Div implements BeforeEnterObserver {
             loadedUser = Utilities.getUserFromAuthentication();
             ownedCharacters =  characterService.getCharactersByUser(loadedUser);
             campaigns = campaignService.getCampaignsByPlayerAndGameMaster(loadedUser,loadedUser);
+            gameMasterCampaigns = campaigns.stream()
+                    .filter(campaign -> campaign.getGameMaster().getId().equals(loadedUser.getId())).toList();
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -161,8 +164,8 @@ public class DashBoard extends Div implements BeforeEnterObserver {
         CharacterCards.setClassName("CharacterCards");
 
         Button addCampaignButton =  new Button("Add Campaign",buttonClickEvent -> {
-            if (campaigns.size() >= 5) {
-                Notification.show("Campaign limit of 5 reached", 1000,
+            if (gameMasterCampaigns.size() >= 5) {
+                Notification.show("Campaign creation limit of 5 reached", 1000,
                         Notification.Position.MIDDLE);
             }
             else {
