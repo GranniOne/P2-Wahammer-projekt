@@ -437,6 +437,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 }
                 Div skillDiv = new Div();
 
+
                 TextField charField = new TextField();
                 charField.setReadOnly(true);
                 charField.setLabel("Skill name");
@@ -488,10 +489,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 skillBoughtCheckbox.addValueChangeListener(e -> update.run());
 
                 skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField, skillBoughtCheckbox);
+                skillDiv.getStyle().set("border-top", "1px solid black");
                 skillDivBox.add(skillDiv);
             });}
-            return skillDivBox;
 
+
+            return skillDivBox;
     }
 
     private void updateSkill(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Skill skill, Checkbox skillBoughtCheckbox){
@@ -523,9 +526,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
 
             if (colorbool) {
-                charDiv.getStyle().set("background-color", "#91BAB2");
+                charDiv.getStyle().set("border", "3px solid black");
             } else {
-                charDiv.getStyle().set("background-color", "#F5A3BE");
+                charDiv.getStyle().set("border", "3px solid black");
             }
 
             colorbool = !colorbool;
@@ -533,6 +536,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             TextField charField = new TextField ();
             charField.setReadOnly(true);
             charField.setLabel("Characteristic name");
+            charField.getStyle().set("--vaadin-input-field-label-font-weight", "bold");
             charField.setValue(characterCharacteristic.getName());
             charField.setWidth("160px");
 
@@ -595,7 +599,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicValues.put(characterCharacteristic.getName(), fieldArray);
 
             charDiv.add(charField,raceField,baseField,modifierField,penaltyField,totalField,rollButton,charSkillDiv);
-
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
         }
