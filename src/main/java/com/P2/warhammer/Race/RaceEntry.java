@@ -9,6 +9,8 @@ public class RaceEntry {
     private String species;
     Map<String, ArrayList<Integer>> basecharacteristicMap;
 
+    public RaceEntry() {}
+
     public int getMin() { return min; }
     public int getMax() { return max; }
     public String getSpecies() { return species; }

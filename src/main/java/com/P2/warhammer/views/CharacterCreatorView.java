@@ -358,10 +358,15 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private void updateRace(ComboBox<String> dropdownMenu) {
         String currentRace = dropdownMenu.getValue();
 
+        String normalized = currentRace.trim();
+
         Race race = raceItems.stream()
-                .filter(r -> currentRace.equals(r.getRace()))
+                .filter(r -> r.getRace() != null
+                        && r.getRace().trim().equalsIgnoreCase(normalized))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Race not found"));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Race not found: " + currentRace
+                ));
         globalCharacter.setRace(currentRace);
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
@@ -371,7 +376,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             allValues.addAll(list);
         }
 
-        for (int i = 0; i < 10; i++){
+        for (int i = 0; i < Math.min(10, allValues.size()); i++){
             raceFields.get(i).setValue(allValues.get(i));
         }
 
