@@ -21,6 +21,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -171,7 +172,17 @@ public class CampaignTest extends SpringBrowserlessTest {
         // genindlæs dashboard side efter databasen er ændret ovenover
         UI.getCurrent().getPage().reload();
 
-        fail();
+        // Navigate to campaign view
+        test($(Button.class, $(HorizontalLayout.class).withClassName("campaign-card").single()).withCaption("View").single()).click();
+
+        //Tjekker vi er på campaign view
+        assertTrue($(CampaignView.class).exists());
+
+        // Tjekker om alle spans med karakternavne Mukibuki 1-5 er visible for gm
+        for(int i = 0; i < 5; i++){
+            assertTrue($(Span.class, $(CampaignView.class).single()).withText(String.format("Mukibuki%d", i)).single().isVisible());
+        }
+        // TODO: måske ogs lige tjek om om man kan view chars side
 
     }
 }
