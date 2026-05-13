@@ -1,5 +1,14 @@
+.container {
+
+    width: 60%;
+    max-width: 1200px;
+    min-width: 300px;
+
+    margin: 0 auto;
+}
+
 .div-page {
     background: radial-gradient(circle,rgba(252, 238, 179, 1) 0%, rgba(240, 238, 201, 1) 100%);
     background-repeat: no-repeat, repeat;
-    background-size: cover;
+    background-size: max;
 }

@@ -23,9 +23,11 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
@@ -33,6 +35,14 @@ import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
+
+//Current known bugs:
+// 1. Race roll table gives error when tolling 99 and 100 (typical elves)
+// 2. Buying and removing skills does not remove from database
+// 3. Save Character currently only saves in database but does not give player access
+// 4. Skills only show up after selecting career meaning any roll before selecting career needs to be rerolled
+// 5. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
+// 6. Characteristic total does not include species
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -85,6 +95,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserRepository userRepository) {
+
+
+
         this.skillRepository = skillRepository;
         this.characterRepository = characterRepository;
         this.talentRepository = talentRepository;
@@ -95,9 +108,15 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         setClassName("div-page");
         getStyle().set("position", "relative");
         this.userRepository = userRepository;
+
     }
     @Override
     public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String Id) {
+        VerticalLayout container = new VerticalLayout();
+        container.addClassName("container");
+        container.setWidth("60%");
+
+
         String parameterCharacter = beforeEvent.getLocation().getQueryParameters().getSingleParameter("Character").orElse("");
 
             if(!parameterCharacter.isEmpty()){
@@ -115,14 +134,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         this.skills = skillRepository.findAll();
         this.talents = talentRepository.findAll();
 
-
-        this.add(raceBox());
-        this.add(careerBox());
-        this.add(statBox);
         renderCharacteristicsDivs();
-        this.add(talentBox);
         inventoryDivCreator();
-        this.add(inventoryDiv);
+
+        container.add(raceBox(), careerBox(), statBox, talentBox, inventoryDiv);
+
+
+        add(container);
     }
 
 
@@ -310,6 +328,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Button button1 = new Button("Roll for Species", e -> {
             int roll = ThreadLocalRandom.current().nextInt(1, 101);
+            System.out.println(roll);
 
             Race raceTable = raceRepository.findById("species_table").orElseThrow();
 
@@ -384,7 +403,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             int level = levelField.getValue();
 
             List<Integer> status = currentCareer.getLevelStatusList();
-            moneyField.setValue("Your status is " + status.get(level - 1) + " Brass coins");
+            moneyField.setValue("B" + status.get(level - 1));
 
             globalCharacter.setCareer(currentCareer);
             globalCharacter.setStatusLevel(status.get(level - 1));
@@ -392,8 +411,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }catch (Exception e){
             System.out.println("Klassen eksisterer ikke");
         }
-
-
     }
 
     private Div renderSkillDivs(Characteristic characteristic){
@@ -419,26 +436,38 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 charField.setReadOnly(true);
                 charField.setLabel("Skill name");
                 charField.setValue(skill.getName());
+                charField.setWidth("160px");
 
                 IntegerField raceField = new IntegerField();
                 raceField.setReadOnly(true);
                 raceField.setLabel("Species bonus");
                 raceField.setValue(characteristic.getRacemod());
 
+                TextField emptySpace = new TextField();
+                emptySpace.setVisible(true);
+                emptySpace.getStyle().set("visibility", "hidden");
+                emptySpace.setWidth("120px");
+
                 IntegerField baseField = createField(99);
                 baseField.setLabel("Characteristic total");
                 baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty());
                 baseField.setReadOnly(true);
+                baseField.setWidth("150px");
+
                 IntegerField modifierField = createField(99);
                 modifierField.setLabel("Modifier");
                 modifierField.setValue(skill.getBonusValue());
+                modifierField.setWidth("120px");
+
                 IntegerField penaltyField = createField(99);
                 penaltyField.setLabel("Penalty");
                 penaltyField.setValue(skill.getPenaltyValue());
+                penaltyField.setWidth("120px");
 
                 IntegerField totalField = new IntegerField();
                 totalField.setLabel("Total");
                 totalField.setValue(0);
+                totalField.setWidth("120px");
 
                 Checkbox skillBoughtCheckbox = new Checkbox();
                 skillBoughtCheckbox.setLabel("Is this skill bought?");
@@ -453,7 +482,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 raceField.addValueChangeListener(e -> update.run());
                 skillBoughtCheckbox.addValueChangeListener(e -> update.run());
 
-                skillDiv.add(charField, baseField, modifierField, penaltyField, totalField, skillBoughtCheckbox);
+                skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField, skillBoughtCheckbox);
                 skillDivBox.add(skillDiv);
             });}
             return skillDivBox;
@@ -487,8 +516,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         for (Characteristic characterCharacteristic : globalCharacter.getCharacteristics()){
             System.out.println(characterCharacteristic.getBase());
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
-            charDiv.getStyle()
-                    .set("grid-template-columns", "180px 80px 120px");
 
             if (colorbool) {
                 charDiv.getStyle().set("background-color", "#91BAB2");
@@ -502,27 +529,35 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             charField.setReadOnly(true);
             charField.setLabel("Characteristic name");
             charField.setValue(characterCharacteristic.getName());
+            charField.setWidth("160px");
 
             IntegerField raceField = new IntegerField ();
             raceField.setReadOnly(true);
+            raceField.setWidth("150px");
             raceField.setLabel("Species bonus");
             raceField.setValue(0);
             raceFields.add(raceField);
+
             IntegerField baseField = createField(99);
             baseField.setLabel("Rolled stat");
             baseField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getBase());
+            baseField.setWidth("120px");
+
             IntegerField modifierField = createField(99);
             modifierField.setLabel("Modifier");
             modifierField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getModifier());
+            modifierField.setWidth("120px");
+
             IntegerField penaltyField = createField(99);
             penaltyField.setLabel("Penalty");
             penaltyField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getPenalty());
-
+            penaltyField.setWidth("120px");
 
 
             IntegerField totalField = new IntegerField();
             totalField.setLabel("Total");
             totalField.setValue(0);
+            totalField.setWidth("120px");
 
 
             Button rollButton = new Button("Roll charateristic");
@@ -559,7 +594,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
         }
-
 
         statBox.add(characteristicsStatBox);
     }
