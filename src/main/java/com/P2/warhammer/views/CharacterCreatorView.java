@@ -42,7 +42,6 @@ import java.util.concurrent.ThreadLocalRandom;
 // 2. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
 // 3. is this skill bought button unchecks everytime you update characteristics
 // 4. updating characteristic removes all stats from corresponding skills
-// 5. Every time you update a skill it is saved as a separate skill in the database, meaning you could potentially have 20+ versions of endurance
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -74,8 +73,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserRepository userRepository) {
-
-
 
         this.skillRepository = skillRepository;
         this.characterRepository = characterRepository;
@@ -159,9 +156,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 WarhammerItem addedItem = new WarhammerItem(item.trim(), 1); //TODO add amount of added trapping
                 inventory.add(addedItem);
             }
-
         }
-
         globalCharacter.setInventory(inventory);
     }
 
@@ -190,12 +185,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             inventoryDiv.add(inventoryElementDiv);
         }
-
-
     }
 
     private void saveCharacter(){
-
 
         globalCharacter.setUser(Utilities.getUserFromAuthentication());
         this.characterService.addCharacter(globalCharacter);
@@ -237,7 +229,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         nameField.addValueChangeListener(e ->
                 globalCharacter.setName(nameField.getValue())
         );
-
         return div;
     }
 
@@ -294,7 +285,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.addValueChangeListener(e ->
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
-
         div.add(dropdownMenu, socialClassField, statusField, levelField, addTrappingsButton);
         return div;
     }
@@ -362,8 +352,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         raceFields.forEach((key, value) -> {
             value.setValue(allValues.get(i));
         });
-
-
     }
 
     private void addTrappingFunction(IntegerField levelField){
@@ -641,7 +629,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 continue;
             }
 
-
             Div talentDiv = new Div();
 
             if (colorbool) {
@@ -657,9 +644,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             IntegerField talentTakenField = getIntegerField(talent);
 
-
             talentDiv.add(talentField,talentTakenField);
-
 
             characterTalentDiv.add(talentDiv);
 
