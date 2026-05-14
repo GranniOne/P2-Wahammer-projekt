@@ -49,29 +49,6 @@ import java.util.concurrent.ThreadLocalRandom;
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div implements HasUrlParameter<String> {
     private final UserRepository userRepository;
-    /*
-        private final List<Button> skillButtonArray = new ArrayList<>();
-        private final SkillRepository skillRepository;
-        private final List<Skill> skills;
-        private final List<Talent> talents;
-
-        private final CharacterRepository characterRepository;
-
-        private final CareerRepository careerRepository;
-        private final List<Career> careers;
-
-        private final RaceRepository raceRepository;
-        private final List<Race> race, raceItems, careerItem ;
-        private final TalentRepository talentRepository;
-        private final CharacterService characterService;
-
-
-        private final Random random = new Random();
-        private List<String> currentSkillList;
-
-        List<Characteristic> characteristics;
-
-         */
     Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
     Map<String, Runnable> characteristicUpdates = new HashMap<>();
 
