@@ -16,6 +16,7 @@ import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
+import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -38,10 +39,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 //Current known bugs:
 // 1. Buying and removing skills does not remove from database
-// 2. Save Character currently only saves in database but does not give player access
-// 3. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
-// 4. Characteristic total does not include species
-// 5. is this skill bought button unchecks everytime you update characteristics
+// 2. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
+// 3. is this skill bought button unchecks everytime you update characteristics
+// 4. updating characteristic removes all stats from corresponding skills
+// 5. Every time you update a skill it is saved as a separate skill in the database, meaning you could potentially have 20+ versions of endurance
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -68,7 +69,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     Div statBox = new Div();
     Div inventoryDiv = new Div();
     IntegerField levelField;
-    List<IntegerField> raceFields = new ArrayList<>();
+    Map<String, IntegerField> raceFields = new HashMap<>();
+
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserRepository userRepository) {
@@ -193,6 +195,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void saveCharacter(){
+
+
+        globalCharacter.setUser(Utilities.getUserFromAuthentication());
         this.characterService.addCharacter(globalCharacter);
     }
 
@@ -349,10 +354,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         for (ArrayList<Integer> list : diceRolls.values()) {
             allValues.addAll(list);
         }
+        int i = 0;
+        //for (int i = 0; i < Math.min(10, allValues.size()); i++) {
+        //    raceFields.get("").setValue(allValues.get(i));
+        // }
 
-        for (int i = 0; i < Math.min(10, allValues.size()); i++){
-            raceFields.get(i).setValue(allValues.get(i));
-        }
+        raceFields.forEach((key, value) -> {
+            value.setValue(allValues.get(i));
+        });
 
 
     }
@@ -429,11 +438,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 emptySpace.getStyle().set("visibility", "hidden");
                 emptySpace.setWidth("120px");
 
+
                 IntegerField baseField = createField(99);
                 baseField.setLabel("Characteristic total");
-                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod());
+                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod() + raceFields.get(characteristic.getName()).getValue());
                 baseField.setReadOnly(true);
                 baseField.setWidth("150px");
+
 
                 IntegerField modifierField = createField(99);
                 modifierField.setLabel("Modifier");
@@ -473,21 +484,36 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void updateSkill(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Skill skill, Checkbox skillBoughtCheckbox){
-        int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+        int total = myParse(baseField)
+                + myParse(modifierField)
+                - myParse(penaltyField)
+                + myParse(raceField);
 
         totalField.setValue(total);
-        globalCharacter.getSkills().remove(skill);
-        Skill newSkill = new Skill();
-        newSkill.setName(skill.getName());
-        newSkill.setStartValue(baseField.getValue());
-        newSkill.setBonusValue(modifierField.getValue());
-        newSkill.setPenaltyValue(penaltyField.getValue());
-        newSkill.setBoughtBool(skillBoughtCheckbox.getValue());
-        List<Skill> newSkillList = globalCharacter.getSkills();
-        if (!newSkillList.contains(skill.getName())) {//TODO JEG ER RET SIKKER PÅ AT DENNEHER KUN TRIGGER HVIS SKILLET ER PRÆCIS DET SAMME. DET BETYDER VI KAN LAVE FLERE VERSIONER AF DET SAMME SKILLET
-            newSkillList.add(newSkill);
-            globalCharacter.setSkills(newSkillList);
+
+        List<Skill> skillList = globalCharacter.getSkills();
+
+        Skill existingSkill = null;
+
+        for (Skill s : skillList) {
+            if (s.getName().equals(skill.getName())) {
+                existingSkill = s;
+                break;
+            }
         }
+
+        if (existingSkill == null) {
+            existingSkill = new Skill();
+            skillList.add(existingSkill);
+        }
+
+        existingSkill.setName(skill.getName());
+        existingSkill.setStartValue(baseField.getValue());
+        existingSkill.setBonusValue(modifierField.getValue());
+        existingSkill.setPenaltyValue(penaltyField.getValue());
+        existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
+
+        globalCharacter.setSkills(skillList);
     }
 
     private void renderCharacteristicsDivs(){
@@ -520,7 +546,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             raceField.setWidth("150px");
             raceField.setLabel("Species bonus");
             raceField.setValue(0);
-            raceFields.add(raceField);
+            raceFields.put(characterCharacteristic.getName(),raceField);
 
             IntegerField baseField = createField(99);
             baseField.setLabel("Rolled stat");
