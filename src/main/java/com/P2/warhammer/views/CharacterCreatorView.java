@@ -24,6 +24,8 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -93,6 +95,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         VerticalLayout container = new VerticalLayout();
         container.addClassName("container");
         container.setWidth("60%");
+        container.getStyle().set("margin", "0 auto");
 
         String parameterCharacter = beforeEvent.getLocation().getQueryParameters().getSingleParameter("Character").orElse("");
 
@@ -114,8 +117,31 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         renderCharacteristicsDivs();
         inventoryDivCreator();
 
-        container.add(CharacterInfoBox(), raceBox(), careerBox(), statBox, talentBox, inventoryDiv);
+        container.add(IntroBox(),CharacterInfoBox(), raceBox(), careerBox(), statBox, talentBox, inventoryDiv);
         add(container);
+    }
+
+    private Div IntroBox(){
+        Div intro = new Div();
+        intro.setWidthFull();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("WFRP 4e Character Creator");
+        headline.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph1 = new Paragraph(
+                "Welcome to the WFRP 4e Character Creator. Here you can create a new character or edit an existing one for Warhammer Fantasy Roleplay 4th Edition. " +
+                        "The tools below will guide you through each step of the process, including species, career, characteristics, skills, talents, and equipment, " +
+                        "helping you build a complete and playable character, through a guided introduction to the character creator." +
+                        " As with every roleplaying game, each group likes to play things a little different so its recommended to go through your choices with you game master" +
+                        " to make sure everything is in order."
+        );
+
+        layout.add(headline, paragraph1);
+        intro.add(layout);
+        return intro;
     }
 
 
