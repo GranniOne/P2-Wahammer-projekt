@@ -60,7 +60,7 @@ public class Character {
 
     Career career;
 
-    List<String> characteristicsNameArray = Arrays.asList(("Weapon Skill,Ballistics Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
+    List<String> characteristicsNameArray = Arrays.asList(("Weapons Skill,Ballistic Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
 
     List<WarhammerItem> inventory = new ArrayList<>();
     List<Armour> equippedArmour = new ArrayList<>();

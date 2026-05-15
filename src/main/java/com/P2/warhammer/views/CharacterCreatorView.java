@@ -38,10 +38,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 
 //Current known bugs:
-// 1. Buying and removing skills does not remove from database
-// 2. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
-// 3. is this skill bought button unchecks everytime you update characteristics
-// 4. updating characteristic removes all stats from corresponding skills
+// 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
+// 2. is this skill bought button unchecks everytime you update characteristics
+// 3. updating characteristic removes all stats from corresponding skills
+// 4. characteristics now only show first entry, meaning dwarf fx. has every characteristic as 30, due to the fact is the first entry
+
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -339,18 +340,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         globalCharacter.setRace(currentRace);
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
-        ArrayList<Integer> allValues = new ArrayList<>();
 
-        for (ArrayList<Integer> list : diceRolls.values()) {
-            allValues.addAll(list);
-        }
-        int i = 0;
-        //for (int i = 0; i < Math.min(10, allValues.size()); i++) {
-        //    raceFields.get("").setValue(allValues.get(i));
-        // }
+        raceFields.forEach((characteristicName, field) -> {
 
-        raceFields.forEach((key, value) -> {
-            value.setValue(allValues.get(i));
+            ArrayList<Integer> values = diceRolls.get(characteristicName);
+
+            if (values != null && !values.isEmpty()) {
+                field.setValue(values.get(0));
+            } else {
+                field.setValue(0);
+            }
         });
     }
 
@@ -408,7 +407,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     return;
                 }
                 Div skillDiv = new Div();
-
 
                 TextField charField = new TextField();
                 charField.setReadOnly(true);
