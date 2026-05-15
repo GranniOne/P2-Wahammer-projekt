@@ -37,6 +37,14 @@ public class Characteristic {
 
     public Integer getRacemod(){return racemod;}
 
+    public Integer getTotalValue() {
+        int start = (base != null) ? base : 0;
+        int bonus = (modifier != null) ? modifier : 0;
+        int penaltys = (penalty != null) ? penalty : 0;
+
+        return start + bonus - penaltys;
+    }
+
     public void setBase(Integer base) {
         this.base = base;
     }
@@ -52,6 +60,7 @@ public class Characteristic {
     public void setRacemod(Integer modifier) {
         this.racemod = racemod;
     }
+
 
     public String getName() {
         return name;

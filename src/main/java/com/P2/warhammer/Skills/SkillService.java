@@ -20,4 +20,8 @@ public class SkillService {
     public List<Skill> getAllSkills() {
         return repository.findAll();
     }
+
+    public List<Skill> findSkillsByCharacteristic(String Characteristic) {
+        return repository.findSkillsByCharacteristic(Characteristic);
+    }
 }

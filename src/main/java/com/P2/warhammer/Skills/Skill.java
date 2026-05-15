@@ -12,10 +12,10 @@ public class Skill {
     String Characteristic;
     String Category;
     String Description;
-    Integer StartValue;
-    Integer BonusValue;
-    Integer PenaltyValue;
-    Boolean boughtBool;
+    private Integer StartValue = 0;
+    private Integer BonusValue = 0;
+    private Integer PenaltyValue = 0;
+    private Boolean boughtBool = false;
 
     public Skill() {}
 
@@ -89,8 +89,12 @@ public class Skill {
         BonusValue = bonusValue;
     }
 
-    public Integer getTotalValue(){
-        return StartValue + BonusValue - PenaltyValue;
+    public Integer getTotalValue() {
+        int start = (StartValue != null) ? StartValue : 0;
+        int bonus = (BonusValue != null) ? BonusValue : 0;
+        int penalty = (PenaltyValue != null) ? PenaltyValue : 0;
+
+        return start + bonus - penalty;
     }
 
     public Integer getPenaltyValue() {

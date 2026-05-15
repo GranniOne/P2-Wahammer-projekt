@@ -47,7 +47,7 @@ public class Character {
     int advantage = 0;
     int maxWounds = 0;
     int damageTaken = 0;
-    int level = 1;
+    Integer level = 1;
     List<Integer> armourValues = new ArrayList<>(); // I think we can just say that the first
 
     int corruptionMax = 0;
@@ -91,11 +91,11 @@ public class Character {
 
     }
 
-    public int getLevel() {
+    public Integer getLevel() {
         return level;
     }
 
-    public void setLevel(int level) {
+    public void setLevel(Integer level) {
         this.level = level;
     }
 
