@@ -268,7 +268,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 return;
             }
 
-            int roll = ThreadLocalRandom.current().nextInt(6, 7);
+            int roll = ThreadLocalRandom.current().nextInt(1, 7);
             System.out.println("Career roll: " + roll );
 
             RaceEntry result = currentRaceTable.getEntries().stream().filter(entry -> roll >= entry.getMin() && roll <= entry.getMax()).findFirst().orElseThrow();
@@ -430,7 +430,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 charField.setReadOnly(true);
                 charField.setLabel("Skill name");
                 charField.setValue(skill.getName());
-                charField.setWidth("160px");
+                charField.setWidth("180px");
 
                 IntegerField raceField = new IntegerField();
                 raceField.setReadOnly(true);
@@ -543,7 +543,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             charField.setLabel("Characteristic name");
             charField.getStyle().set("--vaadin-input-field-label-font-weight", "bold");
             charField.setValue(characterCharacteristic.getName());
-            charField.setWidth("160px");
+            charField.setWidth("180px");
 
             IntegerField raceField = new IntegerField ();
             raceField.setReadOnly(true);
