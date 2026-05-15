@@ -60,7 +60,7 @@ public class Character {
 
     Career career;
 
-    List<String> characteristicsNameArray = Arrays.asList(("Weapons Skill,Ballistic Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
+
 
     List<WarhammerItem> inventory = new ArrayList<>();
     List<Armour> equippedArmour = new ArrayList<>();
@@ -82,9 +82,8 @@ public class Character {
     }
 
     public Character() {
+        List<String> characteristicsNameArray = Arrays.asList(("Weapons Skill,Ballistic Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
         this.characteristics = new ArrayList<>();
-
-
         for (int i = 0; i < 10; i++){
             characteristics.add(new Characteristic(characteristicsNameArray.get(i),0,0,0,0));
         }
