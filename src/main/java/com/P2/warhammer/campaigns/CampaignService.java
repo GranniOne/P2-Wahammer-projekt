@@ -45,4 +45,9 @@ public class CampaignService {
     public List<Campaign> getAllCampaigns() {
         return repository.findAll();
     }
+
+
+    public void saveCampaign(Campaign campaign){
+        repository.save(campaign);
+    }
 }

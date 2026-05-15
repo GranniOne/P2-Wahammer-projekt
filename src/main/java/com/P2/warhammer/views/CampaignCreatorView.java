@@ -62,6 +62,7 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
+        this.removeAll();
         String campaignId = beforeEnterEvent.getLocation().getQueryParameters().getSingleParameter("Campaign").orElse(null);
         TextField campaignTextField = new TextField();
         campaignNameBinder.forField(campaignTextField).bind(Campaign::getName, Campaign::setName);
@@ -70,8 +71,7 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
             campaign = campaignService.getCampaignnById(campaignId);
             campaignNameBinder.readBean(campaign);
         }else{
-            if(campaignService.
-                    getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).stream().filter(campaign -> campaign.getGameMaster().getId().equals(Utilities.getUserFromAuthentication().getId())).toList().size() >= 5){
+            if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).stream().filter(campaign -> campaign.getGameMaster().getId().equals(Utilities.getUserFromAuthentication().getId())).toList().size() >= 5){
                 UI.getCurrent().getPage().getHistory().back();
                 Notification.show("You own to mane campaigns", 5000, Notification.Position.MIDDLE);
             }
