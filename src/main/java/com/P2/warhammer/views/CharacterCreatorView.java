@@ -36,7 +36,6 @@ import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
 // 2. is this skill bought button unchecks everytime you update characteristics
@@ -60,11 +59,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private final CareerRepository careerRepository;
     private final TalentRepository talentRepository;
     private final RaceRepository raceRepository;
-    private List<Career> careers;
+    private List<Career> careersForSpecies = new ArrayList<>();
     private List<Skill> skills;
     private List<Talent> talents;
     private List<Race> raceItems;
     private Character globalCharacter;
+    private Race currentRaceTable;
+
     Div talentBox = new Div();
     Div statBox = new Div();
     Div inventoryDiv = new Div();
@@ -93,7 +94,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         container.addClassName("container");
         container.setWidth("60%");
 
-
         String parameterCharacter = beforeEvent.getLocation().getQueryParameters().getSingleParameter("Character").orElse("");
 
             if(!parameterCharacter.isEmpty()){
@@ -106,10 +106,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 globalCharacter =  new Character();
             }
 
-        this.careers = careerRepository.findAll();
         this.raceItems = raceRepository.findAll();
         this.skills = skillRepository.findAll();
         this.talents = talentRepository.findAll();
+        this.careersForSpecies = careerRepository.findAll();
 
         renderCharacteristicsDivs();
         inventoryDivCreator();
@@ -117,7 +117,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         container.add(CharacterInfoBox(), raceBox(), careerBox(), statBox, talentBox, inventoryDiv);
         add(container);
     }
-
 
 
     private IntegerField createField(int max) {
@@ -233,6 +232,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         return div;
     }
 
+
     private Div careerBox(){
         Div div = new Div();
 
@@ -259,8 +259,26 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             dropdownMenu.setValue(globalCharacter.getCareer());
         } catch (NullPointerException e) {
         }
-        dropdownMenu.setItems(careers);
+        dropdownMenu.setItems(careersForSpecies);
         dropdownMenu.setItemLabelGenerator(Career::getName);
+
+        Button RandomCareerButton = new Button("Roll for career",e ->{
+            if (currentRaceTable == null) {
+                System.out.println("No race selected");
+                return;
+            }
+
+            int roll = ThreadLocalRandom.current().nextInt(6, 7);
+            System.out.println("Career roll: " + roll );
+
+            RaceEntry result = currentRaceTable.getEntries().stream().filter(entry -> roll >= entry.getMin() && roll <= entry.getMax()).findFirst().orElseThrow();
+            Career career = careerRepository.findAll().stream().filter(c -> c.getName().equals(result.getCareer())).findFirst().orElseThrow();
+
+            globalCharacter.setCareer(career);
+            dropdownMenu.setValue(career);
+
+            careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu);
+        });
 
         levelField = createField( 4);
         levelField.setLabel("Level");
@@ -286,7 +304,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.addValueChangeListener(e ->
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
-        div.add(dropdownMenu, socialClassField, statusField, levelField, addTrappingsButton);
+        div.add(dropdownMenu, RandomCareerButton, socialClassField, statusField, levelField, addTrappingsButton);
         return div;
     }
 
@@ -298,11 +316,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Button button1 = new Button("Roll for Species", e -> {
             int roll = ThreadLocalRandom.current().nextInt(1, 101);
-            System.out.println(roll);
+            System.out.println("Species roll: " + roll);
 
-            Race raceTable = raceRepository.findById("species_table").orElseThrow();
+            Race speciesTable = raceRepository.findById("species_table").orElseThrow();
 
-            String result = raceTable.getEntries().stream()
+            String result = speciesTable.getEntries().stream()
                     .filter(entry -> roll >= entry.getMin() && roll <= entry.getMax())
                     .map(RaceEntry::getSpecies)
                     .findFirst()
@@ -310,7 +328,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             dropdownMenu.setValue(result);
         });
-
 
         dropdownMenu.setValue(globalCharacter.getRace());
         raceBoxDiv.add(dropdownMenu);
@@ -338,6 +355,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                         "Race not found: " + currentRace
                 ));
         globalCharacter.setRace(currentRace);
+        currentRaceTable = race;
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
 
