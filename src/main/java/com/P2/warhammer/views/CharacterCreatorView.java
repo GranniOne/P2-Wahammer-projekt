@@ -281,12 +281,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         ComboBox<Career> dropdownMenu = new ComboBox<>("Choose a career");
 
+        dropdownMenu.setItems(careersForSpecies);
+        dropdownMenu.setItemLabelGenerator(Career::getName);
+
         try {
             dropdownMenu.setValue(globalCharacter.getCareer());
         } catch (NullPointerException e) {
         }
-        dropdownMenu.setItems(careersForSpecies);
-        dropdownMenu.setItemLabelGenerator(Career::getName);
 
         Button RandomCareerButton = new Button("Roll for career",e ->{
             if (currentRaceTable == null) {
