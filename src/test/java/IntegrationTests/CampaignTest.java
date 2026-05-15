@@ -183,7 +183,6 @@ public class CampaignTest extends SpringBrowserlessTest {
         for(int i = 0; i < 5; i++){
             assertTrue($(Span.class, $(CampaignView.class).single()).withText(String.format("Mukibuki%d", i)).single().isVisible());
         }
-        // TODO: måske ogs lige tjek om om man kan view chars side
     }
 
     @Test
