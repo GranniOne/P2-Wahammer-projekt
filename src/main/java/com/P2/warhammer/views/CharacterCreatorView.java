@@ -268,7 +268,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 return;
             }
 
-            int roll = ThreadLocalRandom.current().nextInt(1, 7);
+            int roll = ThreadLocalRandom.current().nextInt(1, 15);
             System.out.println("Career roll: " + roll );
 
             RaceEntry result = currentRaceTable.getEntries().stream().filter(entry -> roll >= entry.getMin() && roll <= entry.getMax()).findFirst().orElseThrow();
