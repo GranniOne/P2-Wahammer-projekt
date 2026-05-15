@@ -117,7 +117,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         renderCharacteristicsDivs();
         inventoryDivCreator();
 
-        container.add(IntroBox(),CharacterInfoBox(), raceBox(), careerBox(), statBox, talentBox, inventoryDiv);
+        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, StartingSkillsAndTalents(), trappings(), CharacterInfoBox(), inventoryDiv);
         add(container);
     }
 
@@ -222,6 +222,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private Div CharacterInfoBox(){
         Div div = new Div();
 
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("6. Adding Detail");
+        //headline.getStyle().set("margin", "0 auto");
+
         TextField nameField = new TextField();
         nameField.setLabel("Character name");
         try {
@@ -250,7 +256,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             saveCharacter();
         });
 
-        div.add(nameField, ageField, xpField, saveCharacterButton);
+        layout.add(headline);
+        div.add(layout, nameField, ageField, xpField, saveCharacterButton);
 
         nameField.addValueChangeListener(e ->
                 globalCharacter.setName(nameField.getValue())
@@ -261,6 +268,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private Div careerBox(){
         Div div = new Div();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("2. Choose Career");
+        headline.getStyle().set("margin", "0 auto");
 
         TextField socialClassField = new TextField();
         socialClassField.setReadOnly(true);
@@ -314,12 +327,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         levelField.setReadOnly(true);
         levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()));
 
-
-        Button addTrappingsButton = new Button("Add Trappings");
-        addTrappingsButton.addClickListener(event -> {
-            addTrappingFunction(levelField);
-        });
-
         if (!dropdownMenu.isEmpty()){
             levelField.setReadOnly(false);
         }
@@ -331,12 +338,36 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.addValueChangeListener(e ->
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
-        div.add(dropdownMenu, RandomCareerButton, socialClassField, statusField, levelField, addTrappingsButton);
+        div.add(headline, dropdownMenu, RandomCareerButton, socialClassField, statusField, levelField);
         return div;
+    }
+
+    private Div trappings(){
+        Div TrappingsBox = new Div();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("5. Add Starting Trappings");
+        headline.getStyle().set("margin", "0 auto");
+
+        Button addTrappingsButton = new Button("Add Trappings");
+        addTrappingsButton.addClickListener(event -> {
+            addTrappingFunction(levelField);
+        });
+        layout.add(headline, addTrappingsButton);
+        TrappingsBox.add(layout);
+        return TrappingsBox;
     }
 
     private Div raceBox(){
         Div raceBoxDiv = new Div();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("1. Choose Species");
+        headline.getStyle().set("margin", "0 auto");
 
         ComboBox<String> dropdownMenu = new ComboBox<>("Choose a species");
         dropdownMenu.setItems(raceItems.stream().map(Race::getRace).filter(Objects::nonNull).toList());
@@ -357,15 +388,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         });
 
         dropdownMenu.setValue(globalCharacter.getRace());
-        raceBoxDiv.add(dropdownMenu);
-        raceBoxDiv.add(button1);
+        raceBoxDiv.add(headline, dropdownMenu, button1);
 
-
-        //change race
         dropdownMenu.addValueChangeListener(e ->
                 updateRace(dropdownMenu)
         );
-
         return raceBoxDiv;
     }
 
@@ -436,6 +463,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private Div renderSkillDivs(Characteristic characteristic){
         Div skillDivBox = new Div();
+
         if (globalCharacter.getCareer() != null) {
             List<List<String>> allowedSkills = new ArrayList<>(globalCharacter.getCareer().getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
             skills.forEach(skill -> {
@@ -509,9 +537,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 skillDiv.getStyle().set("border-top", "1px solid black");
                 skillDivBox.add(skillDiv);
             });}
-
-
-            return skillDivBox;
+        return skillDivBox;
     }
 
     private void updateSkill(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Skill skill, Checkbox skillBoughtCheckbox){
@@ -550,6 +576,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private void renderCharacteristicsDivs(){
         Div characteristicsStatBox = new Div();
         characteristicsStatBox.getStyle().set("gap", "10px");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("3. Determining Characteristics/Attributes");
+        headline.getStyle().set("margin", "0 auto");
+
         int characteristicNumber = 0;
         boolean colorbool = true;
 
@@ -635,7 +668,21 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicNumber++;
         }
 
-        statBox.add(characteristicsStatBox);
+        statBox.add(headline, characteristicsStatBox);
+    }
+
+    private Div StartingSkillsAndTalents(){
+        Div StartingSkills = new Div();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("4. Determining Starting Skills And Talents");
+        headline.getStyle().set("margin", "0 auto");
+
+        layout.add(headline);
+        StartingSkills.add(layout);
+        return StartingSkills;
     }
 
     private void updateCharacteristic(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Characteristic characterCharacteristic, Div charSkillDiv, Div baseCharDiv){
