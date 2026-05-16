@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @StyleSheet("css/CampaignStyle.css")
 public class CampaignView extends Div implements HasUrlParameter<String> {
     QueryParameters queryParameters;
-    Map<String,List<String>> parameters;
     Div Content = new Div();
     Div layout = new Div();
     Div header = new Div();
@@ -60,11 +59,11 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
 
     @Override
     public void setParameter(BeforeEvent beforeEvent,@OptionalParameter String campaignId) {
-        parameters = beforeEvent.getLocation().getQueryParameters().getParameters();
+        String parameters = beforeEvent.getLocation().getQueryParameters().getSingleParameter("Campaign").orElse("");
         queryParameters = beforeEvent.getLocation().getQueryParameters();
 
 
-        Campaign currentCampaign = campaignService.getCampaignnById(parameters.get("Campaign").getFirst());
+        Campaign currentCampaign = campaignService.getCampaignnById(parameters);
         User user = Utilities.getUserFromAuthentication();
 
 
