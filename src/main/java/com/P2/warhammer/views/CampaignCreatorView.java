@@ -6,36 +6,25 @@ import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
-import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @PermitAll
 @StyleSheet("charactercreator.css")
@@ -68,7 +57,7 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
         campaignNameBinder.forField(campaignTextField).bind(Campaign::getName, Campaign::setName);
 
         if (campaignId != null ){
-            campaign = campaignService.getCampaignnById(campaignId);
+            campaign = campaignService.getCampaignById(campaignId);
             campaignNameBinder.readBean(campaign);
         }else{
             if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).stream().filter(campaign -> campaign.getGameMaster().getId().equals(Utilities.getUserFromAuthentication().getId())).toList().size() >= 5){

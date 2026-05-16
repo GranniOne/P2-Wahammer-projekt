@@ -2,10 +2,8 @@ package com.P2.warhammer.views;
 
 
 import com.P2.warhammer.campaigns.Campaign;
-import com.P2.warhammer.campaigns.CampaignRepository;
 import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.characters.Character;
-import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.utilities.Utilities;
@@ -16,7 +14,6 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
@@ -63,7 +60,7 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
         queryParameters = beforeEvent.getLocation().getQueryParameters();
 
 
-        Campaign currentCampaign = campaignService.getCampaignnById(parameters);
+        Campaign currentCampaign = campaignService.getCampaignById(parameters);
         User user = Utilities.getUserFromAuthentication();
 
 

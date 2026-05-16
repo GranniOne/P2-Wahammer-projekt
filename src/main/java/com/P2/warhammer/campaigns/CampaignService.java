@@ -34,7 +34,7 @@ public class CampaignService {
         return repository.save(campaign);
     }
 
-    public Campaign getCampaignnById(String id){
+    public Campaign getCampaignById(String id){
         return repository.findCampaignById(id);
     }
 
