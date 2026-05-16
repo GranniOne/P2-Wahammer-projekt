@@ -18,13 +18,17 @@ public class Race {
     String dice;
     String career;
     String species;
+    String Name;
+    List<String> skills;
 
     @Field("dicerolls")
     Map<String, ArrayList<Integer>> basecharacteristicMap;
 
     public Race() {}
 
-    public Race(String species, String  race, String dice, String career, Map<String, ArrayList<Integer>> basecharacteristicMap){
+    public Race(String Name,List<String> skills ,String species, String  race, String dice, String career, Map<String, ArrayList<Integer>> basecharacteristicMap){
+        this.Name = Name;
+        this.skills = skills;
         this.race = race;
         this.dice = dice;
         this.career = career;
@@ -45,6 +49,8 @@ public class Race {
     public String getCareer() {return career;}
     public String getDice() {return dice;}
     public String getSpecies() {return species;}
+    public String getName() {return Name;}
+    public List<String> getSkills() {return skills;}
 
     public void setRace(String race) {this.race = race;}
     public void setCareer(String career) {this.career = career;}
@@ -55,4 +61,5 @@ public class Race {
 
     public List<RaceEntry> getEntries() { return entries; }
     public void setEntries(List<RaceEntry> entries) { this.entries = entries; }
+
 }

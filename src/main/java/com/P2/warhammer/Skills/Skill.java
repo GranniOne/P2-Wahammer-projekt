@@ -16,10 +16,11 @@ public class Skill {
     Integer BonusValue;
     Integer PenaltyValue;
     Boolean boughtBool;
+    Integer startingBonus;
 
     public Skill() {}
 
-    public Skill(String Name, String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue, Boolean boughtBool) {
+    public Skill(String Name,Integer startingBonus ,String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue, Boolean boughtBool) {
         this.Name = Name;
         this.Category = Category;
         this.Characteristic = Characteristic;
@@ -28,6 +29,7 @@ public class Skill {
         this.BonusValue = BonusValue;
         this.PenaltyValue = PenaltyValue;
         this.boughtBool = boughtBool;
+        this.startingBonus = startingBonus;
     }
 
     @Override
@@ -39,9 +41,7 @@ public class Skill {
         return id;
     }
 
-    public String getName() {
-        return Name;
-    }
+    public String getName() {return Name;}
 
     public String getCharacteristic() {
         return Characteristic;
@@ -58,7 +58,7 @@ public class Skill {
     public void setId(String id) {this.id = id;}
 
     public void setName(String name) {
-        Name = name;
+        this.Name = name;
     }
 
     public void setCharacteristic(String characteristic) {
@@ -108,6 +108,12 @@ public class Skill {
     public void setBoughtBool(Boolean boughtBool) {
         this.boughtBool = boughtBool;
     }
+
+
+    public void setStartingBonus(Integer startingBonus) {this.startingBonus = startingBonus;}
+
+    public Integer getStartingBonus() {return startingBonus;}
+
 }
 
 

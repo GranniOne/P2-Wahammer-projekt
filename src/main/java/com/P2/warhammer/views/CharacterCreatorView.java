@@ -27,6 +27,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
@@ -69,6 +70,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private Race currentRaceTable;
 
     Div talentBox = new Div();
+    Div startingSkillsBox = new Div();
     Div statBox = new Div();
     Div inventoryDiv = new Div();
     IntegerField levelField;
@@ -116,8 +118,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         renderCharacteristicsDivs();
         inventoryDivCreator();
+        startingSkillsBox.add(StartingSkillsAndTalents());
 
-        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, StartingSkillsAndTalents(), trappings(), CharacterInfoBox(), inventoryDiv);
+        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), CharacterInfoBox(), inventoryDiv);
         add(container);
     }
 
@@ -423,6 +426,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 field.setValue(0);
             }
         });
+        startingSkillsBox.removeAll();
+        startingSkillsBox.add(StartingSkillsAndTalents());
     }
 
     private void addTrappingFunction(IntegerField levelField){
@@ -485,7 +490,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 charField.setReadOnly(true);
                 charField.setLabel("Skill name");
                 charField.setValue(skill.getName());
-                charField.setWidth("180px");
+                charField.setWidth("200px");
 
                 IntegerField raceField = new IntegerField();
                 raceField.setReadOnly(true);
@@ -573,7 +578,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         globalCharacter.setSkills(skillList);
     }
 
-    private void renderCharacteristicsDivs(){
+    private VerticalLayout renderCharacteristicsDivs(){
         Div characteristicsStatBox = new Div();
         characteristicsStatBox.getStyle().set("gap", "10px");
 
@@ -603,7 +608,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             charField.setLabel("Characteristic name");
             charField.getStyle().set("--vaadin-input-field-label-font-weight", "bold");
             charField.setValue(characterCharacteristic.getName());
-            charField.setWidth("180px");
+            charField.setWidth("200px");
 
             IntegerField raceField = new IntegerField ();
             raceField.setReadOnly(true);
@@ -669,20 +674,66 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
 
         statBox.add(headline, characteristicsStatBox);
+        layout.add(statBox);
+        return layout;
     }
 
-    private Div StartingSkillsAndTalents(){
+    private VerticalLayout StartingSkillsAndTalents(){
         Div StartingSkills = new Div();
+
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
 
         H1 headline = new H1("4. Determining Starting Skills And Talents");
         headline.getStyle().set("margin", "0 auto");
 
         layout.add(headline);
         StartingSkills.add(layout);
-        return StartingSkills;
+
+        if (globalCharacter.getRace() == null) {
+            return layout;
+        }
+
+        String race = globalCharacter.getRace().toLowerCase() + "_starting_table";
+
+        Race raceTable = raceRepository.findById(race).orElseThrow();
+        List<String> allowedSkills = raceTable.getSkills();
+
+
+        skills.forEach(skill -> {
+            if (!allowedSkills.contains(skill.getName())) {
+                return;
+            }
+
+            Div skillDiv = new Div();
+
+            TextField charField = new TextField();
+            charField.addClassName("skill-field");
+            charField.setReadOnly(true);
+            charField.setLabel("Skill name");
+            charField.setValue(skill.getName());
+            charField.setWidth("200px");
+
+            TextField descriptionField = new TextField();
+            descriptionField.addClassName("skill-field");
+            descriptionField.setReadOnly(true);
+            descriptionField.setLabel("Skill Description:");
+            descriptionField.setValue(skill.getDescription());
+
+            RadioButtonGroup<Integer> bonusGroup = new RadioButtonGroup<>();
+            bonusGroup.setLabel("Starting bonus");
+            bonusGroup.setItems(0, 3, 5);
+            bonusGroup.setValue(0);
+
+            skillDiv.add(charField, descriptionField, bonusGroup);
+            skillDiv.getStyle().set("border", "3px solid black");
+            layout.add(skillDiv);
+
+        });
+        return layout;
     }
 
     private void updateCharacteristic(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Characteristic characterCharacteristic, Div charSkillDiv, Div baseCharDiv){
@@ -720,13 +771,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             }
 
             Div talentDiv = new Div();
-
-            if (colorbool) {
-                talentDiv.getStyle().set("background-color", "#91BAB2");
-            } else {
-                talentDiv.getStyle().set("background-color", "#F5A3BE");
-            }
-            colorbool = !colorbool;
 
             TextField talentField = new TextField();
             talentField.setReadOnly(true);
