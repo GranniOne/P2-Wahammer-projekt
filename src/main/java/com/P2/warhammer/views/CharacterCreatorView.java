@@ -538,7 +538,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 raceField.addValueChangeListener(e -> update.run());
                 skillBoughtCheckbox.addValueChangeListener(e -> update.run());
 
-                skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField, skillBoughtCheckbox);
+                skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField /*,skillBoughtCheckbox*/);
                 skillDiv.getStyle().set("border-top", "1px solid black");
                 skillDivBox.add(skillDiv);
             });}
@@ -697,7 +697,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             return layout;
         }
 
-        String race = globalCharacter.getRace().toLowerCase() + "_starting_table";
+        String race = globalCharacter.getRace().toLowerCase().replace(" ", "_") + "_starting_table";
+        System.out.println(race);
 
         Race raceTable = raceRepository.findById(race).orElseThrow();
         List<String> allowedSkills = raceTable.getSkills();
@@ -722,6 +723,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             descriptionField.setReadOnly(true);
             descriptionField.setLabel("Skill Description:");
             descriptionField.setValue(skill.getDescription());
+            descriptionField.setWidth("639px");
 
             RadioButtonGroup<Integer> bonusGroup = new RadioButtonGroup<>();
             bonusGroup.setLabel("Starting bonus");
