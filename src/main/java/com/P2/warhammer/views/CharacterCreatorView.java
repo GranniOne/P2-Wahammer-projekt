@@ -120,7 +120,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         inventoryDivCreator();
         startingSkillsBox.add(StartingSkillsAndTalents());
 
-        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), CharacterInfoBox(), inventoryDiv);
+        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), inventoryDiv, CharacterInfoBox());
         add(container);
     }
 
@@ -432,10 +432,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private void addTrappingFunction(IntegerField levelField){
         addTrappings(globalCharacter.getCareer(), levelField.getValue());
-        this.remove(inventoryDiv);
+
         inventoryDiv.removeAll();
         inventoryDivCreator();
-        this.add(inventoryDiv);
     }
 
 
