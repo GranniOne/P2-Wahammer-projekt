@@ -82,7 +82,7 @@ public class Character {
     }
 
     public Character() {
-        List<String> characteristicsNameArray = Arrays.asList(("Weapons Skill,Ballistic Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
+        List<String> characteristicsNameArray = Arrays.asList(("Weapon Skill,Ballistic Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
         this.characteristics = new ArrayList<>();
         for (int i = 0; i < 10; i++){
             characteristics.add(new Characteristic(characteristicsNameArray.get(i),0,0,0,0));
