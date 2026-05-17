@@ -78,7 +78,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     IntegerField levelField;
     Map<String, IntegerField> raceFields = new HashMap<>();
 
-
     private static final int MaxThree = 3;
     private static final int MaxFive = 3;
 
@@ -730,14 +729,27 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             bonusGroup.setValue(skill.getSpeciesStartingBonus() != null ? skill.getSpeciesStartingBonus() : 0);
             startingBonusGroups.add(bonusGroup);
             bonusGroup.addValueChangeListener(event -> {
+
+                Integer oldValue = event.getOldValue();
                 Integer newValue = event.getValue();
+
+                if (oldValue == null) oldValue = 0;
                 if (newValue == null) newValue = 0;
 
-                Integer current = skill.getSpeciesStartingBonus();
-                if (current == null) current = 0;
+                int threeCount = 0;
+                int fiveCount = 0;
 
-                skill.setSpeciesStartingBonus(current + newValue);
+                for (RadioButtonGroup<Integer> group : startingBonusGroups) {
+                    Integer value = group.getValue();
+                    if (value == null) {value = 0;}
+                    if (value == 3) {threeCount++;}
+                    else if (value == 5) {fiveCount++;}}
 
+                if (threeCount > MaxThree || fiveCount > MaxFive) {
+                    bonusGroup.setValue(oldValue);
+                    return;
+                }
+                skill.setSpeciesStartingBonus(newValue);
                 characteristicUpdates.values().forEach(Runnable::run);
             });
             skillDiv.add(charField, descriptionField, bonusGroup);
