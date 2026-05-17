@@ -1,6 +1,7 @@
 package com.P2.warhammer.Skills;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "skills")
@@ -21,7 +22,7 @@ public class Skill {
 
     public Skill() {}
 
-    public Skill(String Name, Integer speciesStartingBonus, Integer careerStartingBonus, String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue, Boolean boughtBool) {
+    public Skill(String Name, int speciesStartingBonus, int careerStartingBonus, String Category, String Characteristic, String Description,  int StartValue, int BonusValue,  int PenaltyValue, Boolean boughtBool) {
         this.Name = Name;
         this.Category = Category;
         this.Characteristic = Characteristic;

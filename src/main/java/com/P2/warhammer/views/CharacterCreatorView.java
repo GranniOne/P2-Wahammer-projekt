@@ -44,7 +44,7 @@ import java.util.concurrent.ThreadLocalRandom;
 // 2. is this skill bought button unchecks everytime you update characteristics
 // 3. updating characteristic removes all stats from corresponding skills
 // 4. characterCreator crashes if you save a character as lvl 4 and try to edit it
-// 5. Melee (Basic) skill can for some reason not be added, it can be found and read but not added in the display
+// 5. Weapon Skill skills, does not
 
 
 
@@ -71,6 +71,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private List<Race> raceItems;
     private Character globalCharacter;
     private Race currentRaceTable;
+    private boolean loadedCharacter = false;
 
     Div talentBox = new Div();
     Div startingSkillsBox = new Div();
@@ -110,6 +111,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             if(!parameterCharacter.isEmpty()){
                 try {
                     globalCharacter = characterService.getCharacterFromId(parameterCharacter);
+                    loadedCharacter = true;
                 } catch (NullPointerException e) {
                     System.out.println("characterID is not linked to character");
                 }
@@ -344,6 +346,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
         div.add(headline, dropdownMenu, RandomCareerButton, socialClassField, statusField, levelField);
+
+        if (loadedCharacter){
+            careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu);
+        }
         return div;
     }
 
@@ -421,6 +427,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         raceFields.forEach((characteristicName, field) -> {
 
             ArrayList<Integer> values = diceRolls.get(characteristicName);
+            ArrayList<Characteristic> characteristics = globalCharacter.getCharacteristics();
+            for (characteristics){
+                if (characteristics)
+            }
 
             if (values != null && !values.isEmpty()) {
                 field.setValue(values.get(0));
@@ -534,7 +544,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 IntegerField penaltyField = createField(99);
                 penaltyField.setLabel("Penalty");
-                penaltyField.setValue(skill.getPenaltyValue());
+                penaltyField.setValue(skill.getPenaltyValue() != null ? skill.getPenaltyValue() : 0);
                 penaltyField.setWidth("120px");
 
                 IntegerField totalField = new IntegerField();
@@ -543,7 +553,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 totalField.setWidth("120px");
 
                 Checkbox skillBoughtCheckbox = new Checkbox();
-                skillBoughtCheckbox.setLabel("Is this skill bought?");
+                skillBoughtCheckbox.setLabel("Bought?");
 
 
                 Runnable update = () ->
@@ -555,7 +565,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 raceField.addValueChangeListener(e -> update.run());
                 skillBoughtCheckbox.addValueChangeListener(e -> update.run());
 
-                skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField /*,skillBoughtCheckbox*/);
+                skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField, skillBoughtCheckbox);
                 skillDiv.getStyle().set("border-top", "1px solid black");
                 skillDivBox.add(skillDiv);
             });}
@@ -587,6 +597,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
 
         existingSkill.setName(skill.getName());
+        existingSkill.setCharacteristic(skill.getCharacteristic());
         existingSkill.setStartValue(baseField.getValue());
         existingSkill.setBonusValue(modifierField.getValue());
         existingSkill.setPenaltyValue(penaltyField.getValue());
