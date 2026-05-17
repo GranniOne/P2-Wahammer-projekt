@@ -77,8 +77,7 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
         }
         else{
 
-            List<Character> userOwnedCharacters;
-            userOwnedCharacters = characterService.getCharactersByUser(user);
+            List<Character> userOwnedCharacters = characterService.getCharactersByUser(user);
 
 
             //bruges til at lave comobobox
