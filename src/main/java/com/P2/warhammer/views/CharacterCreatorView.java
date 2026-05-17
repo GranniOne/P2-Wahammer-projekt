@@ -769,15 +769,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             penaltyField.addValueChangeListener(e -> update.run());
             raceField.addValueChangeListener(e -> update.run());
 
-
-            ArrayList<IntegerField> fieldArray = new ArrayList<> (
-                    List.of(
-                            baseField,
-                            modifierField,
-                            penaltyField,
-                            raceField
-                    )
-            );
             charDiv.add(charField,raceField,baseField,modifierField,penaltyField,totalField,rollButton,charSkillDiv);
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
@@ -993,9 +984,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     .map(t -> (String) t.get("Name"))
                     .collect(Collectors.toSet());
 
-            globalCharacter.getTalents().removeIf(t ->
-                    allChoiceNames.contains(t.getName())
-            );
+            globalCharacter.getTalents().removeIf(t -> allChoiceNames.contains(t.getName()));
 
             for (Map.Entry<String, RadioButtonGroup<String>> entry : groups.entrySet()) {
                 String selected = entry.getValue().getValue();
@@ -1005,9 +994,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 List<Talent> selectedTalents = talentsBySource.get(selected);
 
-                if (selectedTalents == null) {
-                    continue;
-                }
+                if (selectedTalents == null) {continue;}
 
                 for (Talent talent : selectedTalents) {
 
