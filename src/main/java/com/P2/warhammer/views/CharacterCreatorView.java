@@ -18,7 +18,6 @@ import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -31,13 +30,12 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
@@ -901,12 +899,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         layout.add(headline2, paragraph3);
 
-        List<String> allowedTalents = raceTable.getTalents().stream().filter(t -> "auto".equals(t.get("source"))).map(t -> (String) t.get("Name")).toList();
-        System.out.println(allowedTalents);
-        Set<String> allowedSet = new HashSet<>(allowedTalents);
+        List<String> allowedTalents1 = raceTable.getTalents().stream().filter(t -> "auto".equals(t.get("source"))).map(t -> (String) t.get("Name")).toList();
+        System.out.println(allowedTalents1);
+        Set<String> allowedSet1 = new HashSet<>(allowedTalents1);
 
         for (Talent templateTalent : talents) {
-            if (!allowedSet.contains(templateTalent.getName())) {
+            if (!allowedSet1.contains(templateTalent.getName())) {
                 continue;
             }
             boolean exists = globalCharacter.getTalents().stream().anyMatch(t -> t.getName().equals(templateTalent.getName()));
@@ -921,7 +919,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
 
         talents.forEach(talent -> {
-            if (!allowedSet.contains(talent.getName())) {
+            if (!allowedSet1.contains(talent.getName())) {
                 return;
             }
             Div talentDiv = new Div();
@@ -948,8 +946,113 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         Paragraph paragraph4 = new Paragraph("Your Species lets you choose between the following talent(s) :");
         layout.add(paragraph4);
 
+        Map<String, List<Talent>> talentsBySource = talents.stream()
+                .collect(Collectors.groupingBy(talent ->
+                        raceTable.getTalents().stream()
+                                .filter(rt -> rt.get("Name").equals(talent.getName()))
+                                .map(rt -> (String) rt.get("source"))
+                                .findFirst()
+                                .orElse("idk hope it works")
+                ));
+        Set<String> availableSources = raceTable.getTalents().stream()
+                .map(t -> (String) t.get("source"))
+                .collect(Collectors.toSet());
+
+        Map<String, List<String>> choiceGroups = new LinkedHashMap<>();
+        choiceGroups.put("Group A", List.of("Choice1", "Choice2"));
+        choiceGroups.put("Group B", List.of("Choice3", "Choice4"));
+
+        Map<String, Div> groupContainers = new HashMap<>();
+        Map<String, RadioButtonGroup<String>> groups = new LinkedHashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : choiceGroups.entrySet()) {
+
+            String groupName = entry.getKey();
+            List<String> choices = entry.getValue();
+            boolean hasAny = choices.stream().anyMatch(availableSources::contains);
+
+            if (!hasAny) continue;
+            RadioButtonGroup<String> rb = new RadioButtonGroup<>();
+            rb.setLabel(groupName);
 
 
+            List<String> validChoices = choices.stream()
+                    .filter(availableSources::contains)
+                    .toList();
+
+            rb.setItems(validChoices);
+
+            Div groupContainer = new Div();
+
+            groups.put(groupName, rb);
+            groupContainers.put(groupName, groupContainer);
+
+            layout.add(rb);
+            layout.add(groupContainer);
+        }
+
+        Runnable update = () -> {
+            groupContainers.values().forEach(Div::removeAll);
+            Set<String> allChoiceNames = raceTable.getTalents().stream()
+                    .map(t -> (String) t.get("Name"))
+                    .collect(Collectors.toSet());
+
+            globalCharacter.getTalents().removeIf(t ->
+                    allChoiceNames.contains(t.getName())
+            );
+
+            for (Map.Entry<String, RadioButtonGroup<String>> entry : groups.entrySet()) {
+                String selected = entry.getValue().getValue();
+                if (selected == null) {
+                    continue;
+                }
+
+                List<Talent> selectedTalents = talentsBySource.get(selected);
+
+                if (selectedTalents == null) {
+                    continue;
+                }
+
+                for (Talent talent : selectedTalents) {
+
+                    Talent copy = new Talent();
+                    copy.setName(talent.getName());
+                    copy.setDescription(talent.getDescription());
+                    copy.setAmountTaken(1);
+
+                    globalCharacter.getTalents().add(copy);
+
+                    Div talentDiv = new Div();
+
+                    TextField choice = new TextField();
+                    choice.setReadOnly(true);
+                    choice.setLabel("Talent Choice");
+                    choice.setValue(selected);
+                    choice.setWidth("140px");
+
+                    TextField talentName = new TextField();
+                    talentName.setReadOnly(true);
+                    talentName.setLabel("Talent name");
+                    talentName.setValue(talent.getName());
+                    talentName.setWidth("200px");
+
+                    TextField descriptionField3 = new TextField();
+                    descriptionField3.setReadOnly(true);
+                    descriptionField3.setLabel("Talent Description");
+                    descriptionField3.setWidth("639px");
+                    descriptionField3.setValue(talent.getDescription());
+
+                    talentDiv.add(choice, talentName, descriptionField3);
+                    talentDiv.getStyle().set("border", "3px solid black");
+
+                    groupContainers.get(entry.getKey()).add(talentDiv);
+                }
+            }
+        };
+
+        for (RadioButtonGroup<String> group : groups.values()) {
+            group.addValueChangeListener(e -> update.run());
+        }
 
         Paragraph paragraph5 = new Paragraph("Your Species grants you " + "INSERT NUMBER HERE" +" Random talents from the following table :");  //insert number here xd
 
