@@ -129,6 +129,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), inventoryDiv, CharacterInfoBox());
         add(container);
+
+        if (loadedCharacter) {
+            updateRaceFromLoadedRace(globalCharacter.getRace());
+        }
     }
 
     private Div IntroBox(){
@@ -403,6 +407,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.addValueChangeListener(e ->
                 updateRace(dropdownMenu)
         );
+
+
         return raceBoxDiv;
     }
 
@@ -423,17 +429,30 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
 
+        raceFields.forEach((characteristicname, field) ->{
+            System.out.println(characteristicname);
+        } );
+
         raceFields.forEach((characteristicName, field) -> {
 
-            ArrayList<Integer> values = diceRolls.get(characteristicName);
+            ArrayList<Integer> value = diceRolls.get(characteristicName);
 
-            if (values != null && !values.isEmpty()) {
-                field.setValue(values.get(0));
+            if (value != null && !value.isEmpty()) {
+                System.out.println(characteristicName + " " + value.get(0));
+                field.setValue(value.get(0));
+
                 for (Characteristic characteristic : globalCharacter.getCharacteristics()){
+                    if (characteristic.getName().equals("Weapons Skill")){
+                        System.out.println("weaponslkills");
+                        System.out.println(characteristicName);
+                    }
                     if (characteristic.getName().equals(characteristicName)){
-                        characteristic.setRacemod(values.get(0));
+                        characteristic.setRacemod(value.get(0));
+                        System.out.println("works here");
+                        System.out.println("blank");//System.out.println("blank");System.out.println("blank");System.out.println("blank");System.out.println("blank");
                     }
                 }
+
             } else {
                 field.setValue(0);
                 System.out.println("idk it breaks");
@@ -442,6 +461,55 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         startingSkillsBox.removeAll();
         startingSkillsBox.add(StartingSkillsAndTalents());
     }
+
+    private void updateRaceFromLoadedRace(String currentRace) {
+        String normalized = currentRace.trim();
+
+        Race race = raceItems.stream()
+                .filter(r -> r.getRace() != null
+                        && r.getRace().trim().equalsIgnoreCase(normalized))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Race not found: " + currentRace
+                ));
+        globalCharacter.setRace(currentRace);
+        currentRaceTable = race;
+
+        Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
+
+        raceFields.forEach((characteristicname, field) ->{
+            System.out.println(characteristicname);
+        } );
+
+        raceFields.forEach((characteristicName, field) -> {
+
+            ArrayList<Integer> value = diceRolls.get(characteristicName);
+
+            if (value != null && !value.isEmpty()) {
+                System.out.println(characteristicName + " " + value.get(0));
+                field.setValue(value.get(0));
+
+                for (Characteristic characteristic : globalCharacter.getCharacteristics()){
+                    if (characteristic.getName().equals("Weapons Skill")){
+                        System.out.println("weaponslkills");
+                        System.out.println(characteristicName);
+                    }
+                    if (characteristic.getName().equals(characteristicName)){
+                        characteristic.setRacemod(value.get(0));
+                        System.out.println("works here");
+                        System.out.println("blank");//System.out.println("blank");System.out.println("blank");System.out.println("blank");System.out.println("blank");
+                    }
+                }
+
+            } else {
+                field.setValue(0);
+                System.out.println("idk it breaks");
+            }
+        });
+        startingSkillsBox.removeAll();
+        startingSkillsBox.add(StartingSkillsAndTalents());
+    }
+
 
     private void addTrappingFunction(IntegerField levelField){
         addTrappings(globalCharacter.getCareer(), levelField.getValue());
@@ -555,6 +623,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 Checkbox skillBoughtCheckbox = new Checkbox();
                 skillBoughtCheckbox.setLabel("Bought");
+                boolean skillBought = skill.getBoughtBool() != null ? skill.getBoughtBool() : false;
+                skillBoughtCheckbox.setValue(skillBought);
 
 
                 Runnable update = () ->
@@ -704,6 +774,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         statBox.add(headline, characteristicsStatBox);
         layout.add(statBox);
+
         return layout;
     }
 
@@ -818,7 +889,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         characterCharacteristic.setBase(baseField.getValue());
         characterCharacteristic.setModifier(modifierField.getValue());
         characterCharacteristic.setPenalty(penaltyField.getValue());
-        characterCharacteristic.setRacemod(raceField.getValue());
+
 
         int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
 
