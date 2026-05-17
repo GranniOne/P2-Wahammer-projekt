@@ -41,7 +41,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
-// 2. is this skill bought button unchecks everytime you update characteristics
 // 3. updating characteristic removes all stats from corresponding skills
 // 4. characterCreator crashes if you save a character as lvl 4 and try to edit it
 
@@ -333,7 +332,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         levelField.setValue(globalCharacter.getLevel());
         levelField.setMin(1);
         levelField.setReadOnly(true);
-        levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()));
+        levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()-1));
 
         if (!dropdownMenu.isEmpty()){
             levelField.setReadOnly(false);
@@ -440,14 +439,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 field.setValue(value.get(0));
 
                 for (Characteristic characteristic : globalCharacter.getCharacteristics()){
-                    if (characteristic.getName().equals("Weapons Skill")){
-                        System.out.println("weaponslkills");
-                        System.out.println(characteristicName);
-                    }
                     if (characteristic.getName().equals(characteristicName)){
                         characteristic.setRacemod(value.get(0));
-                        System.out.println("works here");
-                        System.out.println("blank");//System.out.println("blank");System.out.println("blank");System.out.println("blank");System.out.println("blank");
+
                     }
                 }
 
@@ -495,7 +489,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     if (characteristic.getName().equals(characteristicName)){
                         characteristic.setRacemod(value.get(0));
                         System.out.println("works here");
-                        System.out.println("blank");//System.out.println("blank");System.out.println("blank");System.out.println("blank");System.out.println("blank");
+                        System.out.println("blank");
                     }
                 }
 
@@ -552,6 +546,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             List<List<String>> allowedSkills = new ArrayList<>(globalCharacter.getCareer().getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
             skills.forEach(skill -> {
                 boolean found = false;
+                
                 int maxLevel = Math.min(levelField.getValue(), allowedSkills.size());
                 for (int i = 0; i < maxLevel; i++) {
                     if (allowedSkills.get(i).contains(skill.getName()) && characteristic.getName().equals(skill.getCharacteristic())) {
