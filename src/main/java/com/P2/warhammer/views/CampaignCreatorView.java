@@ -60,9 +60,10 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
             campaign = campaignService.getCampaignById(campaignId);
             campaignNameBinder.readBean(campaign);
         }else{
-            if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).stream().filter(campaign -> campaign.getGameMaster().getId().equals(Utilities.getUserFromAuthentication().getId())).toList().size() >= 5){
-                UI.getCurrent().getPage().getHistory().back();
-                Notification.show("You own to mane campaigns", 5000, Notification.Position.MIDDLE);
+            if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).size() >= 5){
+                Notification.show("you have to many cmapaign", 5000, Notification.Position.MIDDLE);
+                beforeEnterEvent.forwardTo(DashBoard.class);
+                return;
             }
 
             campaign = new Campaign();
