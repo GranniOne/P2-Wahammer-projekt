@@ -72,10 +72,6 @@ public class CampaignView extends Div implements HasUrlParameter<String> {
             List<Character> characters = currentCampaign.getCharacters();
             makeCharactersCards(characters,currentCampaign);
 
-            ComboBox<Character> comboBox = new ComboBox<>("All characters in campaign");
-            comboBox.setItems(characters);
-            comboBox.setItemLabelGenerator(Character::getName);
-            header.add(comboBox);
 
             Content.add(layout);
         }
