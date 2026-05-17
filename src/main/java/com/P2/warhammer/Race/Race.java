@@ -70,7 +70,7 @@ public class Race {
     public void setEntries(List<RaceEntry> entries) { this.entries = entries; }
 
     public String getName() {return Name;}
-    public void setName(String Name) {this.Name = this.Name;}
+    public void setName(String Name) {this.Name = Name;}
 
     public boolean isValue() {return value;}
     public void setValue(boolean value) {this.value = value;}
