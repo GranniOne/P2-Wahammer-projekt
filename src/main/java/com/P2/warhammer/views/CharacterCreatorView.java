@@ -50,9 +50,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div implements HasUrlParameter<String> {
     private final UserRepository userRepository;
-    Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
     Map<String, Runnable> characteristicUpdates = new HashMap<>();
-
     Random random = new Random();
     private final SkillRepository skillRepository;
     private final CharacterRepository characterRepository;
@@ -78,7 +76,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private static final int MaxThree = 3;
     private static final int MaxFive = 3;
-
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserRepository userRepository) {
@@ -196,7 +193,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             String[] splitItems = newItems.split(",");
 
             for (String item : splitItems) {
-                WarhammerItem addedItem = new WarhammerItem(item.trim(), 1); //TODO add amount of added trapping
+                WarhammerItem addedItem = new WarhammerItem(item.trim(), 1);
                 inventory.add(addedItem);
             }
         }
@@ -764,9 +761,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                             raceField
                     )
             );
-            Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
-            characteristicValues.put(characterCharacteristic.getName(), fieldArray);
-
             charDiv.add(charField,raceField,baseField,modifierField,penaltyField,totalField,rollButton,charSkillDiv);
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
@@ -938,7 +932,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
 
-        Paragraph paragraph5 = new Paragraph("Your Species grants you " + "INSERT NUMBER HERE" +" Random talents from the following table :");
+        Paragraph paragraph5 = new Paragraph("Your Species grants you " + "INSERT NUMBER HERE" +" Random talents from the following table :");  //insert number here xd
 
         H1 headline3 = new H1("4.3 Career Skills And Talents");
         headline3.getStyle().set("margin", "0 auto");
@@ -999,7 +993,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         talentBox.add(characterTalentDiv);
     }
-        //extracted method. skriv lige hvis i for lyst til at optimere den
+
     private @NonNull IntegerField getIntegerField(Talent talent) {
         IntegerField talentTakenField = new IntegerField();
 
