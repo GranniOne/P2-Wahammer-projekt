@@ -41,8 +41,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
-// 3. updating characteristic removes all stats from corresponding skills
-// 4. characterCreator crashes if you save a character as lvl 4 and try to edit it
+// 2. updating characteristic removes all stats from corresponding skills
+
 
 @PermitAll
 @PageTitle("Character Creator Page")
