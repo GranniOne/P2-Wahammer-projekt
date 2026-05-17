@@ -476,6 +476,17 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                         break;
                     }
                 }
+                if (!found) {
+                    for (Skill characterSkill : globalCharacter.getSkills()) {
+                        if (characterSkill.getName().equals(skill.getName())
+                                && characterSkill.getSpeciesStartingBonus() != null
+                                && characterSkill.getSpeciesStartingBonus() > 0
+                                && characteristic.getName().equals(skill.getCharacteristic())) {
+                            found = true;
+                            break;
+                        }
+                    }
+                }
 
                 if (!found) {
                     return;
@@ -750,6 +761,20 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     return;
                 }
                 skill.setSpeciesStartingBonus(newValue);
+                boolean exists = false;
+
+                for (Skill existingSkill : globalCharacter.getSkills()) {
+                    if (existingSkill.getName().equals(skill.getName())) {
+                        exists = true;
+                        existingSkill.setSpeciesStartingBonus(newValue);
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    globalCharacter.getSkills().add(skill);
+                }
+
                 characteristicUpdates.values().forEach(Runnable::run);
             });
             skillDiv.add(charField, descriptionField, bonusGroup);
