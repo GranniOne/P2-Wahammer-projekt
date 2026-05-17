@@ -151,7 +151,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 "dice roll to make the choice for you. You may receive bonus Experience Points (XP) for choosing to accept random outcomes, as if the " +
                 "Dark Gods of Chaos themselves applaud your acceptance of random chance. XP represent learning from experience and are the principal" +
                 "way to improve your abilities — you will be able to spend these points to enhance your character’s abilities. " +
-                "The XP gain for each choice can be seen in the core rule book under character creation for the corresponding sections");
+                "The XP gain for each choice can be seen in the corresponding section or in the core rule book under character creation, " +
+                "but has to be manually added to the XP field at the bottom af the character creator");
 
         layout.add(headline, paragraph1, paragraph2);
         intro.add(layout);
@@ -230,7 +231,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         layout.setWidthFull();
 
         H1 headline = new H1("6. Adding Detail");
-        //headline.getStyle().set("margin", "0 auto");
 
         TextField nameField = new TextField();
         nameField.setLabel("Character name");
@@ -270,14 +270,33 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
 
-    private Div careerBox(){
-        Div div = new Div();
-
+    private VerticalLayout careerBox(){
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
+
+        Div div = new Div();
 
         H1 headline = new H1("2. Choose Career");
         headline.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph = new Paragraph(
+                "Your Class determines your general place in society. " +
+                "Your Career describes your current job and determines your Status, which also influences how much money you earn. " +
+                "You can simply choose your Class and Career from the options below, choose your option from the dropdown menu and move on" +
+                "to step 3. Alternatively, if you are unsure which to choose, or just want to randomly select for bonus XP: ");
+
+        Paragraph paragraph1 = new Paragraph(
+                "1. Roll 1d100 on the Random Class and Career Table. If you" +
+                " don’t like the result, move to step 2. If you keep the result, gain +50 XP.");
+        Paragraph paragraph2 = new Paragraph(
+                "2. Roll twice more on the table, bringing your total to 3 choices." +
+                " If one of the three now suits you, select one and gain +25 XP. If not, move to Step 3.");
+        Paragraph paragraph3 = new Paragraph("3. Choose your Class and Career, or keep rerolling on the table" +
+                " until you get something you like. There is no XP bonus for this.");
+
+        layout.add(headline, paragraph,paragraph1, paragraph2, paragraph3);
 
         TextField socialClassField = new TextField();
         socialClassField.setReadOnly(true);
@@ -342,12 +361,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.addValueChangeListener(e ->
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
-        div.add(headline, dropdownMenu, RandomCareerButton, socialClassField, statusField, levelField);
-
+        div.add(dropdownMenu, RandomCareerButton, socialClassField, statusField, levelField);
+        layout.add(div);
         if (loadedCharacter){
             careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu);
         }
-        return div;
+        return layout;
     }
 
     private Div trappings(){
@@ -919,7 +938,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             descriptionField2.setReadOnly(true);
             descriptionField2.setLabel("Talent Description:");
             descriptionField2.setValue(talent.getDescription());
-            descriptionField2.setWidth("639px");
+            descriptionField2.setWidth("779px");
 
             talentDiv.add(charField2, descriptionField2);
             talentDiv.getStyle().set("border", "3px solid black");
