@@ -972,22 +972,18 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             boolean hasAny = choices.stream().anyMatch(availableSources::contains);
 
             if (!hasAny) continue;
-            RadioButtonGroup<String> rb = new RadioButtonGroup<>();
-            rb.setLabel(groupName);
+            RadioButtonGroup<String> radioButton = new RadioButtonGroup<>();
+            radioButton.setLabel(groupName);
 
+            List<String> validChoices = choices.stream().filter(availableSources::contains).toList();
 
-            List<String> validChoices = choices.stream()
-                    .filter(availableSources::contains)
-                    .toList();
-
-            rb.setItems(validChoices);
-
+            radioButton.setItems(validChoices);
             Div groupContainer = new Div();
 
-            groups.put(groupName, rb);
+            groups.put(groupName, radioButton);
             groupContainers.put(groupName, groupContainer);
 
-            layout.add(rb);
+            layout.add(radioButton);
             layout.add(groupContainer);
         }
 
