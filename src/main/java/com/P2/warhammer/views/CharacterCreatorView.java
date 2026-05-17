@@ -623,7 +623,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 Checkbox skillBoughtCheckbox = new Checkbox();
                 skillBoughtCheckbox.setLabel("Bought");
-                boolean skillBought = skill.getBoughtBool() != null ? skill.getBoughtBool() : false;
+                boolean skillBought = false;
+                for (Skill characterSkill : globalCharacter.getSkills()) {
+                    if (characterSkill.getName().equals(skill.getName())) {
+                        skillBought = characterSkill.getBoughtBool() != null && characterSkill.getBoughtBool();
+                        break;
+                    }
+                }
                 skillBoughtCheckbox.setValue(skillBought);
 
 
@@ -673,6 +679,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         existingSkill.setBonusValue(modifierField.getValue());
         existingSkill.setPenaltyValue(penaltyField.getValue());
         existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
+        System.out.println(skillBoughtCheckbox.getValue());
 
         globalCharacter.setSkills(skillList);
     }
