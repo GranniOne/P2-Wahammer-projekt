@@ -44,8 +44,7 @@ import java.util.concurrent.ThreadLocalRandom;
 // 2. is this skill bought button unchecks everytime you update characteristics
 // 3. updating characteristic removes all stats from corresponding skills
 // 4. characterCreator crashes if you save a character as lvl 4 and try to edit it
-// 5. Weapon Skill skills, does not
-
+// 5. Weapon Skill skills, does not display properly
 
 
 @PermitAll
@@ -427,15 +426,17 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         raceFields.forEach((characteristicName, field) -> {
 
             ArrayList<Integer> values = diceRolls.get(characteristicName);
-            ArrayList<Characteristic> characteristics = globalCharacter.getCharacteristics();
-            for (characteristics){
-                if (characteristics)
-            }
 
             if (values != null && !values.isEmpty()) {
                 field.setValue(values.get(0));
+                for (Characteristic characteristic : globalCharacter.getCharacteristics()){
+                    if (characteristic.getName().equals(characteristicName)){
+                        characteristic.setRacemod(values.get(0));
+                    }
+                }
             } else {
                 field.setValue(0);
+                System.out.println("idk it breaks");
             }
         });
         startingSkillsBox.removeAll();
@@ -474,7 +475,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicUpdates.values().forEach(Runnable::run);
 
         }catch (Exception e){
-            System.out.println("Klassen eksisterer ikke");
+            System.out.println("noget gik galt");
         }
     }
 
@@ -553,7 +554,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 totalField.setWidth("120px");
 
                 Checkbox skillBoughtCheckbox = new Checkbox();
-                skillBoughtCheckbox.setLabel("Bought?");
+                skillBoughtCheckbox.setLabel("Bought");
 
 
                 Runnable update = () ->
