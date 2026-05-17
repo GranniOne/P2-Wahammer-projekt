@@ -44,8 +44,6 @@ import java.util.concurrent.ThreadLocalRandom;
 // 2. is this skill bought button unchecks everytime you update characteristics
 // 3. updating characteristic removes all stats from corresponding skills
 // 4. characterCreator crashes if you save a character as lvl 4 and try to edit it
-// 5. Weapon Skill skills, does not display properly
-
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -827,19 +825,19 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             Div skillDiv = new Div();
 
-            TextField charField = new TextField();
-            charField.addClassName("skill-field");
-            charField.setReadOnly(true);
-            charField.setLabel("Skill name");
-            charField.setValue(skill.getName());
-            charField.setWidth("200px");
+            TextField charField1 = new TextField();
+            charField1.addClassName("skill-field");
+            charField1.setReadOnly(true);
+            charField1.setLabel("Skill name");
+            charField1.setValue(skill.getName());
+            charField1.setWidth("200px");
 
-            TextField descriptionField = new TextField();
-            descriptionField.addClassName("skill-field");
-            descriptionField.setReadOnly(true);
-            descriptionField.setLabel("Skill Description:");
-            descriptionField.setValue(skill.getDescription());
-            descriptionField.setWidth("639px");
+            TextField descriptionField1 = new TextField();
+            descriptionField1.addClassName("skill-field");
+            descriptionField1.setReadOnly(true);
+            descriptionField1.setLabel("Skill Description:");
+            descriptionField1.setValue(skill.getDescription());
+            descriptionField1.setWidth("639px");
 
             RadioButtonGroup<Integer> bonusGroup = new RadioButtonGroup<>();
             bonusGroup.setLabel("Starting bonus");
@@ -885,10 +883,72 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 characteristicUpdates.values().forEach(Runnable::run);
             });
-            skillDiv.add(charField, descriptionField, bonusGroup);
+            skillDiv.add(charField1, descriptionField1, bonusGroup);
             skillDiv.getStyle().set("border", "3px solid black");
             layout.add(skillDiv);
         });
+        H1 headline2 = new H1("4.2 Species Starting Talents");
+        headline2.getStyle().set("margin", "0 auto");
+        Paragraph paragraph3 = new Paragraph("Your Species grants you the following talents :");
+
+        layout.add(headline2, paragraph3);
+
+        List<String> allowedTalents = raceTable.getTalents().stream().filter(t -> "auto".equals(t.get("source"))).map(t -> (String) t.get("Name")).toList();
+        System.out.println(allowedTalents);
+        Set<String> allowedSet = new HashSet<>(allowedTalents);
+
+        for (Talent templateTalent : talents) {
+            if (!allowedSet.contains(templateTalent.getName())) {
+                continue;
+            }
+            boolean exists = globalCharacter.getTalents().stream().anyMatch(t -> t.getName().equals(templateTalent.getName()));
+            if (!exists) {
+                Talent copy = new Talent();
+                copy.setName(templateTalent.getName());
+                copy.setDescription(templateTalent.getDescription());
+                copy.setAmountTaken(1);
+
+                globalCharacter.getTalents().add(copy);
+            }
+        }
+
+        talents.forEach(talent -> {
+            if (!allowedSet.contains(talent.getName())) {
+                return;
+            }
+            Div talentDiv = new Div();
+
+            TextField charField2 = new TextField();
+            charField2.addClassName("skill-field");
+            charField2.setReadOnly(true);
+            charField2.setLabel("Talent name");
+            charField2.setValue(talent.getName());
+            charField2.setWidth("200px");
+
+            TextField descriptionField2 = new TextField();
+            descriptionField2.addClassName("skill-field");
+            descriptionField2.setReadOnly(true);
+            descriptionField2.setLabel("Talent Description:");
+            descriptionField2.setValue(talent.getDescription());
+            descriptionField2.setWidth("639px");
+
+            talentDiv.add(charField2, descriptionField2);
+            talentDiv.getStyle().set("border", "3px solid black");
+            layout.add(talentDiv);
+        });
+
+        Paragraph paragraph4 = new Paragraph("Your Species lets you choose between the following talent(s) :");
+        layout.add(paragraph4);
+
+
+
+
+        Paragraph paragraph5 = new Paragraph("Your Species grants you " + "INSERT NUMBER HERE" +" Random talents from the following table :");
+
+        H1 headline3 = new H1("4.3 Career Skills And Talents");
+        headline3.getStyle().set("margin", "0 auto");
+
+        layout.add(headline3);
         return layout;
     }
 
@@ -950,18 +1010,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         List<Talent> globalCharacterTalents = globalCharacter.getTalents();
 
-        boolean foundInList = false;
-        for (Talent t : globalCharacterTalents) {
-            if (t.getName().equals(talent.getName())) {
-                foundInList = true;
-                talentTakenField.setValue(t.getAmountTaken());
-                break;
-            }
-        }
-        if (!foundInList) {
-            talentTakenField.setValue(0);
-        }
-
+        Talent existing = globalCharacterTalents.stream().filter(t -> t.getName().equals(talent.getName())).findFirst().orElse(null);
+        talentTakenField.setValue(existing != null ? existing.getAmountTaken() : 0);
         talentTakenField.setMin(0);
 
         talentTakenField.addValueChangeListener(e ->
@@ -971,7 +1021,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
 
-    private void updateTalents(AbstractField.ComponentValueChangeEvent<IntegerField, Integer> e, Talent talent){
+    private void updateTalents(AbstractField.ComponentValueChangeEvent<IntegerField, Integer> e, Talent talent) {
         int amountTakenValue = e.getValue();
         List<Talent> currentTalents = globalCharacter.getTalents();
         for (Talent t : currentTalents) {
@@ -980,14 +1030,19 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 break;
             }
         }
-        if (amountTakenValue > 0){
-            if (!currentTalents.contains(talent.getName())) { //TODO JEG ER RET SIKKER PÅ AT DENNEHER KUN TRIGGER HVIS TALENTET ER PRÆCIS DET SAMME. DET BETYDER VI KAN LAVE FLERE VERSIONER AF DET SAMME TALENT
-                currentTalents.add(talent);
-                System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
+        if (amountTakenValue > 0) {
+            boolean exists = currentTalents.stream().anyMatch(t -> t.getName().equals(talent.getName()));
+            if (!exists) {
+                Talent copy = new Talent();
+                copy.setName(talent.getName());
+                copy.setDescription(talent.getDescription());
+                copy.setAmountTaken(amountTakenValue);
+
+                currentTalents.add(copy);
             }
-        }else{
-            currentTalents.remove(talent);
+            System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
+        } else {
+            currentTalents.removeIf(t -> t.getName().equals(talent.getName()));
         }
-        globalCharacter.setTalents(currentTalents);
     }
 }

@@ -1,6 +1,5 @@
 package com.P2.warhammer.Race;
 
-import com.P2.warhammer.characteristics.Characteristic;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -14,21 +13,27 @@ import java.util.Map;
 public class Race {
     @Id
     private String id;
+    boolean value;
     String race;
     String dice;
     String career;
     String species;
     String Name;
+    String source;
     List<String> skills;
+    List<Map<String, Object>> talents;
 
     @Field("dicerolls")
     Map<String, ArrayList<Integer>> basecharacteristicMap;
 
     public Race() {}
 
-    public Race(String Name,List<String> skills ,String species, String  race, String dice, String career, Map<String, ArrayList<Integer>> basecharacteristicMap){
+    public Race(String Name, boolean value, String source, List<String> skills, List<Map<String, Object>> talents ,String species, String  race, String dice, String career, Map<String, ArrayList<Integer>> basecharacteristicMap){
         this.Name = Name;
         this.skills = skills;
+        this.talents = talents;
+        this.value = value;
+        this.source = source;
         this.race = race;
         this.dice = dice;
         this.career = career;
@@ -49,8 +54,10 @@ public class Race {
     public String getCareer() {return career;}
     public String getDice() {return dice;}
     public String getSpecies() {return species;}
-    public String getName() {return Name;}
     public List<String> getSkills() {return skills;}
+
+    public List<Map<String, Object>> getTalents() {return talents;}
+    public void setTalents(List<Map<String, Object>> talents) {this.talents = talents;}
 
     public void setRace(String race) {this.race = race;}
     public void setCareer(String career) {this.career = career;}
@@ -62,4 +69,12 @@ public class Race {
     public List<RaceEntry> getEntries() { return entries; }
     public void setEntries(List<RaceEntry> entries) { this.entries = entries; }
 
+    public String getName() {return Name;}
+    public void setName(String Name) {this.Name = this.Name;}
+
+    public boolean isValue() {return value;}
+    public void setValue(boolean value) {this.value = value;}
+
+    public String getSource() {return source;}
+    public void setSource(String source) {this.source = source;}
 }
