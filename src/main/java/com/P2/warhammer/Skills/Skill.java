@@ -12,15 +12,16 @@ public class Skill {
     String Characteristic;
     String Category;
     String Description;
-    Integer StartValue;
-    Integer BonusValue;
     Integer PenaltyValue;
     Boolean boughtBool;
-    Integer startingBonus;
+    Integer BonusValue;
+    Integer StartValue;
+    Integer speciesStartingBonus;
+    Integer careerStartingBonus;
 
     public Skill() {}
 
-    public Skill(String Name,Integer startingBonus ,String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue, Boolean boughtBool) {
+    public Skill(String Name, Integer speciesStartingBonus, Integer careerStartingBonus, String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue, Boolean boughtBool) {
         this.Name = Name;
         this.Category = Category;
         this.Characteristic = Characteristic;
@@ -29,7 +30,8 @@ public class Skill {
         this.BonusValue = BonusValue;
         this.PenaltyValue = PenaltyValue;
         this.boughtBool = boughtBool;
-        this.startingBonus = startingBonus;
+        this.speciesStartingBonus = speciesStartingBonus;
+        this.careerStartingBonus = careerStartingBonus;
     }
 
     @Override
@@ -109,10 +111,21 @@ public class Skill {
         this.boughtBool = boughtBool;
     }
 
+    public void setSpeciesStartingBonus(Integer speciesStartingBonus) {this.speciesStartingBonus = speciesStartingBonus;}
+    public Integer getSpeciesStartingBonus() {return speciesStartingBonus;}
 
-    public void setStartingBonus(Integer startingBonus) {this.startingBonus = startingBonus;}
+    public void setCareerStartingBonus(Integer careerStartingBonus) {this.careerStartingBonus = careerStartingBonus;}
+    public Integer getCareerStartingBonus() {return careerStartingBonus;}
 
-    public Integer getStartingBonus() {return startingBonus;}
+    public int getModifierTotal() {
+        return safe(speciesStartingBonus)
+                + safe(careerStartingBonus)
+                + safe(BonusValue);
+    }
+
+    private int safe(Integer v) {
+        return v == null ? 0 : v;
+    }
 
 }
 

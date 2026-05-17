@@ -43,7 +43,8 @@ import java.util.concurrent.ThreadLocalRandom;
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
 // 2. is this skill bought button unchecks everytime you update characteristics
 // 3. updating characteristic removes all stats from corresponding skills
-// 4. characteristics now only show first entry, meaning dwarf fx. has every characteristic as 30, due to the fact is the first entry
+// 4. characterCreator crashes if you save a character as lvl 4 and try to edit it
+
 
 
 @PermitAll
@@ -62,6 +63,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private final CareerRepository careerRepository;
     private final TalentRepository talentRepository;
     private final RaceRepository raceRepository;
+    private final List<RadioButtonGroup<Integer>> startingBonusGroups = new ArrayList<>();
     private List<Career> careersForSpecies = new ArrayList<>();
     private List<Skill> skills;
     private List<Talent> talents;
@@ -75,6 +77,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     Div inventoryDiv = new Div();
     IntegerField levelField;
     Map<String, IntegerField> raceFields = new HashMap<>();
+
+
+    private static final int MaxThree = 3;
+    private static final int MaxFive = 3;
 
 
 
@@ -190,8 +196,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void inventoryDivCreator(){
-        boolean colorbool = true;
-        inventoryDiv.getStyle().set("background-color", "green");
         for (WarhammerItem inventoryItem : globalCharacter.getInventory()){
              Div inventoryElementDiv = new Div();
              TextField itemField = new TextField();
@@ -199,20 +203,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
              itemField.setReadOnly(true);
 
              IntegerField itemAmount = new IntegerField();
-            itemAmount.setValue(inventoryItem.getAmount());
+             itemAmount.setValue(inventoryItem.getAmount());
 
-             if (colorbool) {
-                 inventoryElementDiv.getStyle().set("background-color", "#88CF8F");
-             } else {
-                 inventoryElementDiv.getStyle().set("background-color", "#CF89A0");
-             }
+             inventoryElementDiv.add(itemField);
+             inventoryElementDiv.add(itemAmount);
 
-            inventoryElementDiv.add(itemField);
-            inventoryElementDiv.add(itemAmount);
-
-            colorbool = !colorbool;
-
-            inventoryDiv.add(inventoryElementDiv);
+             inventoryDiv.add(inventoryElementDiv);
         }
     }
 
@@ -323,7 +319,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu);
         });
 
-        levelField = createField( 4);
+        levelField = createField(4);
         levelField.setLabel("Level");
         levelField.setValue(globalCharacter.getLevel());
         levelField.setMin(1);
@@ -453,6 +449,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             int level = levelField.getValue();
 
             List<Integer> status = currentCareer.getLevelStatusList();
+            level = Math.min(level, status.size());
             moneyField.setValue("B" + status.get(level - 1));
 
             globalCharacter.setCareer(currentCareer);
@@ -472,7 +469,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             List<List<String>> allowedSkills = new ArrayList<>(globalCharacter.getCareer().getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
             skills.forEach(skill -> {
                 boolean found = false;
-                for (int i = 0; i < levelField.getValue(); i++) {
+                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size());
+                for (int i = 0; i < maxLevel; i++) {
                     if (allowedSkills.get(i).contains(skill.getName()) && characteristic.getName().equals(skill.getCharacteristic())) {
                         found = true;
                         System.out.println(skill.getName());
@@ -510,8 +508,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
 
                 IntegerField modifierField = createField(99);
+                int speciesBonus = skill.getSpeciesStartingBonus() != null ? skill.getSpeciesStartingBonus() : 0;
+                int careerBonus = skill.getCareerStartingBonus() != null ? skill.getCareerStartingBonus() : 0;
+                int manualBonus = skill.getBonusValue() != null ? skill.getBonusValue() : 0;
                 modifierField.setLabel("Modifier");
-                modifierField.setValue(skill.getBonusValue());
+                modifierField.setValue(speciesBonus + careerBonus + manualBonus);
                 modifierField.setWidth("120px");
 
                 IntegerField penaltyField = createField(99);
@@ -678,8 +679,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private VerticalLayout StartingSkillsAndTalents(){
-        Div StartingSkills = new Div();
-
+        startingBonusGroups.clear();
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
@@ -690,7 +690,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         headline.getStyle().set("margin", "0 auto");
 
         layout.add(headline);
-        StartingSkills.add(layout);
 
         if (globalCharacter.getRace() == null) {
             return layout;
@@ -727,12 +726,23 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             RadioButtonGroup<Integer> bonusGroup = new RadioButtonGroup<>();
             bonusGroup.setLabel("Starting bonus");
             bonusGroup.setItems(0, 3, 5);
-            bonusGroup.setValue(0);
 
+            bonusGroup.setValue(skill.getSpeciesStartingBonus() != null ? skill.getSpeciesStartingBonus() : 0);
+            startingBonusGroups.add(bonusGroup);
+            bonusGroup.addValueChangeListener(event -> {
+                Integer newValue = event.getValue();
+                if (newValue == null) newValue = 0;
+
+                Integer current = skill.getSpeciesStartingBonus();
+                if (current == null) current = 0;
+
+                skill.setSpeciesStartingBonus(current + newValue);
+
+                characteristicUpdates.values().forEach(Runnable::run);
+            });
             skillDiv.add(charField, descriptionField, bonusGroup);
             skillDiv.getStyle().set("border", "3px solid black");
             layout.add(skillDiv);
-
         });
         return layout;
     }
@@ -756,12 +766,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Div characterTalentDiv = new Div();
         List<List<String>> careerTalents = career.getLevelTalentsList();
-        boolean colorbool = true;
         for (int talentIndex = 0; talentIndex < talents.size(); talentIndex++) {
             Talent talent = talents.get(talentIndex);
             boolean foundTalentInDatabase = false;
-            for (int i = 0; i < level; i++) {
+            int maxLevel = Math.min(level, careerTalents.size());
+
+            for (int i = 0; i < maxLevel; i++) {
                 List<String> currentCareerLevelTalents = careerTalents.get(i);
+
                 if (currentCareerLevelTalents.contains(talent.getName())) {
                     foundTalentInDatabase = true;
                     break;

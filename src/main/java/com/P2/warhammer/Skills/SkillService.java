@@ -12,8 +12,8 @@ public class SkillService {
         this.repository = repository;
     }
 
-    public Skill addSkill(String Name, Integer StartingBonus, String Category, String Characteristic, String Description, Integer startValue, Integer bonusValue, Integer penaltyValue, Boolean boughtBool) {
-        return repository.save(new Skill(Name, StartingBonus, Category, Characteristic, Description, startValue, bonusValue, penaltyValue, boughtBool));
+    public Skill addSkill(String Name, Integer speciesStartingBonus, Integer careerStartingBonus,  String Category, String Characteristic, String Description, Integer startValue, Integer bonusValue, Integer penaltyValue, Boolean boughtBool) {
+        return repository.save(new Skill(Name, speciesStartingBonus, careerStartingBonus, Category, Characteristic, Description, startValue, bonusValue, penaltyValue, boughtBool));
 
     }
 
