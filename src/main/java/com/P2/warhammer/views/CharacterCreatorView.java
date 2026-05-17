@@ -44,6 +44,7 @@ import java.util.concurrent.ThreadLocalRandom;
 // 2. is this skill bought button unchecks everytime you update characteristics
 // 3. updating characteristic removes all stats from corresponding skills
 // 4. characterCreator crashes if you save a character as lvl 4 and try to edit it
+// 5. Melee (Basic) skill can for some reason not be added, it can be found and read but not added in the display
 
 
 
@@ -142,12 +143,18 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         Paragraph paragraph1 = new Paragraph(
                 "Welcome to the WFRP 4e Character Creator. Here you can create a new character or edit an existing one for Warhammer Fantasy Roleplay 4th Edition. " +
                         "The tools below will guide you through each step of the process, including species, career, characteristics, skills, talents, and equipment, " +
-                        "helping you build a complete and playable character, through a guided introduction to the character creator." +
+                        "helping you build a complete and playable character, through a guided introduction to the character creator. Just remember this is a tool for character " +
+                        "creation and storage and should not be used as an alternative to the rules book." +
                         " As with every roleplaying game, each group likes to play things a little different so its recommended to go through your choices with you game master" +
                         " to make sure everything is in order."
         );
+        Paragraph paragraph2 = new Paragraph("In some sections of the character creator, you can either choose an option or accept the result of a " +
+                "dice roll to make the choice for you. You may receive bonus Experience Points (XP) for choosing to accept random outcomes, as if the " +
+                "Dark Gods of Chaos themselves applaud your acceptance of random chance. XP represent learning from experience and are the principal" +
+                "way to improve your abilities — you will be able to spend these points to enhance your character’s abilities. " +
+                "The XP gain for each choice can be seen in the core rule book under character creation for the corresponding sections");
 
-        layout.add(headline, paragraph1);
+        layout.add(headline, paragraph1, paragraph2);
         intro.add(layout);
         return intro;
     }
@@ -699,7 +706,19 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         H1 headline = new H1("4. Determining Starting Skills And Talents");
         headline.getStyle().set("margin", "0 auto");
 
-        layout.add(headline);
+        Paragraph paragraph = new Paragraph("When you create your character you are given skills, talents and advancements in those, as a one time bonus. " +
+                "Below will have a walkthrough af what bonuses your character get and what bonuses you can choose for you character, since not " +
+                "every bonus is pre-determined, causing every character to be unique. Just remember that these are one-time bonuses and should not be changed later. " +
+                "If the fields below are empty, you have skipped a step. Make sure you've selected a species and race and then come back");
+
+        H1 headline1 = new H1("4.1. Species Skill Bonus");
+        headline1.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph1 = new Paragraph("Each Species has a variety of Skills and Talents to choose from.\n" +
+                "You may choose 3 Skills to gain 5 Advances each, and 3 Skills\n" +
+                "to gain 3 Advances each. They are automatically added to your skill table above, and the modifier value will be changed according to your choices.");
+
+        layout.add(headline, paragraph, headline1, paragraph1);
 
         if (globalCharacter.getRace() == null) {
             return layout;
@@ -710,7 +729,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Race raceTable = raceRepository.findById(race).orElseThrow();
         List<String> allowedSkills = raceTable.getSkills();
-
 
         skills.forEach(skill -> {
             if (!allowedSkills.contains(skill.getName())) {
