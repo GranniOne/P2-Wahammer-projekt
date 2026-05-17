@@ -804,15 +804,15 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Paragraph paragraph = new Paragraph("When you create your character you are given skills, talents and advancements in those, as a one time bonus. " +
                 "Below will have a walkthrough af what bonuses your character get and what bonuses you can choose for you character, since not " +
-                "every bonus is pre-determined, causing every character to be unique. Just remember that these are one-time bonuses and should not be changed later. " +
-                "If the fields below are empty, you have skipped a step. Make sure you've selected a species and race and then come back");
+                "every bonus is pre-determined, causing every character to be unique. Just remember that these are one-time bonuses and should not be changed later.");
 
         H1 headline1 = new H1("4.1. Species Skill Bonus");
         headline1.getStyle().set("margin", "0 auto");
 
         Paragraph paragraph1 = new Paragraph("Each Species has a variety of Skills and Talents to choose from.\n" +
                 "You may choose 3 Skills to gain 5 Advances each, and 3 Skills\n" +
-                "to gain 3 Advances each. They are automatically added to your skill table above, and the modifier value will be changed according to your choices.");
+                "to gain 3 Advances each. They are automatically added to your skill table above, and the modifier value will be changed according to your choices. " +
+                "If the fields below are empty, you have skipped a step. Make sure you've selected a species and race and then come back");
 
         layout.add(headline, paragraph, headline1, paragraph1);
 
