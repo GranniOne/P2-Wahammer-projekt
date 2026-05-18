@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
 // 2. updating characteristic removes all stats from corresponding skills
+// 3. changing race does not remove talents granted from species starting bonus
 
 
 @PermitAll
@@ -1037,7 +1038,71 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             group.addValueChangeListener(e -> update.run());
         }
 
-        Paragraph paragraph5 = new Paragraph("Your Species grants you " + "INSERT NUMBER HERE" +" Random talents from the following table :");  //insert number here xd
+
+        int randomTalentAmount = raceTable.getrandomTalents();
+        if (randomTalentAmount > 0) {
+            Paragraph paragraph5 = new Paragraph("Your Species grants you " + randomTalentAmount + " Random talents from the following table :");  //insert number here xd
+            layout.add(paragraph5);
+
+            Map<String, Talent> talentMap = talents.stream().collect(Collectors.toMap(Talent::getName, t -> t));
+            Race randomTalentsTable = raceRepository.findById("species_random_talent_table").orElseThrow();
+
+            for (int i = 1; i <= randomTalentAmount; i++) {
+
+                ComboBox<String> dropdownMenu = new ComboBox<>("Random Talent " + i);
+                Div talentDiv = new Div();
+
+                TextField descriptionField4 = new TextField();
+                descriptionField4.setReadOnly(true);
+                descriptionField4.setLabel("Talent Description");
+                descriptionField4.setWidth("639px");
+
+                dropdownMenu.setItems(
+                        randomTalentsTable.getEntries().stream()
+                                .map(RaceEntry::getName)
+                                .filter(Objects::nonNull)
+                                .toList()
+                );
+                dropdownMenu.addValueChangeListener(e -> {
+
+                    String selected = e.getValue();
+                    if (selected == null) {
+                        descriptionField4.clear();
+                        return;
+                    }
+
+                    Talent talent = talents.stream().filter(t -> t.getName().equalsIgnoreCase(selected)).findFirst().orElse(null);
+                    if (talent == null) return;
+
+                    descriptionField4.setValue(talent.getDescription());
+
+                    globalCharacter.getTalents().removeIf(t ->
+                            t.getName().equals(talent.getName())
+                    );
+
+                    Talent copy = new Talent();
+                    copy.setName(talent.getName());
+                    copy.setDescription(talent.getDescription());
+                    copy.setAmountTaken(1);
+
+                    globalCharacter.getTalents().add(copy);
+                });
+
+                Button rollButton = new Button("Roll Talent " + i, e -> {
+
+                    int roll = ThreadLocalRandom.current().nextInt(1, 101);
+
+                    String result = randomTalentsTable.getEntries().stream()
+                        .filter(entry -> roll >= entry.getMin() && roll <= entry.getMax())
+                        .map(RaceEntry::getName).findFirst().orElse(null);
+                    dropdownMenu.setValue(result);
+                });
+                talentDiv.add(dropdownMenu, rollButton, descriptionField4);
+                talentDiv.getStyle().set("border", "3px solid black");
+                layout.add(talentDiv);
+                layout.getStyle().set("margin", "0 auto");
+            }
+        }
 
         H1 headline3 = new H1("4.3 Career Skills And Talents");
         headline3.getStyle().set("margin", "0 auto");

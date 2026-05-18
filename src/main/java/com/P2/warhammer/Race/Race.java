@@ -20,6 +20,7 @@ public class Race {
     String species;
     String Name;
     String source;
+    int randomTalents;
     List<String> skills;
     List<Map<String, Object>> talents;
 
@@ -28,12 +29,13 @@ public class Race {
 
     public Race() {}
 
-    public Race(String Name, boolean value, String source, List<String> skills, List<Map<String, Object>> talents ,String species, String  race, String dice, String career, Map<String, ArrayList<Integer>> basecharacteristicMap){
+    public Race(String Name, int randomTalents, boolean value, String source, List<String> skills, List<Map<String, Object>> talents ,String species, String  race, String dice, String career, Map<String, ArrayList<Integer>> basecharacteristicMap){
         this.Name = Name;
         this.skills = skills;
         this.talents = talents;
         this.value = value;
         this.source = source;
+        this.randomTalents = randomTalents;
         this.race = race;
         this.dice = dice;
         this.career = career;
@@ -54,6 +56,7 @@ public class Race {
     public String getCareer() {return career;}
     public String getDice() {return dice;}
     public String getSpecies() {return species;}
+    public int randomTalents() {return randomTalents;}
     public List<String> getSkills() {return skills;}
 
     public List<Map<String, Object>> getTalents() {return talents;}
@@ -77,4 +80,7 @@ public class Race {
 
     public String getSource() {return source;}
     public void setSource(String source) {this.source = source;}
+
+    public int getrandomTalents() {return randomTalents;}
+    public void setrandomTalents(int randomTalents) {this.randomTalents = randomTalents;}
 }

@@ -8,6 +8,7 @@ public class RaceEntry {
     private int max;
     private String species;
     private String career;
+    private String Name;
     Map<String, ArrayList<Integer>> basecharacteristicMap;
 
     public RaceEntry() {}
@@ -27,4 +28,7 @@ public class RaceEntry {
     public String getCareer() {
         return career;
     }
+
+    public void setName(String Name){this.Name = Name;}
+    public String getName(){return Name;}
 }
