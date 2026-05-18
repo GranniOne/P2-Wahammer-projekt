@@ -43,7 +43,6 @@ import java.util.stream.Collectors;
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
 // 2. changing race does not remove talents granted from species starting bonus
-// 3. starting in level 2
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -993,6 +992,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Runnable update = () -> {
             groupContainers.values().forEach(Div::removeAll);
+
             Set<String> allChoiceNames = raceTable.getTalents().stream()
                     .map(t -> (String) t.get("Name"))
                     .collect(Collectors.toSet());
@@ -1001,47 +1001,52 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             for (Map.Entry<String, RadioButtonGroup<String>> entry : groups.entrySet()) {
                 String selected = entry.getValue().getValue();
-                if (selected == null) {
-                    continue;
-                }
+                Div container = groupContainers.get(entry.getKey());
 
-                List<Talent> selectedTalents = talentsBySource.get(selected);
+                for (String option : entry.getValue().getListDataView().getItems().toList()) {
+                    List<Talent> optionTalents = talentsBySource.get(option);
 
-                if (selectedTalents == null) {continue;}
+                    if (optionTalents == null) {
+                        continue;
+                    }
 
-                for (Talent talent : selectedTalents) {
+                    for (Talent talent : optionTalents) {
 
-                    Talent copy = new Talent();
-                    copy.setName(talent.getName());
-                    copy.setDescription(talent.getDescription());
-                    copy.setAmountTaken(1);
+                        Div talentDiv = new Div();
 
-                    globalCharacter.getTalents().add(copy);
+                        TextField choice = new TextField();
+                        choice.setReadOnly(true);
+                        choice.setLabel("Talent Choice");
+                        choice.setValue(option);
+                        choice.setWidth("140px");
 
-                    Div talentDiv = new Div();
+                        TextField talentName = new TextField();
+                        talentName.setReadOnly(true);
+                        talentName.setLabel("Talent name");
+                        talentName.setValue(talent.getName());
+                        talentName.setWidth("200px");
 
-                    TextField choice = new TextField();
-                    choice.setReadOnly(true);
-                    choice.setLabel("Talent Choice");
-                    choice.setValue(selected);
-                    choice.setWidth("140px");
+                        TextField descriptionField3 = new TextField();
+                        descriptionField3.setReadOnly(true);
+                        descriptionField3.setLabel("Talent Description");
+                        descriptionField3.setWidth("639px");
+                        descriptionField3.setValue(talent.getDescription());
 
-                    TextField talentName = new TextField();
-                    talentName.setReadOnly(true);
-                    talentName.setLabel("Talent name");
-                    talentName.setValue(talent.getName());
-                    talentName.setWidth("200px");
+                        talentDiv.add(choice, talentName, descriptionField3);
+                        talentDiv.getStyle().set("border", "3px solid black");
 
-                    TextField descriptionField3 = new TextField();
-                    descriptionField3.setReadOnly(true);
-                    descriptionField3.setLabel("Talent Description");
-                    descriptionField3.setWidth("639px");
-                    descriptionField3.setValue(talent.getDescription());
+                        container.add(talentDiv);
 
-                    talentDiv.add(choice, talentName, descriptionField3);
-                    talentDiv.getStyle().set("border", "3px solid black");
+                        if (option.equals(selected)) {
 
-                    groupContainers.get(entry.getKey()).add(talentDiv);
+                            Talent copy = new Talent();
+                            copy.setName(talent.getName());
+                            copy.setDescription(talent.getDescription());
+                            copy.setAmountTaken(1);
+
+                            globalCharacter.getTalents().add(copy);
+                        }
+                    }
                 }
             }
         };
@@ -1049,11 +1054,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         for (RadioButtonGroup<String> group : groups.values()) {
             group.addValueChangeListener(e -> update.run());
         }
-
+        update.run();
 
         int randomTalentAmount = raceTable.getrandomTalents();
         if (randomTalentAmount > 0) {
-            Paragraph paragraph5 = new Paragraph("Your Species grants you " + randomTalentAmount + " Random talents from the following table :");
+            Paragraph paragraph5 = new Paragraph("\nYour Species grants you " + randomTalentAmount + " Random talents from the following table :");
             layout.add(paragraph5);
 
             Map<String, Talent> talentMap = talents.stream().collect(Collectors.toMap(Talent::getName, t -> t));
