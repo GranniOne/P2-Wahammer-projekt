@@ -279,13 +279,22 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div MovementWealthArmorDiv(){
         Div div = new Div();
         div.setClassName("MovementWealthArmor");
-        Div Armor = new Div();
-        Armor.setClassName("armor");
-        if(!character.getArmourValues().isEmpty()) {
-            for (int i = 0; i < 5; i++) {
+        Div armour = new Div();
+        armour.setClassName("armor");
+        String[] locations = {
+                "Head",
+                "Chest",
+                "Left arm",
+                "Right arm",
+                "Left leg",
+                "Right leg"
+        };
+
+        if (character.getArmourValues() != null && character.getArmourValues().size() >= 6) {
+            for (int i = 0; i < 6; i++) {
                 int value = character.getArmourValues().get(i);
-                Div armourDiv = new Div(String.valueOf(value));
-                Armor.add(armourDiv);
+                Div armourRow = new Div("Armour at " + locations[i] + ": " + value);
+                armour.add(armourRow);
             }
         }
 
@@ -295,15 +304,15 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
         Div Movement = new Div();
         Movement.setClassName("movement");
-        Movement.add(createLabeledDiv("Movement: " + "insert movement here", "DivMovement"));
+        Movement.add(createLabeledDiv("Movement: " + character.getMovement(), "DivMovement"));
 
         Div Wealth = new Div();
         Wealth.setClassName("wealth");
-        Wealth.add(createLabeledDiv("Wealth: " + character.getPfennings(), "DivWealth"));
+        Wealth.add(createLabeledDiv("Wealth: " + character.getPfennings() + " Pfennings", "DivWealth"));
 
         MovementWealth.add(Movement, Wealth);
 
-        div.add(MovementWealth,Armor);
+        div.add(MovementWealth,armour);
 
         return div;
     }

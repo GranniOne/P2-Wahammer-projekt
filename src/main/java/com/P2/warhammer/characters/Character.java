@@ -48,7 +48,7 @@ public class Character {
     int maxWounds = 0;
     int damageTaken = 0;
     int level = 1;
-    List<Integer> armourValues = new ArrayList<>(); // I think we can just say that the first
+    List<Integer> armourValues = new ArrayList<>();
 
     String height = "6";
     String hair = "brown";

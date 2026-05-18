@@ -125,7 +125,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         inventoryDivCreator();
         startingSkillsBox.add(StartingSkillsAndTalents());
 
-        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), inventoryDiv, CharacterInfoBox(), randomCharacterElements());
+        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), inventoryDiv, CharacterInfoBox(), randomCharacterElements(), armourElements());
         add(container);
 
         if (loadedCharacter) {
@@ -1213,7 +1213,35 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
     }
 
+    private Div armourElements() {
+        Div armourDiv = new Div();
 
+        if (globalCharacter.getArmourValues() == null || globalCharacter.getArmourValues().size() != 6) {
+            List<Integer> fixedList = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                fixedList.add(0);
+            }
+            globalCharacter.setArmourValues(fixedList);
+        }
+
+        List<Integer> armour = globalCharacter.getArmourValues();
+
+        for (int i = 0; i < 6; i++) {
+            int index = i;
+            IntegerField armourField = new IntegerField();
+            armourField.setLabel("Armour " + index);
+            armourField.setValue(armour.get(index) != null ? armour.get(index) : 0);
+
+            armourField.addValueChangeListener(e -> {
+                Integer value = e.getValue() != null ? e.getValue() : 0;
+                armour.set(index, value);
+            });
+
+            armourDiv.add(armourField);
+        }
+
+        return armourDiv;
+    }
 
     private Div randomCharacterElements() {
         Div randomElementsDiv = new Div();
