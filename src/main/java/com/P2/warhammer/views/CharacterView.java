@@ -175,7 +175,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         info.add(
                 createLabeledDiv("Name:" + character.getName(), "DivName"),
                 createLabeledDiv("Species:" + character.getRace(), "DivSpecies"),
-                createLabeledDiv("Class:", "DivClass")
+                createLabeledDiv("Class:" + character.getCareer().getSocialClass(), "DivClass")
         );
         return info;
     }
@@ -184,10 +184,13 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         Div careerInfo = new Div();
         careerInfo.setClassName("info");
         careerInfo.getStyle().setBackground("yellow");
+        careerInfo.getStyle().set("display", "flex");
+        careerInfo.getStyle().set("flex-wrap", "wrap");
+        careerInfo.getStyle().set("gap", "10px");
 
         careerInfo.add(
-                createLabeledDiv("Career:", "DivCareer"),
-                createLabeledDiv("Career Level:", "DivCareerLevel")
+                createLabeledDiv("Career: " + character.getCareer().getName(), "DivCareer"),
+                createLabeledDiv("Career Level: " + character.getLevel(), "DivCareerLevel")
         );
         return careerInfo;
     }
@@ -195,11 +198,14 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         Div careers = new Div();
         careers.setClassName("info"); // Keeps consistency with your other containers
         careers.getStyle().setBackground("blue");
+        careers.getStyle().set("display", "flex");
+        careers.getStyle().set("flex-wrap", "wrap");
+        careers.getStyle().set("gap", "10px");
 
         // Adding the specific fields
         careers.add(
-                createLabeledDiv("Path:", "DivCareerPath"),
-                createLabeledDiv("Status:", "DivCareerStatus")
+                createLabeledDiv("Path: " + character.getCareer().getName(), "DivCareerPath"),
+                createLabeledDiv("Status: " + character.getCareer().getLevelStatusList().get(character.getLevel()), "DivCareerStatus")
         );
 
         return careers;
@@ -210,12 +216,15 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         Div body = new Div();
         body.setClassName("info");
         body.getStyle().setBackground("pink");
+        body.getStyle().set("display", "flex");
+        body.getStyle().set("flex-wrap", "wrap");
+        body.getStyle().set("gap", "10px");
 
         body.add(
-                createLabeledDiv("Age:", "DivAge"),
-                createLabeledDiv("Height:", "DivHeight"),
-                createLabeledDiv("Hair:", "DivHair"),
-                createLabeledDiv("Eyes:", "DivEyes")
+                createLabeledDiv("Age: " + character.getAge(), "DivAge"),
+                createLabeledDiv("Height: " + character.getHeight() , "DivHeight"),
+                createLabeledDiv("Hair: " + character.getHair(), "DivHair"),
+                createLabeledDiv("Eyes: " + character.getEyes(), "DivEyes")
         );
         return body;
     }
@@ -239,9 +248,9 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         Exp.setClassName("Exp");
 
 
-        Fate.add(createLabeledDiv("Fate:", "TitleSpan"));
-        Fate.add(createLabeledDiv("Fate:", "DivFate"));
-        Fate.add(createLabeledDiv("Fortune:", "DivFortune"));
+        Fate.add(createLabeledDiv("Fate: ", "TitleSpan"));
+        Fate.add(createLabeledDiv("Fate: " + character.getFate(), "DivFate"));
+        Fate.add(createLabeledDiv("Fortune: " + character.getFortune(), "DivFortune"));
 
 
         Div DivResilienceAndResolve = new Div();
@@ -249,15 +258,15 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
 
 
-        DivResilienceAndResolve.add(createLabeledDiv("Resilience:", "ResilienceResolve"), createLabeledDiv("Resolve", "ResilienceResolve"));
+        DivResilienceAndResolve.add(createLabeledDiv("Resilience: " + character.getResilience(), "ResilienceResolve"), createLabeledDiv("Resolve" + character.getResolve(), "ResilienceResolve"));
 
-        Resilience.add(createLabeledDiv("Resilience:", "TitleSpan"));
+        Resilience.add(createLabeledDiv("Resilience", "TitleSpan"));
         Resilience.add(DivResilienceAndResolve);
-        Resilience.add(createLabeledDiv("Motivation:", "DivMotivation"));
+        Resilience.add(createLabeledDiv("Motivation: " + character.getMotivation(), "DivMotivation"));
 
 
 
-        Exp.add((createLabeledDiv("Exp:", "DivExp")));
+        Exp.add((createLabeledDiv("Exp: " + character.getExperience(), "DivExp")));
 
         FateResilience.add(Resilience, Fate);
         div.add(FateResilience, Exp);
@@ -272,25 +281,29 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         div.setClassName("MovementWealthArmor");
         Div Armor = new Div();
         Armor.setClassName("armor");
+        if(!character.getArmourValues().isEmpty()) {
+            for (int i = 0; i < 5; i++) {
+                int value = character.getArmourValues().get(i);
+                Div armourDiv = new Div(String.valueOf(value));
+                Armor.add(armourDiv);
+            }
+        }
+
 
         Div MovementWealth = new Div();
         MovementWealth.setClassName("movementwealth");
 
         Div Movement = new Div();
         Movement.setClassName("movement");
+        Movement.add(createLabeledDiv("Movement: " + "insert movement here", "DivMovement"));
 
         Div Wealth = new Div();
         Wealth.setClassName("wealth");
-
+        Wealth.add(createLabeledDiv("Wealth: " + character.getPfennings(), "DivWealth"));
 
         MovementWealth.add(Movement, Wealth);
 
         div.add(MovementWealth,Armor);
-
-
-
-
-
 
         return div;
     }

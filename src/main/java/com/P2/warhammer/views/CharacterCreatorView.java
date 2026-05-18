@@ -106,6 +106,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 try {
                     globalCharacter = characterService.getCharacterFromId(parameterCharacter);
                     loadedCharacter = true;
+                    if (globalCharacter.getCareer() == null) {
+                        globalCharacter =  new Character();
+                    }
                 } catch (NullPointerException e) {
                     System.out.println("characterID is not linked to character");
                 }
@@ -122,7 +125,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         inventoryDivCreator();
         startingSkillsBox.add(StartingSkillsAndTalents());
 
-        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), inventoryDiv, CharacterInfoBox());
+        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), inventoryDiv, CharacterInfoBox(), randomCharacterElements());
         add(container);
 
         if (loadedCharacter) {
@@ -1209,4 +1212,102 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             currentTalents.removeIf(t -> t.getName().equals(talent.getName()));
         }
     }
+
+
+
+    private Div randomCharacterElements() {
+        Div randomElementsDiv = new Div();
+
+        // fate og fortune
+        IntegerField fateField = new IntegerField();
+        fateField.setValue(globalCharacter.getFate());
+        fateField.setLabel("Fate");
+        fateField.addValueChangeListener(e ->
+                globalCharacter.setFate(e.getValue() != null ? e.getValue() : 0)
+        );
+
+        IntegerField fortuneField = new IntegerField();
+        fortuneField.setValue(globalCharacter.getFortune());
+        fortuneField.setLabel("Fortune");
+        fortuneField.addValueChangeListener(e ->
+                globalCharacter.setFortune(e.getValue() != null ? e.getValue() : 0)
+        );
+
+
+        // resilience resolve motivation
+        IntegerField resilienceField = new IntegerField();
+        resilienceField.setValue(globalCharacter.getResilience());
+        resilienceField.setLabel("Resilience");
+        resilienceField.addValueChangeListener(e ->
+                globalCharacter.setResilience(e.getValue() != null ? e.getValue() : 0)
+        );
+
+        IntegerField resolveField = new IntegerField();
+        resolveField.setValue(globalCharacter.getResolve());
+        resolveField.setLabel("Resolve");
+        resolveField.addValueChangeListener(e ->
+                globalCharacter.setResolve(e.getValue() != null ? e.getValue() : 0)
+        );
+
+        TextField motivationField = new TextField();
+        motivationField.setValue(globalCharacter.getMotivation());
+        motivationField.setLabel("Motivation");
+        motivationField.addValueChangeListener(e ->
+                globalCharacter.setMotivation(e.getValue())
+        );
+
+
+        // random things
+        TextField hairField = new TextField();
+        hairField.setValue(globalCharacter.getHair());
+        hairField.setLabel("Hair");
+        hairField.addValueChangeListener(e ->
+                globalCharacter.setHair(e.getValue())
+        );
+
+        TextField heightField = new TextField();
+        heightField.setValue(globalCharacter.getHeight());
+        heightField.setLabel("Height");
+        heightField.addValueChangeListener(e ->
+                globalCharacter.setHeight(e.getValue())
+        );
+
+        TextField eyeField = new TextField();
+        eyeField.setValue(globalCharacter.getEyes());
+        eyeField.setLabel("Eyes");
+        eyeField.addValueChangeListener(e ->
+                globalCharacter.setEyes(e.getValue())
+        );
+
+        IntegerField moneyField = new IntegerField();
+        moneyField.setValue(globalCharacter.getPfennings());
+        moneyField.setLabel("Pfennings");
+        moneyField.addValueChangeListener(e ->
+                globalCharacter.setPfennings(e.getValue())
+        );
+
+        IntegerField movementField = new IntegerField();
+        movementField.setValue(globalCharacter.getMovement());
+        movementField.setLabel("Movement");
+        movementField.addValueChangeListener(e ->
+                globalCharacter.setMovement(e.getValue())
+        );
+
+        randomElementsDiv.add(
+                fateField,
+                fortuneField,
+                resilienceField,
+                resolveField,
+                motivationField,
+                hairField,
+                heightField,
+                eyeField,
+                moneyField,
+                movementField
+        );
+
+        return randomElementsDiv;
+    }
+
+
 }
