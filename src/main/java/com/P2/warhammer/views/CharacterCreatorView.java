@@ -42,8 +42,7 @@ import java.util.stream.Collectors;
 
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
-// 2. updating characteristic removes all stats from corresponding skills
-// 3. changing race does not remove talents granted from species starting bonus
+// 2. changing race does not remove talents granted from species starting bonus
 
 
 @PermitAll
@@ -581,30 +580,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     }
                 }
             });
-                /*int maxLevel = Math.min(levelField.getValue(), allowedSkills.size());
-                for (int i = 0; i < maxLevel; i++) {
-                    if (allowedSkills.get(i).contains(skill.getName()) && characteristic.getName().equals(skill.getCharacteristic())) {
-                        found = true;
-                        System.out.println(skill.getName());
-                        break;
-                    }
-                }
-                if (!found) {
-                    for (Skill characterSkill : globalCharacter.getSkills()) {
-                        if (characterSkill.getName().equals(skill.getName())
-                                && characterSkill.getSpeciesStartingBonus() != null
-                                && characterSkill.getSpeciesStartingBonus() > 0
-                                && characteristic.getName().equals(skill.getCharacteristic())) {
-                            found = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (!found) {
-                    return;
-                }*/
-
 
             //render allready added skills
             currentCharacteristicSkills.forEach(skill -> {
@@ -1072,7 +1047,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         int randomTalentAmount = raceTable.getrandomTalents();
         if (randomTalentAmount > 0) {
-            Paragraph paragraph5 = new Paragraph("Your Species grants you " + randomTalentAmount + " Random talents from the following table :");  //insert number here xd
+            Paragraph paragraph5 = new Paragraph("Your Species grants you " + randomTalentAmount + " Random talents from the following table :");
             layout.add(paragraph5);
 
             Map<String, Talent> talentMap = talents.stream().collect(Collectors.toMap(Talent::getName, t -> t));
