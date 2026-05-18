@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 //Current known bugs:
 // 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
 // 2. changing race does not remove talents granted from species starting bonus
-
+// 3. starting in level 2
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -347,7 +347,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         levelField = createField(4);
         levelField.setLabel("Level");
-        levelField.setValue(globalCharacter.getLevel()+1);
+        levelField.setValue(globalCharacter.getLevel());
         levelField.setMin(1);
         levelField.setReadOnly(true);
         levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()-1));
