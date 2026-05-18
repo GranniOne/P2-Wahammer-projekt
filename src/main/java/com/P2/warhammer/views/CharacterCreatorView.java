@@ -548,6 +548,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             globalCharacter.setCareer(currentCareer);
             globalCharacter.setStatusLevel(status.get(level - 1));
 
+            startingSkillsBox.removeAll();
+            startingSkillsBox.add(StartingSkillsAndTalents());
+
             characteristicUpdates.values().forEach(Runnable::run);
 
         }catch (Exception e){
@@ -1066,12 +1069,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 descriptionField4.setLabel("Talent Description");
                 descriptionField4.setWidth("639px");
 
-                dropdownMenu.setItems(
-                        randomTalentsTable.getEntries().stream()
-                                .map(RaceEntry::getName)
-                                .filter(Objects::nonNull)
-                                .toList()
-                );
+                dropdownMenu.setItems(randomTalentsTable.getEntries().stream().map(RaceEntry::getName).filter(Objects::nonNull).toList());
+                dropdownMenu.getStyle().setWidth("200px");
                 dropdownMenu.addValueChangeListener(e -> {
 
                     String selected = e.getValue();
@@ -1106,8 +1105,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                         .map(RaceEntry::getName).findFirst().orElse(null);
                     dropdownMenu.setValue(result);
                 });
+                rollButton.getStyle().setWidth("140px");
+
                 talentDiv.add(dropdownMenu, rollButton, descriptionField4);
                 talentDiv.getStyle().set("border", "3px solid black");
+
                 layout.add(talentDiv);
                 layout.getStyle().set("margin", "0 auto");
             }
@@ -1115,8 +1117,109 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         H1 headline3 = new H1("4.3 Career Skills And Talents");
         headline3.getStyle().set("margin", "0 auto");
+        Paragraph paragraph6 = new Paragraph("You begin at the first Career level listed in your Career Path. There are " +
+                "8 Skills and 4 Talents listed with that level, and you can choose " +
+                "which of these you are most proficient at. Allocate 40 Advances " +
+                "to your eight starting Skills, with no more than 10 Advances " +
+                "allocated to any single Skill at this stage. This is enough for you " +
+                "to add 5 Advances to every Career Skill if you wish, which is one " +
+                "of the required steps to complete your Career if you wish to move " +
+                "to a new one. You may also " +
+                "choose a single Talent to learn.");
 
-        layout.add(headline3);
+        layout.add(headline3, paragraph6);
+
+        if (globalCharacter.getCareer() != null) {
+            Career career = globalCharacter.getCareer();
+
+            List<String> careerSkills = career.getLevelSkillsList().get(0);
+            Map<String, IntegerField> advanceFields = new HashMap<>();
+
+            for (String skillName : careerSkills) {
+                Skill skill = skills.stream().filter(s -> s.getName().trim().equalsIgnoreCase(skillName.trim())).findFirst().orElse(null);
+
+                if (skill == null) {
+                    continue;
+                }
+
+                Div skillDiv = new Div();
+
+                TextField skillField = new TextField();
+                skillField.setReadOnly(true);
+                skillField.setLabel("Skill");
+                skillField.setValue(skill.getName());
+                skillField.setWidth("200px");
+
+                TextField descriptionField = new TextField();
+                descriptionField.setReadOnly(true);
+                descriptionField.setLabel("Description");
+                descriptionField.setValue(skill.getDescription());
+                descriptionField.setWidth("639px");
+
+                IntegerField advancesField = new IntegerField();
+                advancesField.setLabel("Advances");
+                advancesField.setMin(0);
+                advancesField.setMax(10);
+                advancesField.setValue(0);
+                advancesField.setStepButtonsVisible(true);
+                advancesField.setWidth("140px");
+
+                advanceFields.put(skill.getName(), advancesField);
+
+                advancesField.addValueChangeListener(event -> {
+
+                    int total = advanceFields.values().stream()
+                            .map(IntegerField::getValue)
+                            .filter(Objects::nonNull)
+                            .mapToInt(Integer::intValue)
+                            .sum();
+
+                    if (total > 40) {
+                        Integer oldValue = event.getOldValue();
+
+                        if (oldValue == null) {
+                            oldValue = 0;
+                        }
+
+                        advancesField.setValue(oldValue);
+                        return;
+                    }
+
+                    Skill existingSkill = globalCharacter.getSkills()
+                            .stream()
+                            .filter(s -> s.getName().equals(skill.getName()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (existingSkill == null) {
+
+                        Skill copy = new Skill();
+                        copy.setName(skill.getName());
+                        copy.setCharacteristic(skill.getCharacteristic());
+                        copy.setCareerStartingBonus(
+                                advancesField.getValue()
+                        );
+
+                        globalCharacter.getSkills().add(copy);
+
+                    } else {
+                        existingSkill.setCareerStartingBonus(
+                                advancesField.getValue()
+                        );
+                    }
+
+                    characteristicUpdates.values()
+                            .forEach(Runnable::run);
+                });
+
+                skillDiv.add(skillField, descriptionField, advancesField);
+                skillDiv.getStyle().set("border", "3px solid black");
+
+                layout.add(skillDiv);
+            }
+        }
+        Paragraph paragraph7 = new Paragraph("Select 1 of 4 talents from your career, displayed below.");
+        layout.add(paragraph7);
         return layout;
     }
 
