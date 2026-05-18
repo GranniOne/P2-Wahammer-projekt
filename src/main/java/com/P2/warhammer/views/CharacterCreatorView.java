@@ -1223,8 +1223,79 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 layout.add(skillDiv);
             }
         }
-        Paragraph paragraph7 = new Paragraph("Select 1 of 4 talents from your career, displayed below.");
+        Paragraph paragraph7 = new Paragraph("\n Select 1 of the 4 starting talents from your career to get for free, displayed below.");
         layout.add(paragraph7);
+
+       if (globalCharacter.getCareer() != null) {
+
+            Career career = globalCharacter.getCareer();
+
+            List<String> careerTalents =
+                    career.getLevelTalentsList().get(0);
+
+            List<Talent> availableTalents = careerTalents.stream()
+                    .map(name -> talents.stream()
+                            .filter(t -> t.getName().trim()
+                                    .equalsIgnoreCase(name.trim()))
+                            .findFirst()
+                            .orElse(null))
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            RadioButtonGroup<Talent> talentChoice = new RadioButtonGroup<>();
+            talentChoice.setLabel("Choose 1 Talent");
+            talentChoice.setItemLabelGenerator(Talent::getName);
+            talentChoice.setItems(availableTalents);
+
+            Div listBox = new Div();
+
+            Map<Talent, Div> talentRows = new HashMap<>();
+
+            for (Talent t : availableTalents) {
+
+                Div talent = new Div();
+                talent.getStyle().set("border", "3px solid black");
+
+                TextField name = new TextField();
+                name.setReadOnly(true);
+                name.setLabel("Talent");
+                name.setValue(t.getName());
+                name.setWidth("200px");
+
+                TextField desc = new TextField();
+                desc.setReadOnly(true);
+                desc.setLabel("Description");
+                desc.setValue(t.getDescription());
+                desc.setWidth("779px");
+
+                talent.add(name, desc);
+
+                talentRows.put(t, talent);
+                listBox.add(talent);
+            }
+
+           talentChoice.addValueChangeListener(e -> {
+               Talent selected = e.getValue();
+
+               Set<String> optionNames = availableTalents.stream().map(t -> t.getName().toLowerCase()).collect(Collectors.toSet());
+
+               globalCharacter.getTalents().removeIf(t -> optionNames.contains(t.getName().toLowerCase()));
+
+               if (selected == null) {
+                   characteristicUpdates.values().forEach(Runnable::run);
+                   return;
+               }
+
+               Talent copy = new Talent();
+               copy.setName(selected.getName());
+               copy.setDescription(selected.getDescription());
+               copy.setAmountTaken(1);
+
+               globalCharacter.getTalents().add(copy);
+               characteristicUpdates.values().forEach(Runnable::run);
+           });
+            layout.add(talentChoice, listBox);
+        }
         return layout;
     }
 
