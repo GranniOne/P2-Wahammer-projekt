@@ -18,6 +18,7 @@ import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -30,8 +31,10 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -158,7 +161,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         return intro;
     }
 
-
     private IntegerField createField(int max) {
         IntegerField statField = new IntegerField();
 
@@ -183,7 +185,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         int value = integerField.getValue();
         return value;
     }
-
 
     private void addTrappings(Career career, int level){ //TODO lille bug her med at den giver de samme trappings flere gange hvis man gemmer karakteren
         List<WarhammerItem> inventory = globalCharacter.getInventory();
@@ -344,7 +345,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         levelField = createField(4);
         levelField.setLabel("Level");
-        levelField.setValue(globalCharacter.getLevel());
+        levelField.setValue(globalCharacter.getLevel()+1);
         levelField.setMin(1);
         levelField.setReadOnly(true);
         levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()-1));
@@ -517,14 +518,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         startingSkillsBox.add(StartingSkillsAndTalents());
     }
 
-
     private void addTrappingFunction(IntegerField levelField){
         addTrappings(globalCharacter.getCareer(), levelField.getValue());
 
         inventoryDiv.removeAll();
         inventoryDivCreator();
     }
-
 
     private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
         levelField.setReadOnly(false);
@@ -554,15 +553,35 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
     }
 
+
+
     private Div renderSkillDivs(Characteristic characteristic){
         Div skillDivBox = new Div();
 
         if (globalCharacter.getCareer() != null) {
             List<List<String>> allowedSkills = new ArrayList<>(globalCharacter.getCareer().getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
+
+            //add skills
+            List<Skill> currentCharacteristicSkills = new ArrayList<>();
+            for (Skill skill : globalCharacter.getSkills()){
+                if (skill.getCharacteristic().equals(characteristic.getName())){
+                    currentCharacteristicSkills.add(skill);
+                }
+            }
+
             skills.forEach(skill -> {
-                boolean found = false;
-                
-                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size());
+                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size()); //failsave if career dosent have
+                if (skill.getCharacteristic().equals(characteristic.getName())){
+                    for (int i = 0; i < maxLevel; i++) { //loops for each level
+                        if (allowedSkills.get(i).contains(skill.getName())) { //if skill is allowed and the characteristic is right
+                            if (currentCharacteristicSkills.stream().noneMatch(s -> s.getName().equals(skill.getName()))) {
+                                currentCharacteristicSkills.add(skill);
+                            }
+                        }
+                    }
+                }
+            });
+                /*int maxLevel = Math.min(levelField.getValue(), allowedSkills.size());
                 for (int i = 0; i < maxLevel; i++) {
                     if (allowedSkills.get(i).contains(skill.getName()) && characteristic.getName().equals(skill.getCharacteristic())) {
                         found = true;
@@ -583,6 +602,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 }
 
                 if (!found) {
+                    return;
+                }*/
+
+
+            //render allready added skills
+            currentCharacteristicSkills.forEach(skill -> {
+                System.out.println(skill + characteristic.getName());
+                if (!skill.getCharacteristic().equals(characteristic.getName())){
+                    System.out.println("returns");
+                    System.out.println(skill.getCharacteristic() + " " + characteristic.getName());
                     return;
                 }
                 Div skillDiv = new Div();
@@ -626,7 +655,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 IntegerField totalField = new IntegerField();
                 totalField.setLabel("Total");
-                totalField.setValue(0);
+                totalField.setValue(baseField.getValue() + modifierField.getValue() - penaltyField.getValue());
                 totalField.setWidth("120px");
 
                 Checkbox skillBoughtCheckbox = new Checkbox();
@@ -653,7 +682,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField, skillBoughtCheckbox);
                 skillDiv.getStyle().set("border-top", "1px solid black");
                 skillDivBox.add(skillDiv);
-            });}
+            });
+
+        }
         return skillDivBox;
     }
 
@@ -1178,7 +1209,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         );
         return talentTakenField;
     }
-
 
     private void updateTalents(AbstractField.ComponentValueChangeEvent<IntegerField, Integer> e, Talent talent) {
         int amountTakenValue = e.getValue();
