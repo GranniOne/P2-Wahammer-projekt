@@ -24,27 +24,31 @@
     flex-direction: row;
     width: 100%;
     height: 100%;
-    background: blueviolet;
+    background-image: url("../images/image-mesh-gradient.png");
+    background-repeat: no-repeat, repeat;
+    background-size: cover;
 
 }
 
 .skillInfo {
     width: 450px;
     height: auto;
-    background: #47ff12;
+    background-color: transparent;
+
 }
 
 .skillGrid {
     height: 100%;
     width: 100%;
     user-select: none;
+    background-color: transparent;
 }
 
 
 .characterInfo{
     width: 750px;
     height: auto;
-    background: blue;
+    background-color: transparent;
 }
 
 
@@ -54,6 +58,7 @@
     height: 50px;
     direction: ltr;
     align-items: center;
+    background-color: transparent;
 }
 
 .DivName{
@@ -71,33 +76,35 @@
     display: flex;
     width: 100%;
     height: 600px;
+    background-color: transparent;
 }
 
 .movementwealth{
     width: 50%;
     height: 600px;
+    background-color: transparent;
 }
 
 .movement{
-    background: blue;
+    background-color: transparent;
     width: 100%;
     height: 300px;
 }
 .wealth{
-    background: chocolate;
+    background-color: transparent;
     width: 100%;
     height: 300px;
 }
 
 .armor{
-    background: aqua;
+    background-color: transparent;
     width: 50%;
     height: 600px;
 }
 .FateResilienceExp{
     display: flex;
     flex-direction: row;
-    background: deeppink;
+    background-color: transparent;
     width: 100%;
     height: 100px;
 }
@@ -105,22 +112,22 @@
 .FXR{
     display: flex;
     flex-direction: row;
-    background: red;
+    background-color: transparent;
     width: 50%;
     height: 100px;
 }
 .Fate{
-    background: yellow;
+    background-color: transparent;
     width: 30%;
     height: 100px;
 }
 .Resilience{
-    background: #a200ff;
+    background-color: transparent;
     width: 70%;
 }
 
 .Exp{
-    background: dimgray;
+    background-color: transparent;
     width: 50%;
     height: 100px;
 
@@ -133,6 +140,31 @@
 }
 .ResilienceResolve {
     width: 50%;
+}
+.skillGrid {
+    --vaadin-grid-cell-background: transparent;
+    --vaadin-grid-row-background-color: transparent;
+}
+
+.skillGrid::part(cell),
+.skillGrid::part(row),
+.skillGrid::part(body-cell),
+.skillGrid::part(header-cell),
+.skillGrid::part(details-cell) {
+    background: transparent;
+}
+.inner-grid {
+    background: transparent;
+    --vaadin-grid-cell-background: transparent;
+    --vaadin-grid-row-background-color: transparent;
+    --vaadin-grid-row-odd-background-color: transparent;
+    --vaadin-grid-row-selected-background-color: transparent;
+}
+.inner-grid::part(cell),
+.inner-grid::part(body-cell),
+.inner-grid::part(header-cell),
+.inner-grid::part(details-cell) {
+    background: transparent;
 }
 
 

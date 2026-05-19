@@ -170,7 +170,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createInfoSection() {
         Div info = new Div();
         info.setClassName("info");
-        info.getStyle().setBackground("green");
+
 
         info.add(
                 createLabeledDiv("Name:" + character.getName(), "DivName"),
@@ -183,7 +183,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createCareerSection() {
         Div careerInfo = new Div();
         careerInfo.setClassName("info");
-        careerInfo.getStyle().setBackground("yellow");
 
         careerInfo.add(
                 createLabeledDiv("Career:", "DivCareer"),
@@ -194,7 +193,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createPathSection() {
         Div careers = new Div();
         careers.setClassName("info"); // Keeps consistency with your other containers
-        careers.getStyle().setBackground("blue");
 
         // Adding the specific fields
         careers.add(
@@ -204,12 +202,9 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
         return careers;
     }
-
-
     private Div createBodySection() {
         Div body = new Div();
         body.setClassName("info");
-        body.getStyle().setBackground("pink");
 
         body.add(
                 createLabeledDiv("Age:", "DivAge"),
@@ -407,7 +402,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             setPadding(true);
             setSpacing(false);
             this.getStyle().set("display", "contents");
-
+            innerGrid.setClassName("inner-grid");
             // Configure the inner grid columns
             innerGrid.addColumn(Skill::getName).setHeader("Skill Name").setWidth("145px");
             innerGrid.addColumn(Skill::getCategory).setHeader("Category").setAutoWidth(true);
