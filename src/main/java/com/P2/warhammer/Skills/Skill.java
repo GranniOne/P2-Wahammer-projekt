@@ -1,6 +1,7 @@
 package com.P2.warhammer.Skills;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document(collection = "skills")
@@ -12,14 +13,16 @@ public class Skill {
     String Characteristic;
     String Category;
     String Description;
-    Integer StartValue;
-    Integer BonusValue;
     Integer PenaltyValue;
     Boolean boughtBool;
+    Integer BonusValue;
+    Integer StartValue;
+    Integer speciesStartingBonus;
+    Integer careerStartingBonus;
 
     public Skill() {}
 
-    public Skill(String Name, String Category, String Characteristic, String Description,  Integer StartValue, Integer BonusValue,  Integer PenaltyValue, Boolean boughtBool) {
+    public Skill(String Name, int speciesStartingBonus, int careerStartingBonus, String Category, String Characteristic, String Description,  int StartValue, int BonusValue,  int PenaltyValue, Boolean boughtBool) {
         this.Name = Name;
         this.Category = Category;
         this.Characteristic = Characteristic;
@@ -28,6 +31,8 @@ public class Skill {
         this.BonusValue = BonusValue;
         this.PenaltyValue = PenaltyValue;
         this.boughtBool = boughtBool;
+        this.speciesStartingBonus = speciesStartingBonus;
+        this.careerStartingBonus = careerStartingBonus;
     }
 
     @Override
@@ -39,9 +44,7 @@ public class Skill {
         return id;
     }
 
-    public String getName() {
-        return Name;
-    }
+    public String getName() {return Name;}
 
     public String getCharacteristic() {
         return Characteristic;
@@ -58,7 +61,7 @@ public class Skill {
     public void setId(String id) {this.id = id;}
 
     public void setName(String name) {
-        Name = name;
+        this.Name = name;
     }
 
     public void setCharacteristic(String characteristic) {
@@ -108,6 +111,23 @@ public class Skill {
     public void setBoughtBool(Boolean boughtBool) {
         this.boughtBool = boughtBool;
     }
+
+    public void setSpeciesStartingBonus(Integer speciesStartingBonus) {this.speciesStartingBonus = speciesStartingBonus;}
+    public Integer getSpeciesStartingBonus() {return speciesStartingBonus;}
+
+    public void setCareerStartingBonus(Integer careerStartingBonus) {this.careerStartingBonus = careerStartingBonus;}
+    public Integer getCareerStartingBonus() {return careerStartingBonus;}
+
+    public int getModifierTotal() {
+        return safe(speciesStartingBonus)
+                + safe(careerStartingBonus)
+                + safe(BonusValue);
+    }
+
+    private int safe(Integer v) {
+        return v == null ? 0 : v;
+    }
+
 }
 
 

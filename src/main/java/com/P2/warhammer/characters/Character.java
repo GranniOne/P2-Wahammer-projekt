@@ -48,7 +48,18 @@ public class Character {
     int maxWounds = 0;
     int damageTaken = 0;
     int level = 1;
-    List<Integer> armourValues = new ArrayList<>(); // I think we can just say that the first
+    List<Integer> armourValues = new ArrayList<>();
+
+    String height = "6";
+    String hair = "brown";
+    String eyes = "blue";
+
+    int fate = 3;
+    int fortune = 3;
+    int resilience = 3;
+    int resolve = 3;
+    String motivation = "";
+    int movement = 0;
 
     int corruptionMax = 0;
     int corruptionTaken = 0;
@@ -60,7 +71,7 @@ public class Character {
 
     Career career;
 
-    List<String> characteristicsNameArray = Arrays.asList(("Weapon Skill,Ballistics Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
+
 
     List<WarhammerItem> inventory = new ArrayList<>();
     List<Armour> equippedArmour = new ArrayList<>();
@@ -82,9 +93,8 @@ public class Character {
     }
 
     public Character() {
+        List<String> characteristicsNameArray = Arrays.asList(("Weapon Skill,Ballistic Skill,Strength,Toughness,Initiative,Agility,Dexterity,Intelligence,Willpower,Fellowship").split(","));
         this.characteristics = new ArrayList<>();
-
-
         for (int i = 0; i < 10; i++){
             characteristics.add(new Characteristic(characteristicsNameArray.get(i),0,0,0,0));
         }
@@ -305,6 +315,78 @@ public class Character {
 
     public void setCharacteristics(List<Characteristic> characteristics) {
         this.characteristics = characteristics;
+    }
+
+    public String getHeight() {
+        return height;
+    }
+
+    public void setHeight(String height) {
+        this.height = height;
+    }
+
+    public String getHair() {
+        return hair;
+    }
+
+    public void setHair(String hair) {
+        this.hair = hair;
+    }
+
+    public String getEyes() {
+        return eyes;
+    }
+
+    public void setEyes(String eyes) {
+        this.eyes = eyes;
+    }
+
+    public int getFate() {
+        return fate;
+    }
+
+    public void setFate(int fate) {
+        this.fate = fate;
+    }
+
+    public int getFortune() {
+        return fortune;
+    }
+
+    public void setFortune(int fortune) {
+        this.fortune = fortune;
+    }
+
+    public int getResilience() {
+        return resilience;
+    }
+
+    public void setResilience(int resilience) {
+        this.resilience = resilience;
+    }
+
+    public int getResolve() {
+        return resolve;
+    }
+
+    public void setResolve(int resolve) {
+        this.resolve = resolve;
+    }
+
+    public String getMotivation() {
+        return motivation;
+    }
+
+    public void setMotivation(String motivation) {
+        this.motivation = motivation;
+    }
+
+    public int getMovement() {
+        return movement;
+    }
+
+    public void setMovement(int movement) {
+        this.movement = movement;
     }
 
     @Override

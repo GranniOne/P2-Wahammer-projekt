@@ -34,7 +34,7 @@ public class LoginView extends Div implements BeforeEnterObserver{
         i18n.getForm().setUsername("Email");
         i18n.getForm().setPassword("Password");
         i18n.getForm().setSubmit("Enter");
-        i18n.setAdditionalInformation("Warhammer is a really insane roleplaying game, so login at your own discretion (～￣▽￣)～ ～(￣▽￣～)");
+        i18n.setAdditionalInformation("Warhammer is a really insane roleplaying game, so log in at your own discretion");
 
         loginForm.setI18n(i18n);
         loginForm.setClassName("loginform");
