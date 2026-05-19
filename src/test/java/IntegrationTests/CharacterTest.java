@@ -67,8 +67,6 @@ public class CharacterTest extends SpringBrowserlessTest {
 
         characterRepository.deleteAll();
 
-        skillRepository.deleteAll();
-
         super.initVaadinEnvironment();
     }
 
@@ -76,14 +74,7 @@ public class CharacterTest extends SpringBrowserlessTest {
     @WithMockUser(username = "dennis@gmail.com")
     public void testCharacterCreation() {
         navigate(DashBoard.class);
-        test($(Button.class).withText("Add Character").single()).click();
-        test($(ComboBox.class).withCaption("Choose a species").single()).selectItem("Human");
-        test($(ComboBox.class).withCaption("Choose a career").single()).selectItem("Apothecary");
-        List<Button> rollCharacteristicButtons = $(Button.class).withText("Roll charateristic").all();
-        rollCharacteristicButtons.forEach(button -> test(button).click());
-        test($(TextField.class).withPropertyValue(TextFieldBase::getLabel, "Character name").single()).setValue("DennisMan");
-        test($(IntegerField.class).withPropertyValue(IntegerField::getLabel, "Age").single()).setValue(26);
-        test($(Button.class).withText("Save Character").single()).click();
+        createTestCharacterDennisMan();
 
         Character retrievedCharacter = characterRepository.findAll().getFirst();
         assertEquals(Utilities.getUserFromAuthentication().getId(), retrievedCharacter.getUser().getId());
@@ -93,19 +84,48 @@ public class CharacterTest extends SpringBrowserlessTest {
 
     }
 
-//    @Test
-//    @WithMockUser(username = "dennis@gmail.com")
-//    public void testCharacterRouteFromDashboard() {
-//        // Tjekker vi er på dashboard
-//        DashBoard dashBoard = navigate(DashBoard.class);
-//        assertFalse($(CharacterView.class).exists());
-//
-//        // Trykker på knap og tjekker om vi er i character view
-//        // og om vi er på character view for mukibuki
-//        test($(Button.class).withText("View").single()).click();
-//        assertTrue($(CharacterView.class).exists());
-//        assertTrue($(Span.class).withTextContaining("Name:Mukibuki").exists());
-//    }
+    @Test
+    @WithMockUser(username = "dennis@gmail.com")
+    public void testCharacterRouteFromDashboard() {
+        createTestCharacterDennisMan();
+        navigate(DashBoard.class);
+
+        // Trykker på knap og tjekker om vi er i character view
+        // og om vi er på character view for mukibuki
+        test($(Button.class).withText("View").single()).click();
+        assertTrue($(CharacterView.class).exists());
+        assertTrue($(Span.class).withTextContaining("Name:DennisMan").exists());
+    }
+
+    @Test
+    @WithMockUser(username = "dennis@gmail.com")
+    public void testEditingCharacter(){
+        testCharacterCreation();
+        navigate(DashBoard.class);
+        Character uneditedTestCharacter = characterRepository.findAll().getFirst();
+
+        test($(Button.class).withText("Edit").single()).click();
+        test($(TextField.class).withPropertyValue(TextFieldBase::getLabel, "Character name").single()).setValue("NewNameForDennis");
+        test($(Button.class).withText("Save Character").single()).click();
+        List<Character> updatedTestCharacters = characterRepository.findAll();
+        assertEquals(1, updatedTestCharacters.size());
+
+        Character updatedTestCharacter = updatedTestCharacters.getFirst();
+        assertEquals("NewNameForDennis", updatedTestCharacter.getName());
+        assertEquals(uneditedTestCharacter.getId(), updatedTestCharacter.getId());
+    }
+
+    private void createTestCharacterDennisMan(){
+        test($(Button.class).withText("Add Character").single()).click();
+        test($(ComboBox.class).withCaption("Choose a species").single()).selectItem("Human");
+        test($(ComboBox.class).withCaption("Choose a career").single()).selectItem("Apothecary");
+        List<Button> rollCharacteristicButtons = $(Button.class).withText("Roll charateristic").all();
+        rollCharacteristicButtons.forEach(button -> test(button).click());
+        test($(TextField.class).withPropertyValue(TextFieldBase::getLabel, "Character name").single()).setValue("DennisMan");
+        test($(IntegerField.class).withPropertyValue(IntegerField::getLabel, "Age").single()).setValue(26);
+        test($(Button.class).withText("Save Character").single()).click();
+    }
+
 
 
 
