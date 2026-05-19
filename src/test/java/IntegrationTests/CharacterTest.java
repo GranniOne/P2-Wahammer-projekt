@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.P2.warhammer.Application;
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.campaigns.Campaign;
 import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
@@ -12,6 +13,8 @@ import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
+import com.P2.warhammer.views.CampaignCreatorView;
+import com.P2.warhammer.views.CharacterCreatorView;
 import com.P2.warhammer.views.CharacterView;
 import com.P2.warhammer.views.DashBoard;
 import com.vaadin.browserless.SpringBrowserlessTest;
@@ -23,6 +26,7 @@ import com.vaadin.flow.component.html.Span;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.textfield.TextFieldBase;
@@ -115,6 +119,34 @@ public class CharacterTest extends SpringBrowserlessTest {
         assertEquals(uneditedTestCharacter.getId(), updatedTestCharacter.getId());
     }
 
+    @Test
+    @WithMockUser(username = "dennis@gmail.com")
+    public void testFiveCharacterLimit(){
+        testCharacterCreation();
+        navigate(DashBoard.class);
+        for(int i = 2; i < 6; i ++){
+            Character character = characterRepository.findAll().getFirst();
+            character.setName(String.format("%s %d", character.getName(), i));
+            character.setId(Integer.toString(i));
+            characterRepository.save(character);
+        }
+
+        // genindlæs dashboard side efter databasen er ændret ovenover
+        UI.getCurrent().getPage().reload();
+        test($(Button.class).withText("Add Character").single()).click();
+
+        // tjekker om notifikation om limit er reached er tilstede
+        if($(Notification.class).withText("Character limit of 5 reached").exists()){
+            assertTrue($(Notification.class).withText("Character limit of 5 reached").single().isVisible());
+        }
+
+        // sikrer bruger ikke er blevet reroutet til campaign creator
+        assertFalse($(CharacterCreatorView.class).exists());
+        assertTrue($(DashBoard.class).single().isVisible());
+
+
+    }
+
     private void createTestCharacterDennisMan(){
         test($(Button.class).withText("Add Character").single()).click();
         test($(ComboBox.class).withCaption("Choose a species").single()).selectItem("Human");
@@ -125,6 +157,8 @@ public class CharacterTest extends SpringBrowserlessTest {
         test($(IntegerField.class).withPropertyValue(IntegerField::getLabel, "Age").single()).setValue(26);
         test($(Button.class).withText("Save Character").single()).click();
     }
+
+
 
 
 
