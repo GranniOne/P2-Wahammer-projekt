@@ -16,6 +16,7 @@ import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
+import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
@@ -23,16 +24,25 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
+import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
+//Current known bugs:
+// 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
+// 2. changing race does not remove talents granted from species starting bonus
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -40,31 +50,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div implements HasUrlParameter<String> {
     private final UserRepository userRepository;
-    /*
-        private final List<Button> skillButtonArray = new ArrayList<>();
-        private final SkillRepository skillRepository;
-        private final List<Skill> skills;
-        private final List<Talent> talents;
-
-        private final CharacterRepository characterRepository;
-
-        private final CareerRepository careerRepository;
-        private final List<Career> careers;
-
-        private final RaceRepository raceRepository;
-        private final List<Race> race, raceItems, careerItem ;
-        private final TalentRepository talentRepository;
-        private final CharacterService characterService;
-
-
-        private final Random random = new Random();
-        private List<String> currentSkillList;
-
-        List<Characteristic> characteristics;
-
-         */
-    Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
-
+    Map<String, Runnable> characteristicUpdates = new HashMap<>();
     Random random = new Random();
     private final SkillRepository skillRepository;
     private final CharacterRepository characterRepository;
@@ -72,19 +58,28 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private final CareerRepository careerRepository;
     private final TalentRepository talentRepository;
     private final RaceRepository raceRepository;
-    private List<Career> careers;
+    private final List<RadioButtonGroup<Integer>> startingBonusGroups = new ArrayList<>();
+    private List<Career> careersForSpecies = new ArrayList<>();
     private List<Skill> skills;
     private List<Talent> talents;
     private List<Race> raceItems;
     private Character globalCharacter;
+    private Race currentRaceTable;
+    private boolean loadedCharacter = false;
+
     Div talentBox = new Div();
+    Div startingSkillsBox = new Div();
     Div statBox = new Div();
     Div inventoryDiv = new Div();
     IntegerField levelField;
-    List<IntegerField> raceFields = new ArrayList<>();
+    Map<String, IntegerField> raceFields = new HashMap<>();
+
+    private static final int MaxThree = 3;
+    private static final int MaxFive = 3;
 
 
     public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserRepository userRepository) {
+
         this.skillRepository = skillRepository;
         this.characterRepository = characterRepository;
         this.talentRepository = talentRepository;
@@ -95,14 +90,24 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         setClassName("div-page");
         getStyle().set("position", "relative");
         this.userRepository = userRepository;
+
     }
     @Override
     public void setParameter(BeforeEvent beforeEvent, @OptionalParameter String Id) {
+        VerticalLayout container = new VerticalLayout();
+        container.addClassName("container");
+        container.setWidth("60%");
+        container.getStyle().set("margin", "0 auto");
+
         String parameterCharacter = beforeEvent.getLocation().getQueryParameters().getSingleParameter("Character").orElse("");
 
             if(!parameterCharacter.isEmpty()){
                 try {
                     globalCharacter = characterService.getCharacterFromId(parameterCharacter);
+                    loadedCharacter = true;
+                    if (globalCharacter.getCareer() == null) {
+                        globalCharacter =  new Character();
+                    }
                 } catch (NullPointerException e) {
                     System.out.println("characterID is not linked to character");
                 }
@@ -110,22 +115,52 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 globalCharacter =  new Character();
             }
 
-        this.careers = careerRepository.findAll();
         this.raceItems = raceRepository.findAll();
         this.skills = skillRepository.findAll();
         this.talents = talentRepository.findAll();
+        this.careersForSpecies = careerRepository.findAll();
 
-
-        this.add(raceBox());
-        this.add(careerBox());
-        this.add(statBox);
         renderCharacteristicsDivs();
-        this.add(talentBox);
         inventoryDivCreator();
-        this.add(inventoryDiv);
+        startingSkillsBox.add(StartingSkillsAndTalents());
+
+        container.add(IntroBox(), raceBox(), careerBox(), statBox, talentBox, startingSkillsBox, trappings(), inventoryDiv, CharacterInfoBox(), randomCharacterElements(), armourElements());
+        add(container);
+
+        if (loadedCharacter) {
+            updateRaceFromLoadedRace(globalCharacter.getRace());
+        }
     }
 
+    private Div IntroBox(){
+        Div intro = new Div();
+        intro.setWidthFull();
 
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("WFRP 4e Character Creator");
+        headline.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph1 = new Paragraph(
+                "Welcome to the WFRP 4e Character Creator. Here you can create a new character or edit an existing one for Warhammer Fantasy Roleplay 4th Edition. " +
+                        "The tools below will guide you through each step of the process, including species, career, characteristics, skills, talents, and equipment, " +
+                        "helping you build a complete and playable character, through a guided introduction to the character creator. Just remember this is a tool for character " +
+                        "creation and storage and should not be used as an alternative to the rules book." +
+                        " As with every roleplaying game, each group likes to play things a little different so its recommended to go through your choices with you game master" +
+                        " to make sure everything is in order."
+        );
+        Paragraph paragraph2 = new Paragraph("In some sections of the character creator, you can either choose an option or accept the result of a " +
+                "dice roll to make the choice for you. You may receive bonus Experience Points (XP) for choosing to accept random outcomes, as if the " +
+                "Dark Gods of Chaos themselves applaud your acceptance of random chance. XP represent learning from experience and are the principal" +
+                "way to improve your abilities — you will be able to spend these points to enhance your character’s abilities. " +
+                "The XP gain for each choice can be seen in the corresponding section or in the core rule book under character creation, " +
+                "but has to be manually added to the XP field at the bottom af the character creator");
+
+        layout.add(headline, paragraph1, paragraph2);
+        intro.add(layout);
+        return intro;
+    }
 
     private IntegerField createField(int max) {
         IntegerField statField = new IntegerField();
@@ -152,7 +187,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         return value;
     }
 
-
     private void addTrappings(Career career, int level){ //TODO lille bug her med at den giver de samme trappings flere gange hvis man gemmer karakteren
         List<WarhammerItem> inventory = globalCharacter.getInventory();
 
@@ -161,18 +195,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             String[] splitItems = newItems.split(",");
 
             for (String item : splitItems) {
-                WarhammerItem addedItem = new WarhammerItem(item.trim(), 1); //TODO add amount of added trapping
+                WarhammerItem addedItem = new WarhammerItem(item.trim(), 1);
                 inventory.add(addedItem);
             }
-
         }
-
         globalCharacter.setInventory(inventory);
     }
 
     private void inventoryDivCreator(){
-        boolean colorbool = true;
-        inventoryDiv.getStyle().set("background-color", "green");
         for (WarhammerItem inventoryItem : globalCharacter.getInventory()){
              Div inventoryElementDiv = new Div();
              TextField itemField = new TextField();
@@ -180,33 +210,94 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
              itemField.setReadOnly(true);
 
              IntegerField itemAmount = new IntegerField();
-            itemAmount.setValue(inventoryItem.getAmount());
+             itemAmount.setValue(inventoryItem.getAmount());
 
-             if (colorbool) {
-                 inventoryElementDiv.getStyle().set("background-color", "#88CF8F");
-             } else {
-                 inventoryElementDiv.getStyle().set("background-color", "#CF89A0");
-             }
+             inventoryElementDiv.add(itemField);
+             inventoryElementDiv.add(itemAmount);
 
-            inventoryElementDiv.add(itemField);
-            inventoryElementDiv.add(itemAmount);
-
-            colorbool = !colorbool;
-
-            inventoryDiv.add(inventoryElementDiv);
+             inventoryDiv.add(inventoryElementDiv);
         }
-
-
     }
 
     private void saveCharacter(){
+
+        globalCharacter.setUser(Utilities.getUserFromAuthentication());
         this.characterService.addCharacter(globalCharacter);
     }
 
-    private Div careerBox(){
+    private Div CharacterInfoBox(){
         Div div = new Div();
 
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
 
+        H1 headline = new H1("6. Adding Detail");
+
+        TextField nameField = new TextField();
+        nameField.setLabel("Character name");
+        try {
+            nameField.setValue(globalCharacter.getName());
+        } catch (NullPointerException e) {
+        }
+        nameField.addValueChangeListener(e -> globalCharacter.setName(nameField.getValue()));
+
+        IntegerField ageField = new IntegerField();
+        ageField.setLabel("Age");
+        try {
+            ageField.setValue(globalCharacter.getAge());
+        } catch (NullPointerException e) {
+        }
+        ageField.addValueChangeListener(e -> globalCharacter.setAge(ageField.getValue()));
+
+        IntegerField xpField = new IntegerField();
+        xpField.setLabel("XP");
+        try {
+            xpField.setValue(globalCharacter.getExperience());
+        } catch (NullPointerException e) {
+        }
+        xpField.addValueChangeListener(e -> globalCharacter.setExperience(xpField.getValue()));
+
+        Button saveCharacterButton = new Button("Save Character", e -> {
+            saveCharacter();
+        });
+
+        layout.add(headline);
+        div.add(layout, nameField, ageField, xpField, saveCharacterButton);
+
+        nameField.addValueChangeListener(e ->
+                globalCharacter.setName(nameField.getValue())
+        );
+        return div;
+    }
+
+
+    private VerticalLayout careerBox(){
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
+
+        Div div = new Div();
+
+        H1 headline = new H1("2. Choose Career");
+        headline.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph = new Paragraph(
+                "Your Class determines your general place in society. " +
+                "Your Career describes your current job and determines your Status, which also influences how much money you earn. " +
+                "You can simply choose your Class and Career from the options below, choose your option from the dropdown menu and move on" +
+                "to step 3. Alternatively, if you are unsure which to choose, or just want to randomly select for bonus XP: ");
+
+        Paragraph paragraph1 = new Paragraph(
+                "1. Roll 1d100 on the Random Class and Career Table. If you" +
+                " don’t like the result, move to step 2. If you keep the result, gain +50 XP.");
+        Paragraph paragraph2 = new Paragraph(
+                "2. Roll twice more on the table, bringing your total to 3 choices." +
+                " If one of the three now suits you, select one and gain +25 XP. If not, move to Step 3.");
+        Paragraph paragraph3 = new Paragraph("3. Choose your Class and Career, or keep rerolling on the table" +
+                " until you get something you like. There is no XP bonus for this.");
+
+        layout.add(headline, paragraph,paragraph1, paragraph2, paragraph3);
 
         TextField socialClassField = new TextField();
         socialClassField.setReadOnly(true);
@@ -217,7 +308,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         } catch (NullPointerException e) {
         }
 
-
         TextField statusField = new TextField();
         statusField.setReadOnly(true);
         statusField.setLabel("Status");
@@ -226,70 +316,44 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         } catch (NullPointerException e) {
         }
 
-
-        TextField nameField = new TextField();
-        nameField.setLabel("Character name");
-        try {
-            nameField.setValue(globalCharacter.getName());
-        } catch (NullPointerException e) {
-        }
-        nameField.addValueChangeListener(e -> globalCharacter.setName(nameField.getValue()));
-
-
-        IntegerField xpField = new IntegerField();
-        xpField.setLabel("XP");
-        try {
-            xpField.setValue(globalCharacter.getExperience());
-        } catch (NullPointerException e) {
-        }
-        xpField.addValueChangeListener(e -> globalCharacter.setExperience(xpField.getValue()));
-
-
-        IntegerField ageField = new IntegerField();
-        ageField.setLabel("Age");
-        try {
-            ageField.setValue(globalCharacter.getAge());
-        } catch (NullPointerException e) {
-        }
-        ageField.addValueChangeListener(e -> globalCharacter.setAge(ageField.getValue()));
-
-        Button saveCharacterButton = new Button("Save Character", e -> {
-            saveCharacter();
-        });
-
         ComboBox<Career> dropdownMenu = new ComboBox<>("Choose a career");
+
+        dropdownMenu.setItems(careersForSpecies);
+        dropdownMenu.setItemLabelGenerator(Career::getName);
 
         try {
             dropdownMenu.setValue(globalCharacter.getCareer());
         } catch (NullPointerException e) {
         }
-        dropdownMenu.setItems(careers);
-        dropdownMenu.setItemLabelGenerator(Career::getName);
 
-        div.add(dropdownMenu);
-        levelField = createField( 4);
+        Button RandomCareerButton = new Button("Roll for career",e ->{
+            if (currentRaceTable == null) {
+                System.out.println("No race selected");
+                return;
+            }
+
+            int roll = ThreadLocalRandom.current().nextInt(1, 15);
+            System.out.println("Career roll: " + roll );
+
+            RaceEntry result = currentRaceTable.getEntries().stream().filter(entry -> roll >= entry.getMin() && roll <= entry.getMax()).findFirst().orElseThrow();
+            Career career = careerRepository.findAll().stream().filter(c -> c.getName().equals(result.getCareer())).findFirst().orElseThrow();
+
+            globalCharacter.setCareer(career);
+            dropdownMenu.setValue(career);
+
+            careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu);
+        });
+
+        levelField = createField(4);
         levelField.setLabel("Level");
         levelField.setValue(globalCharacter.getLevel());
         levelField.setMin(1);
         levelField.setReadOnly(true);
-        levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()));
-
-
-        Button addTrappingsButton = new Button("Add Trappings");
-        addTrappingsButton.addClickListener(event -> {
-            addTrappingFunction(levelField);
-        });
-
-        div.add(levelField,socialClassField,statusField,addTrappingsButton,nameField,xpField,ageField,saveCharacterButton);
-
+        levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()-1));
 
         if (!dropdownMenu.isEmpty()){
             levelField.setReadOnly(false);
         }
-
-        nameField.addValueChangeListener(e ->
-                globalCharacter.setName(nameField.getValue())
-        );
 
         //adds listener so the skills talents and characteristics can change when another career or level is selected
         levelField.addValueChangeListener(e ->
@@ -298,22 +362,51 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.addValueChangeListener(e ->
                 careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu)
         );
+        div.add(dropdownMenu, RandomCareerButton, socialClassField, statusField, levelField);
+        layout.add(div);
+        if (loadedCharacter){
+            careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu);
+        }
+        return layout;
+    }
 
-        return div;
+    private Div trappings(){
+        Div TrappingsBox = new Div();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("5. Add Starting Trappings");
+        headline.getStyle().set("margin", "0 auto");
+
+        Button addTrappingsButton = new Button("Add Trappings");
+        addTrappingsButton.addClickListener(event -> {
+            addTrappingFunction(levelField);
+        });
+        layout.add(headline, addTrappingsButton);
+        TrappingsBox.add(layout);
+        return TrappingsBox;
     }
 
     private Div raceBox(){
         Div raceBoxDiv = new Div();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("1. Choose Species");
+        headline.getStyle().set("margin", "0 auto");
 
         ComboBox<String> dropdownMenu = new ComboBox<>("Choose a species");
         dropdownMenu.setItems(raceItems.stream().map(Race::getRace).filter(Objects::nonNull).toList());
 
         Button button1 = new Button("Roll for Species", e -> {
             int roll = ThreadLocalRandom.current().nextInt(1, 101);
+            System.out.println("Species roll: " + roll);
 
-            Race raceTable = raceRepository.findById("species_table").orElseThrow();
+            Race speciesTable = raceRepository.findById("species_table").orElseThrow();
 
-            String result = raceTable.getEntries().stream()
+            String result = speciesTable.getEntries().stream()
                     .filter(entry -> roll >= entry.getMin() && roll <= entry.getMax())
                     .map(RaceEntry::getSpecies)
                     .findFirst()
@@ -322,16 +415,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             dropdownMenu.setValue(result);
         });
 
-
         dropdownMenu.setValue(globalCharacter.getRace());
-        raceBoxDiv.add(dropdownMenu);
-        raceBoxDiv.add(button1);
+        raceBoxDiv.add(headline, dropdownMenu, button1);
 
-
-        //change race
         dropdownMenu.addValueChangeListener(e ->
                 updateRace(dropdownMenu)
         );
+
 
         return raceBoxDiv;
     }
@@ -339,39 +429,106 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private void updateRace(ComboBox<String> dropdownMenu) {
         String currentRace = dropdownMenu.getValue();
 
+        String normalized = currentRace.trim();
+
         Race race = raceItems.stream()
-                .filter(r -> currentRace.equals(r.getRace()))
+                .filter(r -> r.getRace() != null
+                        && r.getRace().trim().equalsIgnoreCase(normalized))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Race not found"));
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Race not found: " + currentRace
+                ));
         globalCharacter.setRace(currentRace);
+        currentRaceTable = race;
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
-        ArrayList<Integer> allValues = new ArrayList<>();
 
-        for (ArrayList<Integer> list : diceRolls.values()) {
-            allValues.addAll(list);
-        }
+        raceFields.forEach((characteristicname, field) ->{
+            System.out.println(characteristicname);
+        } );
 
-        for (int i = 0; i < 10; i++){
-            raceFields.get(i).setValue(allValues.get(i));
-        }
+        raceFields.forEach((characteristicName, field) -> {
 
+            ArrayList<Integer> value = diceRolls.get(characteristicName);
 
+            if (value != null && !value.isEmpty()) {
+                System.out.println(characteristicName + " " + value.get(0));
+                field.setValue(value.get(0));
+
+                for (Characteristic characteristic : globalCharacter.getCharacteristics()){
+                    if (characteristic.getName().equals(characteristicName)){
+                        characteristic.setRacemod(value.get(0));
+
+                    }
+                }
+
+            } else {
+                field.setValue(0);
+                System.out.println("idk it breaks");
+            }
+        });
+        startingSkillsBox.removeAll();
+        startingSkillsBox.add(StartingSkillsAndTalents());
+    }
+
+    private void updateRaceFromLoadedRace(String currentRace) {
+        String normalized = currentRace.trim();
+
+        Race race = raceItems.stream()
+                .filter(r -> r.getRace() != null
+                        && r.getRace().trim().equalsIgnoreCase(normalized))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Race not found: " + currentRace
+                ));
+        globalCharacter.setRace(currentRace);
+        currentRaceTable = race;
+
+        Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
+
+        raceFields.forEach((characteristicname, field) ->{
+            System.out.println(characteristicname);
+        } );
+
+        raceFields.forEach((characteristicName, field) -> {
+
+            ArrayList<Integer> value = diceRolls.get(characteristicName);
+
+            if (value != null && !value.isEmpty()) {
+                System.out.println(characteristicName + " " + value.get(0));
+                field.setValue(value.get(0));
+
+                for (Characteristic characteristic : globalCharacter.getCharacteristics()){
+                    if (characteristic.getName().equals("Weapons Skill")){
+                        System.out.println("weaponslkills");
+                        System.out.println(characteristicName);
+                    }
+                    if (characteristic.getName().equals(characteristicName)){
+                        characteristic.setRacemod(value.get(0));
+                        System.out.println("works here");
+                        System.out.println("blank");
+                    }
+                }
+
+            } else {
+                field.setValue(0);
+                System.out.println("idk it breaks");
+            }
+        });
+        startingSkillsBox.removeAll();
+        startingSkillsBox.add(StartingSkillsAndTalents());
     }
 
     private void addTrappingFunction(IntegerField levelField){
         addTrappings(globalCharacter.getCareer(), levelField.getValue());
-        this.remove(inventoryDiv);
+
         inventoryDiv.removeAll();
         inventoryDivCreator();
-        this.add(inventoryDiv);
     }
-
 
     private void careerBoxChanged(TextField socialClassField, TextField moneyField, IntegerField levelField, ComboBox<Career> dropdownMenu){
         levelField.setReadOnly(false);
         Career currentCareer = dropdownMenu.getValue();
-
 
         talentBox.removeAll();
         renderTalentsDivs(currentCareer, levelField.getValue());
@@ -384,33 +541,57 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             int level = levelField.getValue();
 
             List<Integer> status = currentCareer.getLevelStatusList();
-            moneyField.setValue("Your status is " + status.get(level - 1) + " Brass coins");
+            level = Math.min(level, status.size());
+            moneyField.setValue("B" + status.get(level - 1));
 
             globalCharacter.setCareer(currentCareer);
             globalCharacter.setStatusLevel(status.get(level - 1));
 
+            startingSkillsBox.removeAll();
+            startingSkillsBox.add(StartingSkillsAndTalents());
+
+            characteristicUpdates.values().forEach(Runnable::run);
+
         }catch (Exception e){
-            System.out.println("Klassen eksisterer ikke");
+            System.out.println("noget gik galt");
         }
-
-
     }
+
+
 
     private Div renderSkillDivs(Characteristic characteristic){
         Div skillDivBox = new Div();
+
         if (globalCharacter.getCareer() != null) {
             List<List<String>> allowedSkills = new ArrayList<>(globalCharacter.getCareer().getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
+
+            //add skills
+            List<Skill> currentCharacteristicSkills = new ArrayList<>();
+            for (Skill skill : globalCharacter.getSkills()){
+                if (skill.getCharacteristic().equals(characteristic.getName())){
+                    currentCharacteristicSkills.add(skill);
+                }
+            }
+
             skills.forEach(skill -> {
-                boolean found = false;
-                for (int i = 0; i < levelField.getValue(); i++) {
-                    if (allowedSkills.get(i).contains(skill.getName()) && characteristic.getName().equals(skill.getCharacteristic())) {
-                        found = true;
-                        System.out.println(skill.getName());
-                        break;
+                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size()); //failsave if career dosent have
+                if (skill.getCharacteristic().equals(characteristic.getName())){
+                    for (int i = 0; i < maxLevel; i++) { //loops for each level
+                        if (allowedSkills.get(i).contains(skill.getName())) { //if skill is allowed and the characteristic is right
+                            if (currentCharacteristicSkills.stream().noneMatch(s -> s.getName().equals(skill.getName()))) {
+                                currentCharacteristicSkills.add(skill);
+                            }
+                        }
                     }
                 }
+            });
 
-                if (!found) {
+            //render allready added skills
+            currentCharacteristicSkills.forEach(skill -> {
+                System.out.println(skill + characteristic.getName());
+                if (!skill.getCharacteristic().equals(characteristic.getName())){
+                    System.out.println("returns");
+                    System.out.println(skill.getCharacteristic() + " " + characteristic.getName());
                     return;
                 }
                 Div skillDiv = new Div();
@@ -419,29 +600,54 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 charField.setReadOnly(true);
                 charField.setLabel("Skill name");
                 charField.setValue(skill.getName());
+                charField.setWidth("200px");
 
                 IntegerField raceField = new IntegerField();
                 raceField.setReadOnly(true);
                 raceField.setLabel("Species bonus");
                 raceField.setValue(characteristic.getRacemod());
 
+                TextField emptySpace = new TextField();
+                emptySpace.setVisible(true);
+                emptySpace.getStyle().set("visibility", "hidden");
+                emptySpace.setWidth("120px");
+
+
                 IntegerField baseField = createField(99);
                 baseField.setLabel("Characteristic total");
-                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty());
+                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod() + raceFields.get(characteristic.getName()).getValue());
                 baseField.setReadOnly(true);
+                baseField.setWidth("150px");
+
+
                 IntegerField modifierField = createField(99);
+                int speciesBonus = skill.getSpeciesStartingBonus() != null ? skill.getSpeciesStartingBonus() : 0;
+                int careerBonus = skill.getCareerStartingBonus() != null ? skill.getCareerStartingBonus() : 0;
+                int manualBonus = skill.getBonusValue() != null ? skill.getBonusValue() : 0;
                 modifierField.setLabel("Modifier");
-                modifierField.setValue(skill.getBonusValue());
+                modifierField.setValue(speciesBonus + careerBonus + manualBonus);
+                modifierField.setWidth("120px");
+
                 IntegerField penaltyField = createField(99);
                 penaltyField.setLabel("Penalty");
-                penaltyField.setValue(skill.getPenaltyValue());
+                penaltyField.setValue(skill.getPenaltyValue() != null ? skill.getPenaltyValue() : 0);
+                penaltyField.setWidth("120px");
 
                 IntegerField totalField = new IntegerField();
                 totalField.setLabel("Total");
-                totalField.setValue(0);
+                totalField.setValue(baseField.getValue() + modifierField.getValue() - penaltyField.getValue());
+                totalField.setWidth("120px");
 
                 Checkbox skillBoughtCheckbox = new Checkbox();
-                skillBoughtCheckbox.setLabel("Is this skill bought?");
+                skillBoughtCheckbox.setLabel("Bought");
+                boolean skillBought = false;
+                for (Skill characterSkill : globalCharacter.getSkills()) {
+                    if (characterSkill.getName().equals(skill.getName())) {
+                        skillBought = characterSkill.getBoughtBool() != null && characterSkill.getBoughtBool();
+                        break;
+                    }
+                }
+                skillBoughtCheckbox.setValue(skillBought);
 
 
                 Runnable update = () ->
@@ -453,47 +659,71 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 raceField.addValueChangeListener(e -> update.run());
                 skillBoughtCheckbox.addValueChangeListener(e -> update.run());
 
-                skillDiv.add(charField, baseField, modifierField, penaltyField, totalField, skillBoughtCheckbox);
+                skillDiv.add(charField, baseField, emptySpace, modifierField, penaltyField, totalField, skillBoughtCheckbox);
+                skillDiv.getStyle().set("border-top", "1px solid black");
                 skillDivBox.add(skillDiv);
-            });}
-            return skillDivBox;
+            });
 
+        }
+        return skillDivBox;
     }
 
     private void updateSkill(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Skill skill, Checkbox skillBoughtCheckbox){
-        int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+        int total = myParse(baseField)
+                + myParse(modifierField)
+                - myParse(penaltyField)
+                + myParse(raceField);
 
         totalField.setValue(total);
-        globalCharacter.getSkills().remove(skill);
-        Skill newSkill = new Skill();
-        newSkill.setName(skill.getName());
-        newSkill.setStartValue(baseField.getValue());
-        newSkill.setBonusValue(modifierField.getValue());
-        newSkill.setPenaltyValue(penaltyField.getValue());
-        newSkill.setBoughtBool(skillBoughtCheckbox.getValue());
-        List<Skill> newSkillList = globalCharacter.getSkills();
-        if (!newSkillList.contains(skill.getName())) {//TODO JEG ER RET SIKKER PÅ AT DENNEHER KUN TRIGGER HVIS SKILLET ER PRÆCIS DET SAMME. DET BETYDER VI KAN LAVE FLERE VERSIONER AF DET SAMME SKILLET
-            newSkillList.add(newSkill);
-            globalCharacter.setSkills(newSkillList);
+
+        List<Skill> skillList = globalCharacter.getSkills();
+
+        Skill existingSkill = null;
+
+        for (Skill s : skillList) {
+            if (s.getName().equals(skill.getName())) {
+                existingSkill = s;
+                break;
+            }
         }
+
+        if (existingSkill == null) {
+            existingSkill = new Skill();
+            skillList.add(existingSkill);
+        }
+
+        existingSkill.setName(skill.getName());
+        existingSkill.setCharacteristic(skill.getCharacteristic());
+        existingSkill.setStartValue(baseField.getValue());
+        existingSkill.setBonusValue(modifierField.getValue());
+        existingSkill.setPenaltyValue(penaltyField.getValue());
+        existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
+        System.out.println(skillBoughtCheckbox.getValue());
+
+        globalCharacter.setSkills(skillList);
     }
 
-    private void renderCharacteristicsDivs(){
+    private VerticalLayout renderCharacteristicsDivs(){
         Div characteristicsStatBox = new Div();
         characteristicsStatBox.getStyle().set("gap", "10px");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+
+        H1 headline = new H1("3. Determining Characteristics/Attributes");
+        headline.getStyle().set("margin", "0 auto");
+
         int characteristicNumber = 0;
         boolean colorbool = true;
 
         for (Characteristic characterCharacteristic : globalCharacter.getCharacteristics()){
             System.out.println(characterCharacteristic.getBase());
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
-            charDiv.getStyle()
-                    .set("grid-template-columns", "180px 80px 120px");
 
             if (colorbool) {
-                charDiv.getStyle().set("background-color", "#91BAB2");
+                charDiv.getStyle().set("border", "3px solid black");
             } else {
-                charDiv.getStyle().set("background-color", "#F5A3BE");
+                charDiv.getStyle().set("border", "3px solid black");
             }
 
             colorbool = !colorbool;
@@ -501,29 +731,36 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             TextField charField = new TextField ();
             charField.setReadOnly(true);
             charField.setLabel("Characteristic name");
+            charField.getStyle().set("--vaadin-input-field-label-font-weight", "bold");
             charField.setValue(characterCharacteristic.getName());
+            charField.setWidth("200px");
 
             IntegerField raceField = new IntegerField ();
             raceField.setReadOnly(true);
+            raceField.setWidth("150px");
             raceField.setLabel("Species bonus");
             raceField.setValue(0);
-            raceFields.add(raceField);
+            raceFields.put(characterCharacteristic.getName(),raceField);
+
             IntegerField baseField = createField(99);
             baseField.setLabel("Rolled stat");
             baseField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getBase());
+            baseField.setWidth("120px");
+
             IntegerField modifierField = createField(99);
             modifierField.setLabel("Modifier");
             modifierField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getModifier());
+            modifierField.setWidth("120px");
+
             IntegerField penaltyField = createField(99);
             penaltyField.setLabel("Penalty");
             penaltyField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getPenalty());
-
-
+            penaltyField.setWidth("120px");
 
             IntegerField totalField = new IntegerField();
             totalField.setLabel("Total");
             totalField.setValue(0);
-
+            totalField.setWidth("120px");
 
             Button rollButton = new Button("Roll charateristic");
             rollButton.addClickListener(event -> {
@@ -537,41 +774,540 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             Runnable update = () ->
                     updateCharacteristic(baseField, modifierField, penaltyField, raceField, totalField, characterCharacteristic, charSkillDiv, charDiv);
 
+            characteristicUpdates.put(characterCharacteristic.getName(), update);
+
             baseField.addValueChangeListener(e -> update.run());
             modifierField.addValueChangeListener(e -> update.run());
             penaltyField.addValueChangeListener(e -> update.run());
             raceField.addValueChangeListener(e -> update.run());
 
-
-            ArrayList<IntegerField> fieldArray = new ArrayList<> (
-                    List.of(
-                            baseField,
-                            modifierField,
-                            penaltyField,
-                            raceField
-                    )
-            );
-            Map<String, ArrayList<IntegerField>> characteristicValues = new HashMap<>();
-            characteristicValues.put(characterCharacteristic.getName(), fieldArray);
-
             charDiv.add(charField,raceField,baseField,modifierField,penaltyField,totalField,rollButton,charSkillDiv);
-
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
         }
 
+        statBox.add(headline, characteristicsStatBox);
+        layout.add(statBox);
 
-        statBox.add(characteristicsStatBox);
+        return layout;
+    }
+
+    private VerticalLayout StartingSkillsAndTalents(){
+        startingBonusGroups.clear();
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
+
+        H1 headline = new H1("4. Determining Starting Skills And Talents");
+        headline.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph = new Paragraph("When you create your character you are given skills, talents and advancements in those, as a one time bonus. " +
+                "Below will have a walkthrough af what bonuses your character get and what bonuses you can choose for you character, since not " +
+                "every bonus is pre-determined, causing every character to be unique. Just remember that these are one-time bonuses and should not be changed later.");
+
+        H1 headline1 = new H1("4.1. Species Skill Bonus");
+        headline1.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph1 = new Paragraph("Each Species has a variety of Skills and Talents to choose from.\n" +
+                "You may choose 3 Skills to gain 5 Advances each, and 3 Skills\n" +
+                "to gain 3 Advances each. They are automatically added to your skill table above, and the modifier value will be changed according to your choices. " +
+                "If the fields below are empty, you have skipped a step. Make sure you've selected a species and race and then come back");
+
+        layout.add(headline, paragraph, headline1, paragraph1);
+
+        if (globalCharacter.getRace() == null) {
+            return layout;
+        }
+
+        String race = globalCharacter.getRace().toLowerCase().replace(" ", "_") + "_starting_table";
+        System.out.println(race);
+
+        Race raceTable = raceRepository.findById(race).orElseThrow();
+        List<String> allowedSkills = raceTable.getSkills();
+
+        skills.forEach(skill -> {
+            if (!allowedSkills.contains(skill.getName())) {
+                return;
+            }
+
+            Div skillDiv = new Div();
+
+            TextField charField1 = new TextField();
+            charField1.addClassName("skill-field");
+            charField1.setReadOnly(true);
+            charField1.setLabel("Skill name");
+            charField1.setValue(skill.getName());
+            charField1.setWidth("200px");
+
+            TextField descriptionField1 = new TextField();
+            descriptionField1.addClassName("skill-field");
+            descriptionField1.setReadOnly(true);
+            descriptionField1.setLabel("Skill Description:");
+            descriptionField1.setValue(skill.getDescription());
+            descriptionField1.setWidth("639px");
+
+            RadioButtonGroup<Integer> bonusGroup = new RadioButtonGroup<>();
+            bonusGroup.setLabel("Starting bonus");
+            bonusGroup.setItems(0, 3, 5);
+
+            bonusGroup.setValue(skill.getSpeciesStartingBonus() != null ? skill.getSpeciesStartingBonus() : 0);
+            startingBonusGroups.add(bonusGroup);
+            bonusGroup.addValueChangeListener(event -> {
+
+                Integer oldValue = event.getOldValue();
+                Integer newValue = event.getValue();
+
+                if (oldValue == null) oldValue = 0;
+                if (newValue == null) newValue = 0;
+
+                int threeCount = 0;
+                int fiveCount = 0;
+
+                for (RadioButtonGroup<Integer> group : startingBonusGroups) {
+                    Integer value = group.getValue();
+                    if (value == null) {value = 0;}
+                    if (value == 3) {threeCount++;}
+                    else if (value == 5) {fiveCount++;}}
+
+                if (threeCount > MaxThree || fiveCount > MaxFive) {
+                    bonusGroup.setValue(oldValue);
+                    return;
+                }
+                skill.setSpeciesStartingBonus(newValue);
+                boolean exists = false;
+
+                for (Skill existingSkill : globalCharacter.getSkills()) {
+                    if (existingSkill.getName().equals(skill.getName())) {
+                        exists = true;
+                        existingSkill.setSpeciesStartingBonus(newValue);
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    globalCharacter.getSkills().add(skill);
+                }
+
+                characteristicUpdates.values().forEach(Runnable::run);
+            });
+            skillDiv.add(charField1, descriptionField1, bonusGroup);
+            skillDiv.getStyle().set("border", "3px solid black");
+            layout.add(skillDiv);
+        });
+        H1 headline2 = new H1("4.2 Species Starting Talents");
+        headline2.getStyle().set("margin", "0 auto");
+        Paragraph paragraph3 = new Paragraph("Your Species grants you the following talents :");
+
+        layout.add(headline2, paragraph3);
+
+        List<String> allowedTalents1 = raceTable.getTalents().stream().filter(t -> "auto".equals(t.get("source"))).map(t -> (String) t.get("Name")).toList();
+        System.out.println(allowedTalents1);
+        Set<String> allowedSet1 = new HashSet<>(allowedTalents1);
+
+        for (Talent templateTalent : talents) {
+            if (!allowedSet1.contains(templateTalent.getName())) {
+                continue;
+            }
+            boolean exists = globalCharacter.getTalents().stream().anyMatch(t -> t.getName().equals(templateTalent.getName()));
+            if (!exists) {
+                Talent copy = new Talent();
+                copy.setName(templateTalent.getName());
+                copy.setDescription(templateTalent.getDescription());
+                copy.setAmountTaken(1);
+
+                globalCharacter.getTalents().add(copy);
+            }
+        }
+
+        talents.forEach(talent -> {
+            if (!allowedSet1.contains(talent.getName())) {
+                return;
+            }
+            Div talentDiv = new Div();
+
+            TextField charField2 = new TextField();
+            charField2.addClassName("skill-field");
+            charField2.setReadOnly(true);
+            charField2.setLabel("Talent name");
+            charField2.setValue(talent.getName());
+            charField2.setWidth("200px");
+
+            TextField descriptionField2 = new TextField();
+            descriptionField2.addClassName("skill-field");
+            descriptionField2.setReadOnly(true);
+            descriptionField2.setLabel("Talent Description:");
+            descriptionField2.setValue(talent.getDescription());
+            descriptionField2.setWidth("779px");
+
+            talentDiv.add(charField2, descriptionField2);
+            talentDiv.getStyle().set("border", "3px solid black");
+            layout.add(talentDiv);
+        });
+
+        Paragraph paragraph4 = new Paragraph("Your Species lets you choose between the following talent(s) :");
+        layout.add(paragraph4);
+
+        Map<String, List<Talent>> talentsBySource = talents.stream()
+                .collect(Collectors.groupingBy(talent ->
+                        raceTable.getTalents().stream()
+                                .filter(rt -> rt.get("Name").equals(talent.getName()))
+                                .map(rt -> (String) rt.get("source"))
+                                .findFirst()
+                                .orElse("idk hope it works")
+                ));
+        Set<String> availableSources = raceTable.getTalents().stream()
+                .map(t -> (String) t.get("source"))
+                .collect(Collectors.toSet());
+
+        Map<String, List<String>> choiceGroups = new LinkedHashMap<>();
+        choiceGroups.put("Group A", List.of("Choice1", "Choice2"));
+        choiceGroups.put("Group B", List.of("Choice3", "Choice4"));
+
+        Map<String, Div> groupContainers = new HashMap<>();
+        Map<String, RadioButtonGroup<String>> groups = new LinkedHashMap<>();
+
+        for (Map.Entry<String, List<String>> entry : choiceGroups.entrySet()) {
+
+            String groupName = entry.getKey();
+            List<String> choices = entry.getValue();
+            boolean hasAny = choices.stream().anyMatch(availableSources::contains);
+
+            if (!hasAny) continue;
+            RadioButtonGroup<String> radioButton = new RadioButtonGroup<>();
+            radioButton.setLabel(groupName);
+
+            List<String> validChoices = choices.stream().filter(availableSources::contains).toList();
+
+            radioButton.setItems(validChoices);
+            Div groupContainer = new Div();
+
+            groups.put(groupName, radioButton);
+            groupContainers.put(groupName, groupContainer);
+
+            layout.add(radioButton);
+            layout.add(groupContainer);
+        }
+
+        Runnable update = () -> {
+            groupContainers.values().forEach(Div::removeAll);
+
+            Set<String> allChoiceNames = raceTable.getTalents().stream()
+                    .map(t -> (String) t.get("Name"))
+                    .collect(Collectors.toSet());
+
+            globalCharacter.getTalents().removeIf(t -> allChoiceNames.contains(t.getName()));
+
+            for (Map.Entry<String, RadioButtonGroup<String>> entry : groups.entrySet()) {
+                String selected = entry.getValue().getValue();
+                Div container = groupContainers.get(entry.getKey());
+
+                for (String option : entry.getValue().getListDataView().getItems().toList()) {
+                    List<Talent> optionTalents = talentsBySource.get(option);
+
+                    if (optionTalents == null) {
+                        continue;
+                    }
+
+                    for (Talent talent : optionTalents) {
+
+                        Div talentDiv = new Div();
+
+                        TextField choice = new TextField();
+                        choice.setReadOnly(true);
+                        choice.setLabel("Talent Choice");
+                        choice.setValue(option);
+                        choice.setWidth("140px");
+
+                        TextField talentName = new TextField();
+                        talentName.setReadOnly(true);
+                        talentName.setLabel("Talent name");
+                        talentName.setValue(talent.getName());
+                        talentName.setWidth("200px");
+
+                        TextField descriptionField3 = new TextField();
+                        descriptionField3.setReadOnly(true);
+                        descriptionField3.setLabel("Talent Description");
+                        descriptionField3.setWidth("639px");
+                        descriptionField3.setValue(talent.getDescription());
+
+                        talentDiv.add(choice, talentName, descriptionField3);
+                        talentDiv.getStyle().set("border", "3px solid black");
+
+                        container.add(talentDiv);
+
+                        if (option.equals(selected)) {
+
+                            Talent copy = new Talent();
+                            copy.setName(talent.getName());
+                            copy.setDescription(talent.getDescription());
+                            copy.setAmountTaken(1);
+
+                            globalCharacter.getTalents().add(copy);
+                        }
+                    }
+                }
+            }
+        };
+
+        for (RadioButtonGroup<String> group : groups.values()) {
+            group.addValueChangeListener(e -> update.run());
+        }
+        update.run();
+
+        int randomTalentAmount = raceTable.getrandomTalents();
+        if (randomTalentAmount > 0) {
+            Paragraph paragraph5 = new Paragraph("\nYour Species grants you " + randomTalentAmount + " Random talents from the following table :");
+            layout.add(paragraph5);
+
+            Map<String, Talent> talentMap = talents.stream().collect(Collectors.toMap(Talent::getName, t -> t));
+            Race randomTalentsTable = raceRepository.findById("species_random_talent_table").orElseThrow();
+
+            for (int i = 1; i <= randomTalentAmount; i++) {
+
+                ComboBox<String> dropdownMenu = new ComboBox<>("Random Talent " + i);
+                Div talentDiv = new Div();
+
+                TextField descriptionField4 = new TextField();
+                descriptionField4.setReadOnly(true);
+                descriptionField4.setLabel("Talent Description");
+                descriptionField4.setWidth("639px");
+
+                dropdownMenu.setItems(randomTalentsTable.getEntries().stream().map(RaceEntry::getName).filter(Objects::nonNull).toList());
+                dropdownMenu.getStyle().setWidth("200px");
+                dropdownMenu.addValueChangeListener(e -> {
+
+                    String selected = e.getValue();
+                    if (selected == null) {
+                        descriptionField4.clear();
+                        return;
+                    }
+
+                    Talent talent = talents.stream().filter(t -> t.getName().equalsIgnoreCase(selected)).findFirst().orElse(null);
+                    if (talent == null) return;
+
+                    descriptionField4.setValue(talent.getDescription());
+
+                    globalCharacter.getTalents().removeIf(t ->
+                            t.getName().equals(talent.getName())
+                    );
+
+                    Talent copy = new Talent();
+                    copy.setName(talent.getName());
+                    copy.setDescription(talent.getDescription());
+                    copy.setAmountTaken(1);
+
+                    globalCharacter.getTalents().add(copy);
+                });
+
+                Button rollButton = new Button("Roll Talent " + i, e -> {
+
+                    int roll = ThreadLocalRandom.current().nextInt(1, 101);
+
+                    String result = randomTalentsTable.getEntries().stream()
+                        .filter(entry -> roll >= entry.getMin() && roll <= entry.getMax())
+                        .map(RaceEntry::getName).findFirst().orElse(null);
+                    dropdownMenu.setValue(result);
+                });
+                rollButton.getStyle().setWidth("140px");
+
+                talentDiv.add(dropdownMenu, rollButton, descriptionField4);
+                talentDiv.getStyle().set("border", "3px solid black");
+
+                layout.add(talentDiv);
+                layout.getStyle().set("margin", "0 auto");
+            }
+        }
+
+        H1 headline3 = new H1("4.3 Career Skills And Talents");
+        headline3.getStyle().set("margin", "0 auto");
+        Paragraph paragraph6 = new Paragraph("You begin at the first Career level listed in your Career Path. There are " +
+                "8 Skills and 4 Talents listed with that level, and you can choose " +
+                "which of these you are most proficient at. Allocate 40 Advances " +
+                "to your eight starting Skills, with no more than 10 Advances " +
+                "allocated to any single Skill at this stage. This is enough for you " +
+                "to add 5 Advances to every Career Skill if you wish, which is one " +
+                "of the required steps to complete your Career if you wish to move " +
+                "to a new one. You may also " +
+                "choose a single Talent to learn.");
+
+        layout.add(headline3, paragraph6);
+
+        if (globalCharacter.getCareer() != null) {
+            Career career = globalCharacter.getCareer();
+
+            List<String> careerSkills = career.getLevelSkillsList().get(0);
+            Map<String, IntegerField> advanceFields = new HashMap<>();
+
+            for (String skillName : careerSkills) {
+                Skill skill = skills.stream().filter(s -> s.getName().trim().equalsIgnoreCase(skillName.trim())).findFirst().orElse(null);
+
+                if (skill == null) {
+                    continue;
+                }
+
+                Div skillDiv = new Div();
+
+                TextField skillField = new TextField();
+                skillField.setReadOnly(true);
+                skillField.setLabel("Skill");
+                skillField.setValue(skill.getName());
+                skillField.setWidth("200px");
+
+                TextField descriptionField = new TextField();
+                descriptionField.setReadOnly(true);
+                descriptionField.setLabel("Description");
+                descriptionField.setValue(skill.getDescription());
+                descriptionField.setWidth("639px");
+
+                IntegerField advancesField = new IntegerField();
+                advancesField.setLabel("Advances");
+                advancesField.setMin(0);
+                advancesField.setMax(10);
+                advancesField.setValue(0);
+                advancesField.setStepButtonsVisible(true);
+                advancesField.setWidth("140px");
+
+                advanceFields.put(skill.getName(), advancesField);
+
+                advancesField.addValueChangeListener(event -> {
+
+                    int total = advanceFields.values().stream()
+                            .map(IntegerField::getValue)
+                            .filter(Objects::nonNull)
+                            .mapToInt(Integer::intValue)
+                            .sum();
+
+                    if (total > 40) {
+                        Integer oldValue = event.getOldValue();
+
+                        if (oldValue == null) {
+                            oldValue = 0;
+                        }
+
+                        advancesField.setValue(oldValue);
+                        return;
+                    }
+
+                    Skill existingSkill = globalCharacter.getSkills()
+                            .stream()
+                            .filter(s -> s.getName().equals(skill.getName()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (existingSkill == null) {
+
+                        Skill copy = new Skill();
+                        copy.setName(skill.getName());
+                        copy.setCharacteristic(skill.getCharacteristic());
+                        copy.setCareerStartingBonus(
+                                advancesField.getValue()
+                        );
+
+                        globalCharacter.getSkills().add(copy);
+
+                    } else {
+                        existingSkill.setCareerStartingBonus(
+                                advancesField.getValue()
+                        );
+                    }
+
+                    characteristicUpdates.values()
+                            .forEach(Runnable::run);
+                });
+
+                skillDiv.add(skillField, descriptionField, advancesField);
+                skillDiv.getStyle().set("border", "3px solid black");
+
+                layout.add(skillDiv);
+            }
+        }
+        Paragraph paragraph7 = new Paragraph("\n Select 1 of the 4 starting talents from your career to get for free, displayed below.");
+        layout.add(paragraph7);
+
+       if (globalCharacter.getCareer() != null) {
+
+            Career career = globalCharacter.getCareer();
+
+            List<String> careerTalents =
+                    career.getLevelTalentsList().get(0);
+
+            List<Talent> availableTalents = careerTalents.stream()
+                    .map(name -> talents.stream()
+                            .filter(t -> t.getName().trim()
+                                    .equalsIgnoreCase(name.trim()))
+                            .findFirst()
+                            .orElse(null))
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            RadioButtonGroup<Talent> talentChoice = new RadioButtonGroup<>();
+            talentChoice.setLabel("Choose 1 Talent");
+            talentChoice.setItemLabelGenerator(Talent::getName);
+            talentChoice.setItems(availableTalents);
+
+            Div listBox = new Div();
+
+            Map<Talent, Div> talentRows = new HashMap<>();
+
+            for (Talent t : availableTalents) {
+
+                Div talent = new Div();
+                talent.getStyle().set("border", "3px solid black");
+
+                TextField name = new TextField();
+                name.setReadOnly(true);
+                name.setLabel("Talent");
+                name.setValue(t.getName());
+                name.setWidth("200px");
+
+                TextField desc = new TextField();
+                desc.setReadOnly(true);
+                desc.setLabel("Description");
+                desc.setValue(t.getDescription());
+                desc.setWidth("779px");
+
+                talent.add(name, desc);
+
+                talentRows.put(t, talent);
+                listBox.add(talent);
+            }
+
+           talentChoice.addValueChangeListener(e -> {
+               Talent selected = e.getValue();
+
+               Set<String> optionNames = availableTalents.stream().map(t -> t.getName().toLowerCase()).collect(Collectors.toSet());
+
+               globalCharacter.getTalents().removeIf(t -> optionNames.contains(t.getName().toLowerCase()));
+
+               if (selected == null) {
+                   characteristicUpdates.values().forEach(Runnable::run);
+                   return;
+               }
+
+               Talent copy = new Talent();
+               copy.setName(selected.getName());
+               copy.setDescription(selected.getDescription());
+               copy.setAmountTaken(1);
+
+               globalCharacter.getTalents().add(copy);
+               characteristicUpdates.values().forEach(Runnable::run);
+           });
+            layout.add(talentChoice, listBox);
+        }
+        return layout;
     }
 
     private void updateCharacteristic(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Characteristic characterCharacteristic, Div charSkillDiv, Div baseCharDiv){
-        int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
-
-        totalField.setValue(total);
-
         characterCharacteristic.setBase(baseField.getValue());
         characterCharacteristic.setModifier(modifierField.getValue());
         characterCharacteristic.setPenalty(penaltyField.getValue());
+
+
+        int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
+
+        totalField.setValue(total);
 
         charSkillDiv.removeAll();
         charSkillDiv.add(renderSkillDivs(characterCharacteristic));
@@ -582,12 +1318,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Div characterTalentDiv = new Div();
         List<List<String>> careerTalents = career.getLevelTalentsList();
-        boolean colorbool = true;
         for (int talentIndex = 0; talentIndex < talents.size(); talentIndex++) {
             Talent talent = talents.get(talentIndex);
             boolean foundTalentInDatabase = false;
-            for (int i = 0; i < level; i++) {
+            int maxLevel = Math.min(level, careerTalents.size());
+
+            for (int i = 0; i < maxLevel; i++) {
                 List<String> currentCareerLevelTalents = careerTalents.get(i);
+
                 if (currentCareerLevelTalents.contains(talent.getName())) {
                     foundTalentInDatabase = true;
                     break;
@@ -597,15 +1335,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 continue;
             }
 
-
             Div talentDiv = new Div();
-
-            if (colorbool) {
-                talentDiv.getStyle().set("background-color", "#91BAB2");
-            } else {
-                talentDiv.getStyle().set("background-color", "#F5A3BE");
-            }
-            colorbool = !colorbool;
 
             TextField talentField = new TextField();
             talentField.setReadOnly(true);
@@ -613,9 +1343,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             IntegerField talentTakenField = getIntegerField(talent);
 
-
             talentDiv.add(talentField,talentTakenField);
-
 
             characterTalentDiv.add(talentDiv);
 
@@ -623,24 +1351,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         talentBox.add(characterTalentDiv);
     }
-        //extracted method. skriv lige hvis i for lyst til at optimere den
+
     private @NonNull IntegerField getIntegerField(Talent talent) {
         IntegerField talentTakenField = new IntegerField();
 
         List<Talent> globalCharacterTalents = globalCharacter.getTalents();
 
-        boolean foundInList = false;
-        for (Talent t : globalCharacterTalents) {
-            if (t.getName().equals(talent.getName())) {
-                foundInList = true;
-                talentTakenField.setValue(t.getAmountTaken());
-                break;
-            }
-        }
-        if (!foundInList) {
-            talentTakenField.setValue(0);
-        }
-
+        Talent existing = globalCharacterTalents.stream().filter(t -> t.getName().equals(talent.getName())).findFirst().orElse(null);
+        talentTakenField.setValue(existing != null ? existing.getAmountTaken() : 0);
         talentTakenField.setMin(0);
 
         talentTakenField.addValueChangeListener(e ->
@@ -649,8 +1367,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         return talentTakenField;
     }
 
-
-    private void updateTalents(AbstractField.ComponentValueChangeEvent<IntegerField, Integer> e, Talent talent){
+    private void updateTalents(AbstractField.ComponentValueChangeEvent<IntegerField, Integer> e, Talent talent) {
         int amountTakenValue = e.getValue();
         List<Talent> currentTalents = globalCharacter.getTalents();
         for (Talent t : currentTalents) {
@@ -659,364 +1376,145 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 break;
             }
         }
-        if (amountTakenValue > 0){
-            if (!currentTalents.contains(talent.getName())) { //TODO JEG ER RET SIKKER PÅ AT DENNEHER KUN TRIGGER HVIS TALENTET ER PRÆCIS DET SAMME. DET BETYDER VI KAN LAVE FLERE VERSIONER AF DET SAMME TALENT
-                currentTalents.add(talent);
-                System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
+        if (amountTakenValue > 0) {
+            boolean exists = currentTalents.stream().anyMatch(t -> t.getName().equals(talent.getName()));
+            if (!exists) {
+                Talent copy = new Talent();
+                copy.setName(talent.getName());
+                copy.setDescription(talent.getDescription());
+                copy.setAmountTaken(amountTakenValue);
+
+                currentTalents.add(copy);
             }
-        }else{
-            currentTalents.remove(talent);
+            System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
+        } else {
+            currentTalents.removeIf(t -> t.getName().equals(talent.getName()));
         }
-        globalCharacter.setTalents(currentTalents);
     }
 
-/*
+    private Div armourElements() {
+        Div armourDiv = new Div();
 
-private void renderSkillElements(Map<String, CharacteristicsDiv> characteristicsMap, Div infoBoxParent, Div characteristicsGrid, Career career, int level){
-        //TODO make this loop only run for race skills and career skills
-
-        List<List<String>> allowedSkills = new ArrayList<>(career.getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
-        System.out.println("det her er allowedSkills: " + allowedSkills);
-        skills.forEach(skill -> {                                          //kører igennem databasen og looper for alle skills
-            boolean found = false;
-            for (int i = 0; i < level; i++) {
-                if (allowedSkills.get(i).contains(skill.getName())) {
-                    found = true;
-                    break;
-                }
+        if (globalCharacter.getArmourValues() == null || globalCharacter.getArmourValues().size() != 6) {
+            List<Integer> fixedList = new ArrayList<>();
+            for (int i = 0; i < 6; i++) {
+                fixedList.add(0);
             }
-            if (!found) {
-                System.out.println("breaks");
-                System.out.println(skill.getName());
-                return;
-            }
-
-
-            CharacteristicsDiv skillGrid = characteristicsMap.get(skill.getCharacteristic());
-            if (skillGrid != null) {
-                Div skillDiv = new Div();
-
-                skillDiv.getStyle().set("background-color", "#F5B0A3");
-
-                Button skillButton = new Button(skill.getName(), e -> {
-                    infoBoxParent.removeAll();
-                    SkillInfoCreator(skill,infoBoxParent);
-                    infoBoxParent.setVisible(true);
-                });
-
-                IntegerField skillCharValueField = new IntegerField();
-                skillCharValueField.setReadOnly(true);
-                IntegerField sourceTotal = skillGrid.getTotalField();
-
-
-                IntegerField skillModifierField = createField(99);
-                IntegerField skillPenaltyField = createField(99);
-                IntegerField skillTotalField = createField(99);
-                skillTotalField.setReadOnly(true);
-                skillCharValueField.setValue(sourceTotal.getValue());
-
-                Runnable updateTotal = () -> {
-                    int total = myParse(skillCharValueField) + myParse(skillModifierField) - myParse(skillPenaltyField);
-
-                    skillTotalField.setValue(total);
-                };
-
-                sourceTotal.addValueChangeListener(e -> {
-                    skillCharValueField.setValue(sourceTotal.getValue());
-                    updateTotal.run();
-                });
-
-
-
-                skillCharValueField.addValueChangeListener(e -> updateTotal.run());
-                skillModifierField.addValueChangeListener(e -> updateTotal.run());
-                skillPenaltyField.addValueChangeListener(e -> updateTotal.run());
-
-                skillDiv.add(skillButton);
-                skillDiv.add(skillCharValueField);
-                skillDiv.add(skillModifierField);
-                skillDiv.add(skillPenaltyField);
-                skillDiv.add(skillTotalField);
-                skillGrid.add(skillDiv);
-            }
-        });
-
-        characteristicsMap.values().forEach(characteristicsGrid::add);
-    }
-
-*/
-
-
-
-    private Map<String, Characteristic> characterHashmapCharacteristics(){
-
-        Map<String, Characteristic> characterHashmapCharacteristics = new HashMap<>();
-
-        for (Map.Entry<String, ArrayList<IntegerField>> characteristicElement : characteristicValues.entrySet()) {
-            String key = characteristicElement.getKey();
-            ArrayList<IntegerField> values = characteristicElement.getValue();
-            int baseValue = values.get(0).getValue();
-            int modifierValue = values.get(1).getValue();
-            int penaltyValue = values.get(2).getValue();
-            int racemodifier = values.get(3).getValue();
-
-            Characteristic characteristic = new Characteristic(key, baseValue, modifierValue, penaltyValue, racemodifier);
-
-            characterHashmapCharacteristics.put(key, characteristic);
-
+            globalCharacter.setArmourValues(fixedList);
         }
-        return characterHashmapCharacteristics;
-    }
 
+        List<Integer> armour = globalCharacter.getArmourValues();
 
-    /*
-    private void saveCharacterButtonCreator() {
-        TextField nameField = new TextField("Character Name");
-        IntegerField ageField = new IntegerField("Character age");
-        IntegerField xpField = new IntegerField("Character XP");
-        add(nameField);
-        add(ageField);
-        add(xpField);
+        for (int i = 0; i < 6; i++) {
+            int index = i;
+            IntegerField armourField = new IntegerField();
+            armourField.setLabel("Armour " + index);
+            armourField.setValue(armour.get(index) != null ? armour.get(index) : 0);
 
-        Button saveButton = new Button("Save Character", e -> {
-            String name = nameField.getValue();
-            Integer age = ageField.getValue();
-            Integer xp = xpField.getValue();
-
-            if (name == null || name.isEmpty()){
-                name = " 'no name was entered' ";
-            }
-            if (age <= 0){
-                age = 0;
-            }
-            if (xp <= 0){
-                xp = 0;
-            }
-
-            //Character character = new Character(name,null,null, age, xp, characterHashmapCharacteristics());
-            //characterRepository.save(character);
-            //System.out.println("Saved Charachter: " + character.getName());
-        });
-        add(saveButton);
-    }
-
-
-    private Div renderTalentElements(Div infoBoxParent, Career career, int level){
-        Div characterTalentDiv = new Div();
-        List<List<String>> allowedTalents = new ArrayList<>(career.getLevelTalentsList());
-        talents.forEach(talent -> {
-            boolean found = false;
-            for (int i = 0; i < level; i++) {
-                if (allowedTalents.get(i).contains(talent.getName())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                System.out.println("breaks");
-                System.out.println(talent.getName());
-                return;
-            }
-
-            Div talentDiv = new Div();
-
-            talentDiv.getStyle().set("background-color", "#F5B0A3");
-
-            Button talentButton = new Button(talent.getName(), e -> {
-                infoBoxParent.removeAll();
-                TalentInfoCreator(talent,infoBoxParent);
-                infoBoxParent.setVisible(true);
+            armourField.addValueChangeListener(e -> {
+                Integer value = e.getValue() != null ? e.getValue() : 0;
+                armour.set(index, value);
             });
 
-            TextField talentTakenField = new TextField ();
-            talentTakenField.setReadOnly(true);
-            talentTakenField.setValue("Talent amount goes here");
-
-            TextField talentMaxField = new TextField ();
-            talentMaxField.setReadOnly(true);
-            talentMaxField.setValue("Max amount of talent goes here");
-
-            talentDiv.add(talentButton);
-
-            talentDiv.add(talentTakenField);
-            talentDiv.add(talentMaxField);
-
-            characterTalentDiv.add(talentDiv);
-
-        });
-
-        return characterTalentDiv;
-    }
-
-    int myParse(IntegerField integerField){ //bare så den ikke går i stykker hvis ikke alle felter er fyldte. den sparer så der ikke er like 4 linjer med ren if-statements
-        if (integerField.isEmpty()){
-            return 0;
+            armourDiv.add(armourField);
         }
-        int value = integerField.getValue();
-        return value;
+
+        return armourDiv;
     }
 
+    private Div randomCharacterElements() {
+        Div randomElementsDiv = new Div();
 
-    //renders characteristics and puts them into a hashmap used for skills rendering
-    private void renderCharacteristicsElements(String characteristicName, Map<String, CharacteristicsDiv> characteristicsMap){
-        CharacteristicsDiv charDiv = new CharacteristicsDiv(characteristicName);
-        characteristicsMap.put(characteristicName, charDiv);
-
-
-        charDiv.getStyle()
-                .set("grid-template-columns", "180px 80px 120px")
-                .set("background-color", "#F5A3BE");
-
-        TextField charField = new TextField ();
-        charField.setReadOnly(true);
-        charField.setValue(characteristicName);
-
-        IntegerField raceField = new IntegerField ();
-        raceField.setReadOnly(true);
-        raceField.setValue(20);//Species bonus goes here plz fix x3
-
-
-        IntegerField baseField = createField(99);
-        baseField.setLabel("base");
-        IntegerField modifierField = createField(99);
-        modifierField.setLabel("mod");
-        IntegerField penaltyField = createField(99);
-        penaltyField.setLabel("penalty");
-        IntegerField totalField = new IntegerField();
-        totalField.setLabel("total");
-
-        Button rollButton = new Button("Roll charateristic");
-        rollButton.addClickListener(event -> {
-            int die1 = random.nextInt(10) + 1;
-            int die2 = random.nextInt(10) + 1;
-            baseField.setValue(die1+die2);
-        });
-
-        Runnable updateTotal = () -> {
-            int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
-
-            totalField.setValue(total);
-            charDiv.setTotalField(totalField);
-        };
-        baseField.addValueChangeListener(e -> updateTotal.run());
-        modifierField.addValueChangeListener(e -> updateTotal.run());
-        penaltyField.addValueChangeListener(e -> updateTotal.run());
-        raceField.addValueChangeListener(e -> updateTotal.run());
-        charDiv.setTotalField(totalField);
-
-
-        ArrayList<IntegerField> fieldArray = new ArrayList<> (
-            List.of(
-                baseField,
-                modifierField,
-                penaltyField
-                racefield
-            )
+        // fate og fortune
+        IntegerField fateField = new IntegerField();
+        fateField.setValue(globalCharacter.getFate());
+        fateField.setLabel("Fate");
+        fateField.addValueChangeListener(e ->
+                globalCharacter.setFate(e.getValue() != null ? e.getValue() : 0)
         );
-        characteristicValues.put(characteristicName, fieldArray);
 
-        charDiv.add(charField);
-        charDiv.add(raceField);
-        charDiv.add(baseField);
-        charDiv.add(modifierField);
-        charDiv.add(penaltyField);
-        charDiv.add(totalField);
-        charDiv.add(rollButton);
+        IntegerField fortuneField = new IntegerField();
+        fortuneField.setValue(globalCharacter.getFortune());
+        fortuneField.setLabel("Fortune");
+        fortuneField.addValueChangeListener(e ->
+                globalCharacter.setFortune(e.getValue() != null ? e.getValue() : 0)
+        );
 
+
+        // resilience resolve motivation
+        IntegerField resilienceField = new IntegerField();
+        resilienceField.setValue(globalCharacter.getResilience());
+        resilienceField.setLabel("Resilience");
+        resilienceField.addValueChangeListener(e ->
+                globalCharacter.setResilience(e.getValue() != null ? e.getValue() : 0)
+        );
+
+        IntegerField resolveField = new IntegerField();
+        resolveField.setValue(globalCharacter.getResolve());
+        resolveField.setLabel("Resolve");
+        resolveField.addValueChangeListener(e ->
+                globalCharacter.setResolve(e.getValue() != null ? e.getValue() : 0)
+        );
+
+        TextField motivationField = new TextField();
+        motivationField.setValue(globalCharacter.getMotivation());
+        motivationField.setLabel("Motivation");
+        motivationField.addValueChangeListener(e ->
+                globalCharacter.setMotivation(e.getValue())
+        );
+
+
+        // random things
+        TextField hairField = new TextField();
+        hairField.setValue(globalCharacter.getHair());
+        hairField.setLabel("Hair");
+        hairField.addValueChangeListener(e ->
+                globalCharacter.setHair(e.getValue())
+        );
+
+        TextField heightField = new TextField();
+        heightField.setValue(globalCharacter.getHeight());
+        heightField.setLabel("Height");
+        heightField.addValueChangeListener(e ->
+                globalCharacter.setHeight(e.getValue())
+        );
+
+        TextField eyeField = new TextField();
+        eyeField.setValue(globalCharacter.getEyes());
+        eyeField.setLabel("Eyes");
+        eyeField.addValueChangeListener(e ->
+                globalCharacter.setEyes(e.getValue())
+        );
+
+        IntegerField moneyField = new IntegerField();
+        moneyField.setValue(globalCharacter.getPfennings());
+        moneyField.setLabel("Pfennings");
+        moneyField.addValueChangeListener(e ->
+                globalCharacter.setPfennings(e.getValue())
+        );
+
+        IntegerField movementField = new IntegerField();
+        movementField.setValue(globalCharacter.getMovement());
+        movementField.setLabel("Movement");
+        movementField.addValueChangeListener(e ->
+                globalCharacter.setMovement(e.getValue())
+        );
+
+        randomElementsDiv.add(
+                fateField,
+                fortuneField,
+                resilienceField,
+                resolveField,
+                motivationField,
+                hairField,
+                heightField,
+                eyeField,
+                moneyField,
+                movementField
+        );
+
+        return randomElementsDiv;
     }
 
-    private void renderAllCharacterElements(Div statBox, Div infoBoxParent, Career career, int level) {
-
-        //initializes hashmap for characteristics. used to put skills into characteristics
-        Map<String, CharacteristicsDiv> characteristicsMap = new HashMap<>();
-        Div characteristicsGrid = new Div();
-        characteristicsGrid.getStyle()
-                .set("display", "grid")
-                .set("grid-template-columns", "repeat(1, 1fr)")
-                .set("color", "blue");
-
-        //add characteristics to hashmap and create visual elements
-        List<String> characteristicsStringList = List.of("Weapon Skill", "Ballistic Skill", "Strength", "Toughness", "Initiative", "Agility", "Dexterity", "Intelligence", "Willpower", "Fellowship");
-        for (String characteristicName : characteristicsStringList){
-           renderCharacteristicsElements(characteristicName, characteristicsMap);
-        }
-
-        renderSkillElements(characteristicsMap, infoBoxParent, characteristicsGrid, career, level);
-        statBox.add(characteristicsGrid);
-        statBox.add(renderTalentElements(infoBoxParent, career, level));
-        add(statBox);
-
-    }
-
-    private void SkillInfoCreator(Skill skill, Div infoBoxParent) {
-        Div infoBoxTextContainer = getSkillDiv(skill);
-
-        Button closeInfoButton = new Button("X", e -> {
-            infoBoxParent.setVisible(false);
-        });
-
-        infoBoxParent.getStyle().set("background-color", "#474747").
-                set("top", "0").
-                set("bottom", "0").
-                setWidth("33vw").
-                set("position", "absolute").
-                set("top", "0").
-                set("right", "0").
-                set("z-index", "10");
-
-
-        infoBoxParent.add(closeInfoButton);
-        infoBoxParent.add(infoBoxTextContainer);
-        infoBoxParent.setVisible(false);
-
-        add(infoBoxParent);
-    }
-
-    private void TalentInfoCreator(Talent talent, Div infoBoxParent) {
-        Div infoBoxTextContainer = getTalentDiv(talent);
-        Button closeInfoButton = new Button("X", e -> {
-            infoBoxParent.setVisible(false);
-        });
-
-        infoBoxParent.getStyle().set("background-color", "#474747").
-                set("top", "0").
-                set("bottom", "0").
-                setWidth("33vw").
-                set("position", "absolute").
-                set("top", "0").
-                set("right", "0").
-                set("z-index", "10");
-
-
-        infoBoxParent.add(closeInfoButton);
-        infoBoxParent.setVisible(false);
-        infoBoxParent.add(infoBoxTextContainer);
-        add(infoBoxParent);
-    }
-
-    private @NonNull Div getSkillDiv(Skill skill) {
-        Div infoBoxTextContainer = new Div();
-        Div infoLine1 = new Div(new Text(skill.getCategory()));
-        Div infoLine2 = new Div(new Text(skill.getName()));
-        Div infoLine3 = new Div(new Text(skill.getCharacteristic()));
-        Div infoLine4 = new Div(new Text("its maximum power"));
-        Div infoLine5 = new Div(new Text(skill.getDescription()));
-        infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4, infoLine5);
-        return infoBoxTextContainer;
-    }
-
-
-
-    private @NonNull Div getTalentDiv(Talent talent) {
-        Div infoBoxTextContainer = new Div();
-        Div infoLine1 = new Div(new Text(talent.getCategory()));
-        Div infoLine2 = new Div(new Text(talent.getName()));
-        Div infoLine3 = new Div(new Text(talent.getCharacteristic()));
-        Div infoLine4 = new Div(new Text(talent.getDescription()));
-        infoBoxTextContainer.add(infoLine1, infoLine2, infoLine3, infoLine4);
-        return infoBoxTextContainer;
-    }
-
-     */
 
 }
