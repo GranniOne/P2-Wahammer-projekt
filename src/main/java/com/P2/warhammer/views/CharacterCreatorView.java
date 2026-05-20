@@ -1500,6 +1500,34 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 globalCharacter.setMovement(e.getValue())
         );
 
+        IntegerField maxWoundsField = new IntegerField();
+        maxWoundsField.setValue(globalCharacter.getMovement());
+        maxWoundsField.setLabel("Wounds");
+        maxWoundsField.addValueChangeListener(e ->
+                globalCharacter.setMaxWounds(e.getValue())
+        );
+
+        IntegerField woundsField = new IntegerField();
+        woundsField.setValue(globalCharacter.getMovement());
+        woundsField.setLabel("Damage taken");
+        woundsField.addValueChangeListener(e ->
+                globalCharacter.setDamageTaken(e.getValue())
+        );
+
+        IntegerField maxCorruptionField = new IntegerField();
+        maxCorruptionField.setValue(globalCharacter.getMovement());
+        maxCorruptionField.setLabel("Corruption max");
+        maxCorruptionField.addValueChangeListener(e ->
+                globalCharacter.setCorruptionMax(e.getValue())
+        );
+
+        IntegerField corruptionField = new IntegerField();
+        corruptionField.setValue(globalCharacter.getMovement());
+        corruptionField.setLabel("Corruption taken");
+        corruptionField.addValueChangeListener(e ->
+                globalCharacter.setCorruptionTaken(e.getValue())
+        );
+
         randomElementsDiv.add(
                 fateField,
                 fortuneField,
@@ -1510,7 +1538,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 heightField,
                 eyeField,
                 moneyField,
-                movementField
+                movementField,
+                maxWoundsField,
+                woundsField,
+                maxCorruptionField,
+                corruptionField
         );
 
         return randomElementsDiv;

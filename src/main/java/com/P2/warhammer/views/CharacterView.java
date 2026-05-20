@@ -2,6 +2,7 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.Talents.Talent;
 import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
@@ -94,7 +95,8 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     createPathSection(),
                     createBodySection(),
                     createFateSection(),
-                    MovementWealthArmorDiv()
+                    MovementWealthArmorDiv(),
+                    TalentDiv()
             );
 
             page.add(banner,contentDiv);
@@ -298,6 +300,16 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             }
         }
 
+        Div hpAndCorruption = new Div();
+        Div maxHealth = new Div("Max wounds: " + character.getMaxWounds());
+        Div currentHealth = new Div("Current wounds: " + character.getDamageTaken());
+
+        Div maxCorruption = new Div("Max corruption: " + character.getCorruptionMax());
+        Div currentCorruption = new Div("Current corruption: " + character.getCorruptionTaken());
+
+        hpAndCorruption.add(maxHealth,currentHealth,maxCorruption,currentCorruption);
+
+        armour.add(hpAndCorruption);
 
         Div MovementWealth = new Div();
         MovementWealth.setClassName("movementwealth");
@@ -314,6 +326,15 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
         div.add(MovementWealth,armour);
 
+        return div;
+    }
+
+    private Div TalentDiv(){
+        Div div = new Div();
+        for(Talent talent : character.getTalents()){
+            Div talentRow = new Div("Talent " + talent.getName() + " has been taken " + talent.getAmountTaken() + " times");
+            div.add(talentRow);
+        }
         return div;
     }
 

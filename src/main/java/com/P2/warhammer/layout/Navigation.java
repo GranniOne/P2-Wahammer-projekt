@@ -37,9 +37,6 @@ public class Navigation extends AppLayout {
             // Static navigation buttons
             Button homeButton = new Button("Home", e -> UI.getCurrent().navigate(""));
             Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("profile"));
-            Button profileCharactersButton = new Button("View characters", e -> UI.getCurrent().navigate("profileCharacters"));
-            Button campaignViewButton = new Button("characterCreator", e -> UI.getCurrent().navigate("characterCreator"));
-            Button campaigncreator = new Button("campaigncreator", e -> UI.getCurrent().navigate("campaigncreator"));
             Button admindashboard = new Button("admin dashboard", e -> UI.getCurrent().navigate("admin-dashboard"));
             Button characterCreatorbutton = new Button("button", e -> UI.getCurrent().navigate(CharacterCreatorView.class, QueryParameters.of("Character","65f1a2b3c4d5e6f7a8b90123")));
 
@@ -47,12 +44,11 @@ public class Navigation extends AppLayout {
 
             homeButton.setIcon(new Icon(VaadinIcon.HOME));
             profileButton.setIcon(new Icon(VaadinIcon.USER));
-            campaigncreator.setIcon(new Icon(VaadinIcon.COG));
-            profileCharactersButton.setIcon(new Icon(VaadinIcon.MALE));
-            logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
-            campaignViewButton.setIcon(new Icon(VaadinIcon.MAP_MARKER));
 
-            navBar.addToStart(homeButton, profileButton, campaigncreator, campaignViewButton, profileCharactersButton, admindashboard,characterCreatorbutton);
+            logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
+
+
+            navBar.addToStart(homeButton, profileButton, admindashboard,characterCreatorbutton);
             navBar.addToEnd(logoutButton);
             this.addToNavbar(navBar);
 
