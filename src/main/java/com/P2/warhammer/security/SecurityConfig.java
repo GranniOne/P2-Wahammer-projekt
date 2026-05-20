@@ -53,22 +53,17 @@ public class SecurityConfig {
         return authenticationManagerBuilder.build();
     }
 
+    //Hiteex: this code first filters the http request and redirects the user to the login (http/login) if it is not authenticaded as a user or admin. then, if the user is logged in, it moves the user to (http/) which is the dashboard.
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Let Vaadin handle all authentication & route protection
+        // Let Vaadin handle all authentication & route protection ("http/login" is the login)
         http.with(VaadinSecurityConfigurer.vaadin(), configurer -> {configurer.loginView(LoginView.class);});
-        // designate a custom redirect page for when you have logged in
+        // designate a custom redirect page for when you have logged in ("http/" is the dashboard)
         Utilities.postLoggedIn(http,"/");
-        //authorize Resource access
+        //authorize Resource access for all even without authentication. (pictures, css and so on)
         http.authorizeHttpRequests(auth -> {auth.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll();});
         return http.build();
     }
-
-
-
-
-
-
 
     // Plain text password encoder (testing only)
     @Bean
