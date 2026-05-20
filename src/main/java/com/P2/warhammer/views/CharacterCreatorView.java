@@ -26,6 +26,8 @@ import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -220,7 +222,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void saveCharacter(){
-
+        Notification rollNotification = Notification.show("Character saved");
+        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
         globalCharacter.setUser(Utilities.getUserFromAuthentication());
         this.characterService.addCharacter(globalCharacter);
     }
@@ -259,6 +262,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Button saveCharacterButton = new Button("Save Character", e -> {
             saveCharacter();
+
         });
 
         layout.add(headline);
