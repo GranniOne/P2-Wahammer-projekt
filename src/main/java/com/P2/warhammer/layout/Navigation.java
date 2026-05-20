@@ -38,7 +38,6 @@ public class Navigation extends AppLayout {
             Button homeButton = new Button("Home", e -> UI.getCurrent().navigate(""));
             Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate("profile"));
             Button admindashboard = new Button("admin dashboard", e -> UI.getCurrent().navigate("admin-dashboard"));
-            Button characterCreatorbutton = new Button("button", e -> UI.getCurrent().navigate(CharacterCreatorView.class, QueryParameters.of("Character","65f1a2b3c4d5e6f7a8b90123")));
 
             logoutButton = new Button("Log out", e -> authenticationContext.logout());
 
@@ -48,7 +47,7 @@ public class Navigation extends AppLayout {
             logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
 
 
-            navBar.addToStart(homeButton, profileButton, admindashboard,characterCreatorbutton);
+            navBar.addToStart(homeButton, profileButton, admindashboard);
             navBar.addToEnd(logoutButton);
             this.addToNavbar(navBar);
 
