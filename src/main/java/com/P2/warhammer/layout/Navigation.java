@@ -9,12 +9,9 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.Layout;
-import com.vaadin.flow.router.QueryParameters;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
-import org.springframework.security.access.prepost.PreAuthorize;
+
 
 /**
  * the Navigation layout, is automatically implemented by spring using the @Layout annotation, do not use it manually
