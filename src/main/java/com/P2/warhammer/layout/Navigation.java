@@ -36,8 +36,6 @@ public class Navigation extends AppLayout {
             // Static navigation buttons
             Button homeButton = new Button("Home", e -> UI.getCurrent().navigate(DashBoard.class));
             Button profileButton = new Button("Profile", e -> UI.getCurrent().navigate(ProfileView.class));
-            Button campaignViewButton = new Button("characterCreator", e -> UI.getCurrent().navigate(CharacterCreatorView.class));
-            Button campaigncreator = new Button("campaigncreator", e -> UI.getCurrent().navigate(CampaignCreatorView.class));
             Button admindashboard =  new Button("admin dashboard", e -> UI.getCurrent().navigate(AdminDashboardView.class));
 
 
@@ -47,11 +45,11 @@ public class Navigation extends AppLayout {
 
             homeButton.setIcon(new Icon(VaadinIcon.HOME));
             profileButton.setIcon(new Icon(VaadinIcon.USER));
-            campaigncreator.setIcon(new Icon(VaadinIcon.COG));
-            logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
-            campaignViewButton.setIcon(new Icon(VaadinIcon.MAP_MARKER));
 
-            navBar.addToStart(homeButton, profileButton, campaigncreator, campaignViewButton);
+            logoutButton.setIcon(new Icon(VaadinIcon.SIGN_OUT));
+
+
+            navBar.addToStart(homeButton, profileButton);
             if (authenticationContext.hasRole("ADMIN")) {
                 navBar.addToStart(admindashboard);
             }
