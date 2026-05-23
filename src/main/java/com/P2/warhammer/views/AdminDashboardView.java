@@ -1,5 +1,8 @@
 package com.P2.warhammer.views;
 
+import com.P2.warhammer.campaigns.CampaignService;
+import com.P2.warhammer.characters.Character;
+import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
 import com.vaadin.flow.component.*;
@@ -19,9 +22,16 @@ import java.util.List;
 @PageTitle("dashboard")
 public class AdminDashboardView extends Div {
     final private UserService userService;
+    final private CampaignService campaignService;
+    final private CharacterService characterService;
 
-    public AdminDashboardView(UserService userService) {
+
+
+    public AdminDashboardView(UserService userService, CampaignService campaignService, CharacterService characterService) {
         this.userService = userService;
+        this.campaignService = campaignService;
+        this.characterService = characterService;
+
         /*
         MultiSelectListBox<User> listBox = new MultiSelectListBox<>();
         List<User> users = userService.getAllUsers();
@@ -71,7 +81,28 @@ public class AdminDashboardView extends Div {
             System.out.println(option);
             if(option.equals("delete")){
 
+                campaignService.findbyPlayers(List.of(user)).forEach(campaign -> {
+                    List<User> users = campaign.getPlayers();
+                    users.removeIf(user1 ->  user1.getUsername().equals(user.getUsername()));
+                    campaign.setPlayers(users);
+
+                    List<Character> characters = campaign.getCharacters();
+                    characters.removeIf(character -> character.getUser().getId().equals(user.getId()));
+                    campaign.setCharacters(characters);
+
+
+                    campaignService.saveCampaign(campaign);
+                });
+
                 userService.deleteUser(user);
+                campaignService.findByGameMaster(user).forEach(campaign -> {
+                    campaignService.deleteCampaignById(campaign.getId());
+
+                });
+                characterService.getCharactersByUser(user).forEach(character -> {
+                    characterService.deleteCharacterFromId(character.getId());
+                });
+
             }
             if(option.equals("nulstil adgangskode")){
                 user.setPassword("1234abcd");

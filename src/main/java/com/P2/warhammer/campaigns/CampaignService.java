@@ -49,6 +49,9 @@ public class CampaignService {
     public List<Campaign> findByGameMaster(User gameMaster){
         return repository.findByGameMaster(gameMaster);
     }
+    public List<Campaign> findbyPlayers(List<User> players){
+        return repository.findCampaignByPlayers(players);
+    }
 
 
     public void saveCampaign(Campaign campaign){

@@ -22,4 +22,6 @@ public interface CampaignRepository extends MongoRepository<Campaign, String> {
     Campaign findCampaignById(String id);
     
     List<Campaign> findByGameMaster(User gameMaster);
+
+    List<Campaign> findCampaignByPlayers(List<User> players);
 }
