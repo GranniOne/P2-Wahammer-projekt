@@ -38,7 +38,6 @@ import java.util.Objects;
 @Route("")
 @PermitAll
 public class DashBoard extends Div implements BeforeEnterObserver {
-    private final UserService userService;
     private final CharacterService characterService;
     private final CampaignService campaignService;
 
@@ -46,9 +45,8 @@ public class DashBoard extends Div implements BeforeEnterObserver {
     List<Character> ownedCharacters;
     List<Campaign> campaigns;
     List<Campaign> gameMasterCampaigns;
-    DashBoard(UserService userService, CharacterService  characterService, CampaignService  campaignService) {
+    DashBoard(CharacterService  characterService, CampaignService  campaignService) {
         this.characterService =  characterService;
-        this.userService = userService;
         this.campaignService = campaignService;
         try{
             loadedUser = Utilities.getUserFromAuthentication();
@@ -131,19 +129,6 @@ public class DashBoard extends Div implements BeforeEnterObserver {
                     campaignCard.addToEnd(deleteCharacterButton);
                 }
 
-
-
-
-
-
-
-                /*Card card = new Card();
-                System.out.println(campaign.toString());
-                card.setTitle(Objects.equals(loadedUser.getId(), campaign.getGameMaster().getId()) ? "Gamemaster: " + campaign.getName() : "player: " +  campaign.getName());
-                card.getElement().addEventListener("click", event -> {
-                    UI.getCurrent().navigate(CampaignView.class,QueryParameters.of("Campaign", campaign.getId()));
-
-                });*/
                 CampaignCards.add(campaignCard);
             });
 
