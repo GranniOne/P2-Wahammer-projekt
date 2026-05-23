@@ -50,6 +50,8 @@ public class AdminProfileView extends HorizontalLayout implements BeforeEnterObs
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         String userID = beforeEnterEvent.getRouteParameters().get("userID").get();
 
+
+
         try{
             characters = new ArrayList<>(
                     characterService.getCharactersByUser(userService.findUserById(userID))
@@ -88,8 +90,23 @@ public class AdminProfileView extends HorizontalLayout implements BeforeEnterObs
                 .setHeader("Character Name");
 
 
+
+
+
+
+
         characterGrid.addComponentColumn(character ->
                 new Button("X", event -> {
+
+                    campaignService.findByCharacters(List.of(character)).forEach(campaign -> {
+                        List<Character> characters1 = campaign.getCharacters();
+                        characters1.removeIf(character1 -> character1.getId().equals(character.getId()));
+                        campaign.setCharacters(characters1);
+                        campaignService.saveCampaign(campaign);
+
+                    });
+
+
                     characterService.deleteCharacterFromId(character.getId());
                     characters.remove(character);
                     characterGrid.getDataProvider().refreshAll();

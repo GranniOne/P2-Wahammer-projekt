@@ -5,6 +5,8 @@ import com.P2.warhammer.users.User;
 import org.springframework.stereotype.Service;
 import java.util.List;
 
+import com.P2.warhammer.characters.Character;
+
 /**
  * Service for managing Campaign data in the MongoDB database.
  * Provides methods yet to be determined.
@@ -51,6 +53,10 @@ public class CampaignService {
     }
     public List<Campaign> findbyPlayers(List<User> players){
         return repository.findCampaignByPlayers(players);
+    }
+
+    public List<Campaign> findByCharacters(List<Character> characters){
+        return repository.findCampaignByCharacters(characters);
     }
 
 
