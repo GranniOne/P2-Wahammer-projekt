@@ -38,7 +38,6 @@ import java.util.Objects;
 @Route("")
 @PermitAll
 public class DashBoard extends Div implements BeforeEnterObserver {
-    private final UserService userService;
     private final CharacterService characterService;
     private final CampaignService campaignService;
 
@@ -46,9 +45,8 @@ public class DashBoard extends Div implements BeforeEnterObserver {
     List<Character> ownedCharacters;
     List<Campaign> campaigns;
     List<Campaign> gameMasterCampaigns;
-    DashBoard(UserService userService, CharacterService  characterService, CampaignService  campaignService) {
+    DashBoard(CharacterService  characterService, CampaignService  campaignService) {
         this.characterService =  characterService;
-        this.userService = userService;
         this.campaignService = campaignService;
         try{
             loadedUser = Utilities.getUserFromAuthentication();
