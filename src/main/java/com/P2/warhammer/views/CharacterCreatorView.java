@@ -101,9 +101,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 try {
                     globalCharacter = characterService.getCharacterFromId(parameterCharacter);
                     loadedCharacter = true;
-                    if (globalCharacter.getCareer() == null) {
-                        globalCharacter =  new Character();
-                    }
                 } catch (NullPointerException e) {
                     System.out.println("characterID is not linked to character");
                 }
