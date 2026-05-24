@@ -25,6 +25,7 @@ import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -194,18 +195,20 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private void inventoryDivCreator(){
         for (WarhammerItem inventoryItem : privateCharacter.getInventory()){
-             Div inventoryElementDiv = new Div();
-             TextField itemField = new TextField();
-             itemField.setValue(inventoryItem.getName());
-             itemField.setReadOnly(true);
+             if(inventoryItem.getAmount() > 0) {
+                 Div inventoryElementDiv = new Div();
+                 TextField itemField = new TextField();
+                 itemField.setValue(inventoryItem.getName());
+                 itemField.setReadOnly(true);
 
-             IntegerField itemAmount = new IntegerField();
-             itemAmount.setValue(inventoryItem.getAmount());
+                 IntegerField itemAmount = new IntegerField();
+                 itemAmount.setValue(inventoryItem.getAmount());
 
-             inventoryElementDiv.add(itemField);
-             inventoryElementDiv.add(itemAmount);
+                 inventoryElementDiv.add(itemField);
+                 inventoryElementDiv.add(itemAmount);
 
-             inventoryDiv.add(inventoryElementDiv);
+                 inventoryDiv.add(inventoryElementDiv);
+             }
         }
     }
 
@@ -1466,6 +1469,31 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 privateCharacter.setMovement(e.getValue())
         );
 
+
+        Div manualTrappings = new Div(new Span("Manual Trapping"));
+        manualTrappings.setClassName("Manual Trapping");
+
+        TextField trappingName = new TextField("");
+        trappingName.setLabel("Trapping name");
+
+        IntegerField trappingAmount = new IntegerField();
+        trappingAmount.setMin(0);
+        trappingAmount.setLabel("Amount");
+
+        Button addManualTrapping = new Button(
+        "Add Trapping(s)", e -> {
+            WarhammerItem newItem = new WarhammerItem();
+            newItem.setName(trappingName.getValue());
+            newItem.setAmount(trappingAmount.getValue());
+            List<WarhammerItem> newInventory = privateCharacter.getInventory();
+            newInventory.add(newItem);
+            privateCharacter.setInventory(newInventory);
+            inventoryDiv.removeAll();
+            inventoryDivCreator();
+        });
+
+        manualTrappings.add(trappingName, trappingAmount, addManualTrapping);
+
         randomElementsDiv.add(
                 fateField,
                 fortuneField,
@@ -1476,7 +1504,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 heightField,
                 eyeField,
                 moneyField,
-                movementField
+                movementField,
+                manualTrappings
         );
 
         return randomElementsDiv;
