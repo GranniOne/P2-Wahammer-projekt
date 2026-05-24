@@ -37,7 +37,7 @@ import java.util.Objects;
 @PageTitle("dashboard Page")
 @Route("")
 @PermitAll
-public class DashBoard extends Div implements BeforeEnterObserver {
+public class DashBoard extends Div{
     private final CharacterService characterService;
     private final CampaignService campaignService;
 
@@ -226,17 +226,5 @@ public class DashBoard extends Div implements BeforeEnterObserver {
 
     }
 
-    @Override
-    public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        if(beforeEnterEvent.getLocation().getQueryParameters().getParameters().containsKey("continue")){
 
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-
-            }
-
-
-        }
-
-    }
 }
