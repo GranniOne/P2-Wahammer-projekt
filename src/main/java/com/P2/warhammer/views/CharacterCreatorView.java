@@ -489,14 +489,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 field.setValue(value.get(0));
 
                 for (Characteristic characteristic : privateCharacter.getCharacteristics()){
-                    if (characteristic.getName().equals("Weapons Skill")){
-                        System.out.println("weaponslkills");
-                        System.out.println(characteristicName);
-                    }
                     if (characteristic.getName().equals(characteristicName)){
                         characteristic.setRacemod(value.get(0));
-                        System.out.println("works here");
-                        System.out.println("blank");
                     }
                 }
 
