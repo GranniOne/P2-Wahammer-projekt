@@ -18,7 +18,6 @@ import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -31,10 +30,8 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -59,7 +56,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private List<Skill> skills;
     private List<Talent> talents;
     private List<Race> raceItems;
-    private Character globalCharacter;
+    private Character privateCharacter;
     private Race currentRaceTable;
     private boolean loadedCharacter = false;
 
@@ -99,13 +96,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             if(!parameterCharacter.isEmpty()){
                 try {
-                    globalCharacter = characterService.getCharacterFromId(parameterCharacter);
+                    privateCharacter = characterService.getCharacterFromId(parameterCharacter);
                     loadedCharacter = true;
                 } catch (NullPointerException e) {
                     System.out.println("characterID is not linked to character");
                 }
             }else{
-                globalCharacter =  new Character();
+                privateCharacter =  new Character();
             }
 
         this.raceItems = raceRepository.findAll();
@@ -121,7 +118,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         add(container);
 
         if (loadedCharacter) {
-            updateRaceFromLoadedRace(globalCharacter.getRace());
+            updateRaceFromLoadedRace(privateCharacter.getRace());
         }
     }
 
@@ -181,7 +178,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void addTrappings(Career career, int level){ //TODO lille bug her med at den giver de samme trappings flere gange hvis man gemmer karakteren
-        List<WarhammerItem> inventory = globalCharacter.getInventory();
+        List<WarhammerItem> inventory = privateCharacter.getInventory();
 
         for (int i = 0; i < level; i++) {
             String newItems = career.getLevelTrappingsList().get(i);
@@ -192,11 +189,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 inventory.add(addedItem);
             }
         }
-        globalCharacter.setInventory(inventory);
+        privateCharacter.setInventory(inventory);
     }
 
     private void inventoryDivCreator(){
-        for (WarhammerItem inventoryItem : globalCharacter.getInventory()){
+        for (WarhammerItem inventoryItem : privateCharacter.getInventory()){
              Div inventoryElementDiv = new Div();
              TextField itemField = new TextField();
              itemField.setValue(inventoryItem.getName());
@@ -214,8 +211,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private void saveCharacter(){
 
-        globalCharacter.setUser(Utilities.getUserFromAuthentication());
-        this.characterService.addCharacter(globalCharacter);
+        privateCharacter.setUser(Utilities.getUserFromAuthentication());
+        this.characterService.addCharacter(privateCharacter);
     }
 
     private Div CharacterInfoBox(){
@@ -229,26 +226,26 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         TextField nameField = new TextField();
         nameField.setLabel("Character name");
         try {
-            nameField.setValue(globalCharacter.getName());
+            nameField.setValue(privateCharacter.getName());
         } catch (NullPointerException e) {
         }
-        nameField.addValueChangeListener(e -> globalCharacter.setName(nameField.getValue()));
+        nameField.addValueChangeListener(e -> privateCharacter.setName(nameField.getValue()));
 
         IntegerField ageField = new IntegerField();
         ageField.setLabel("Age");
         try {
-            ageField.setValue(globalCharacter.getAge());
+            ageField.setValue(privateCharacter.getAge());
         } catch (NullPointerException e) {
         }
-        ageField.addValueChangeListener(e -> globalCharacter.setAge(ageField.getValue()));
+        ageField.addValueChangeListener(e -> privateCharacter.setAge(ageField.getValue()));
 
         IntegerField xpField = new IntegerField();
         xpField.setLabel("XP");
         try {
-            xpField.setValue(globalCharacter.getExperience());
+            xpField.setValue(privateCharacter.getExperience());
         } catch (NullPointerException e) {
         }
-        xpField.addValueChangeListener(e -> globalCharacter.setExperience(xpField.getValue()));
+        xpField.addValueChangeListener(e -> privateCharacter.setExperience(xpField.getValue()));
 
         Button saveCharacterButton = new Button("Save Character", e -> {
             saveCharacter();
@@ -258,7 +255,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         div.add(layout, nameField, ageField, xpField, saveCharacterButton);
 
         nameField.addValueChangeListener(e ->
-                globalCharacter.setName(nameField.getValue())
+                privateCharacter.setName(nameField.getValue())
         );
         return div;
     }
@@ -297,7 +294,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         socialClassField.setLabel("Social Class");
 
         try {
-            socialClassField.setValue(globalCharacter.getCareer().getSocialClass());
+            socialClassField.setValue(privateCharacter.getCareer().getSocialClass());
         } catch (NullPointerException e) {
         }
 
@@ -305,7 +302,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         statusField.setReadOnly(true);
         statusField.setLabel("Status");
         try {
-            statusField.setValue(String.valueOf(globalCharacter.getCareer().getLevelStatusList().get(globalCharacter.getLevel())));
+            statusField.setValue(String.valueOf(privateCharacter.getCareer().getLevelStatusList().get(privateCharacter.getLevel())));
         } catch (NullPointerException e) {
         }
 
@@ -315,7 +312,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         dropdownMenu.setItemLabelGenerator(Career::getName);
 
         try {
-            dropdownMenu.setValue(globalCharacter.getCareer());
+            dropdownMenu.setValue(privateCharacter.getCareer());
         } catch (NullPointerException e) {
         }
 
@@ -331,7 +328,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             RaceEntry result = currentRaceTable.getEntries().stream().filter(entry -> roll >= entry.getMin() && roll <= entry.getMax()).findFirst().orElseThrow();
             Career career = careerRepository.findAll().stream().filter(c -> c.getName().equals(result.getCareer())).findFirst().orElseThrow();
 
-            globalCharacter.setCareer(career);
+            privateCharacter.setCareer(career);
             dropdownMenu.setValue(career);
 
             careerBoxChanged(socialClassField, statusField, levelField, dropdownMenu);
@@ -339,10 +336,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         levelField = createField(4);
         levelField.setLabel("Level");
-        levelField.setValue(globalCharacter.getLevel());
+        levelField.setValue(privateCharacter.getLevel());
         levelField.setMin(1);
         levelField.setReadOnly(true);
-        levelField.addValueChangeListener(e -> globalCharacter.setLevel(levelField.getValue()-1));
+        levelField.addValueChangeListener(e -> privateCharacter.setLevel(levelField.getValue()-1));
 
         if (!dropdownMenu.isEmpty()){
             levelField.setReadOnly(false);
@@ -408,7 +405,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             dropdownMenu.setValue(result);
         });
 
-        dropdownMenu.setValue(globalCharacter.getRace());
+        dropdownMenu.setValue(privateCharacter.getRace());
         raceBoxDiv.add(headline, dropdownMenu, button1);
 
         dropdownMenu.addValueChangeListener(e ->
@@ -431,7 +428,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Race not found: " + currentRace
                 ));
-        globalCharacter.setRace(currentRace);
+        privateCharacter.setRace(currentRace);
         currentRaceTable = race;
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
@@ -448,7 +445,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 System.out.println(characteristicName + " " + value.get(0));
                 field.setValue(value.get(0));
 
-                for (Characteristic characteristic : globalCharacter.getCharacteristics()){
+                for (Characteristic characteristic : privateCharacter.getCharacteristics()){
                     if (characteristic.getName().equals(characteristicName)){
                         characteristic.setRacemod(value.get(0));
 
@@ -474,7 +471,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 .orElseThrow(() -> new IllegalArgumentException(
                         "Race not found: " + currentRace
                 ));
-        globalCharacter.setRace(currentRace);
+        privateCharacter.setRace(currentRace);
         currentRaceTable = race;
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
@@ -491,7 +488,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 System.out.println(characteristicName + " " + value.get(0));
                 field.setValue(value.get(0));
 
-                for (Characteristic characteristic : globalCharacter.getCharacteristics()){
+                for (Characteristic characteristic : privateCharacter.getCharacteristics()){
                     if (characteristic.getName().equals("Weapons Skill")){
                         System.out.println("weaponslkills");
                         System.out.println(characteristicName);
@@ -513,7 +510,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     }
 
     private void addTrappingFunction(IntegerField levelField){
-        addTrappings(globalCharacter.getCareer(), levelField.getValue());
+        addTrappings(privateCharacter.getCareer(), levelField.getValue());
 
         inventoryDiv.removeAll();
         inventoryDivCreator();
@@ -537,8 +534,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             level = Math.min(level, status.size());
             moneyField.setValue("B" + status.get(level - 1));
 
-            globalCharacter.setCareer(currentCareer);
-            globalCharacter.setStatusLevel(status.get(level - 1));
+            privateCharacter.setCareer(currentCareer);
+            privateCharacter.setStatusLevel(status.get(level - 1));
 
             startingSkillsBox.removeAll();
             startingSkillsBox.add(StartingSkillsAndTalents());
@@ -555,12 +552,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private Div renderSkillDivs(Characteristic characteristic){
         Div skillDivBox = new Div();
 
-        if (globalCharacter.getCareer() != null) {
-            List<List<String>> allowedSkills = new ArrayList<>(globalCharacter.getCareer().getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
+        if (privateCharacter.getCareer() != null) {
+            List<List<String>> allowedSkills = new ArrayList<>(privateCharacter.getCareer().getLevelSkillsList()); //laver et hashset og chekker i loopet om skillen er i sættet
 
             //add skills
             List<Skill> currentCharacteristicSkills = new ArrayList<>();
-            for (Skill skill : globalCharacter.getSkills()){
+            for (Skill skill : privateCharacter.getSkills()){
                 if (skill.getCharacteristic().equals(characteristic.getName())){
                     currentCharacteristicSkills.add(skill);
                 }
@@ -634,7 +631,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 Checkbox skillBoughtCheckbox = new Checkbox();
                 skillBoughtCheckbox.setLabel("Bought");
                 boolean skillBought = false;
-                for (Skill characterSkill : globalCharacter.getSkills()) {
+                for (Skill characterSkill : privateCharacter.getSkills()) {
                     if (characterSkill.getName().equals(skill.getName())) {
                         skillBought = characterSkill.getBoughtBool() != null && characterSkill.getBoughtBool();
                         break;
@@ -669,7 +666,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         totalField.setValue(total);
 
-        List<Skill> skillList = globalCharacter.getSkills();
+        List<Skill> skillList = privateCharacter.getSkills();
 
         Skill existingSkill = null;
 
@@ -693,7 +690,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
         System.out.println(skillBoughtCheckbox.getValue());
 
-        globalCharacter.setSkills(skillList);
+        privateCharacter.setSkills(skillList);
     }
 
     private VerticalLayout renderCharacteristicsDivs(){
@@ -709,7 +706,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         int characteristicNumber = 0;
         boolean colorbool = true;
 
-        for (Characteristic characterCharacteristic : globalCharacter.getCharacteristics()){
+        for (Characteristic characterCharacteristic : privateCharacter.getCharacteristics()){
             System.out.println(characterCharacteristic.getBase());
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
 
@@ -737,17 +734,17 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             IntegerField baseField = createField(99);
             baseField.setLabel("Rolled stat");
-            baseField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getBase());
+            baseField.setValue(privateCharacter.getCharacteristics().get(characteristicNumber).getBase());
             baseField.setWidth("120px");
 
             IntegerField modifierField = createField(99);
             modifierField.setLabel("Modifier");
-            modifierField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getModifier());
+            modifierField.setValue(privateCharacter.getCharacteristics().get(characteristicNumber).getModifier());
             modifierField.setWidth("120px");
 
             IntegerField penaltyField = createField(99);
             penaltyField.setLabel("Penalty");
-            penaltyField.setValue(globalCharacter.getCharacteristics().get(characteristicNumber).getPenalty());
+            penaltyField.setValue(privateCharacter.getCharacteristics().get(characteristicNumber).getPenalty());
             penaltyField.setWidth("120px");
 
             IntegerField totalField = new IntegerField();
@@ -810,11 +807,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         layout.add(headline, paragraph, headline1, paragraph1);
 
-        if (globalCharacter.getRace() == null) {
+        if (privateCharacter.getRace() == null) {
             return layout;
         }
 
-        String race = globalCharacter.getRace().toLowerCase().replace(" ", "_") + "_starting_table";
+        String race = privateCharacter.getRace().toLowerCase().replace(" ", "_") + "_starting_table";
         System.out.println(race);
 
         Race raceTable = raceRepository.findById(race).orElseThrow();
@@ -871,7 +868,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 skill.setSpeciesStartingBonus(newValue);
                 boolean exists = false;
 
-                for (Skill existingSkill : globalCharacter.getSkills()) {
+                for (Skill existingSkill : privateCharacter.getSkills()) {
                     if (existingSkill.getName().equals(skill.getName())) {
                         exists = true;
                         existingSkill.setSpeciesStartingBonus(newValue);
@@ -880,7 +877,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 }
 
                 if (!exists) {
-                    globalCharacter.getSkills().add(skill);
+                    privateCharacter.getSkills().add(skill);
                 }
 
                 characteristicUpdates.values().forEach(Runnable::run);
@@ -903,14 +900,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             if (!allowedSet1.contains(templateTalent.getName())) {
                 continue;
             }
-            boolean exists = globalCharacter.getTalents().stream().anyMatch(t -> t.getName().equals(templateTalent.getName()));
+            boolean exists = privateCharacter.getTalents().stream().anyMatch(t -> t.getName().equals(templateTalent.getName()));
             if (!exists) {
                 Talent copy = new Talent();
                 copy.setName(templateTalent.getName());
                 copy.setDescription(templateTalent.getDescription());
                 copy.setAmountTaken(1);
 
-                globalCharacter.getTalents().add(copy);
+                privateCharacter.getTalents().add(copy);
             }
         }
 
@@ -990,7 +987,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     .map(t -> (String) t.get("Name"))
                     .collect(Collectors.toSet());
 
-            globalCharacter.getTalents().removeIf(t -> allChoiceNames.contains(t.getName()));
+            privateCharacter.getTalents().removeIf(t -> allChoiceNames.contains(t.getName()));
 
             for (Map.Entry<String, RadioButtonGroup<String>> entry : groups.entrySet()) {
                 String selected = entry.getValue().getValue();
@@ -1037,7 +1034,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                             copy.setDescription(talent.getDescription());
                             copy.setAmountTaken(1);
 
-                            globalCharacter.getTalents().add(copy);
+                            privateCharacter.getTalents().add(copy);
                         }
                     }
                 }
@@ -1082,7 +1079,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                     descriptionField4.setValue(talent.getDescription());
 
-                    globalCharacter.getTalents().removeIf(t ->
+                    privateCharacter.getTalents().removeIf(t ->
                             t.getName().equals(talent.getName())
                     );
 
@@ -1091,7 +1088,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     copy.setDescription(talent.getDescription());
                     copy.setAmountTaken(1);
 
-                    globalCharacter.getTalents().add(copy);
+                    privateCharacter.getTalents().add(copy);
                 });
 
                 Button rollButton = new Button("Roll Talent " + i, e -> {
@@ -1127,8 +1124,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         layout.add(headline3, paragraph6);
 
-        if (globalCharacter.getCareer() != null) {
-            Career career = globalCharacter.getCareer();
+        if (privateCharacter.getCareer() != null) {
+            Career career = privateCharacter.getCareer();
 
             List<String> careerSkills = career.getLevelSkillsList().get(0);
             Map<String, IntegerField> advanceFields = new HashMap<>();
@@ -1183,7 +1180,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                         return;
                     }
 
-                    Skill existingSkill = globalCharacter.getSkills()
+                    Skill existingSkill = privateCharacter.getSkills()
                             .stream()
                             .filter(s -> s.getName().equals(skill.getName()))
                             .findFirst()
@@ -1198,7 +1195,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                                 advancesField.getValue()
                         );
 
-                        globalCharacter.getSkills().add(copy);
+                        privateCharacter.getSkills().add(copy);
 
                     } else {
                         existingSkill.setCareerStartingBonus(
@@ -1219,9 +1216,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         Paragraph paragraph7 = new Paragraph("\n Select 1 of the 4 starting talents from your career to get for free, displayed below.");
         layout.add(paragraph7);
 
-       if (globalCharacter.getCareer() != null) {
+       if (privateCharacter.getCareer() != null) {
 
-            Career career = globalCharacter.getCareer();
+            Career career = privateCharacter.getCareer();
 
             List<String> careerTalents =
                     career.getLevelTalentsList().get(0);
@@ -1272,7 +1269,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                Set<String> optionNames = availableTalents.stream().map(t -> t.getName().toLowerCase()).collect(Collectors.toSet());
 
-               globalCharacter.getTalents().removeIf(t -> optionNames.contains(t.getName().toLowerCase()));
+               privateCharacter.getTalents().removeIf(t -> optionNames.contains(t.getName().toLowerCase()));
 
                if (selected == null) {
                    characteristicUpdates.values().forEach(Runnable::run);
@@ -1284,7 +1281,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                copy.setDescription(selected.getDescription());
                copy.setAmountTaken(1);
 
-               globalCharacter.getTalents().add(copy);
+               privateCharacter.getTalents().add(copy);
                characteristicUpdates.values().forEach(Runnable::run);
            });
             layout.add(talentChoice, listBox);
@@ -1348,7 +1345,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private @NonNull IntegerField getIntegerField(Talent talent) {
         IntegerField talentTakenField = new IntegerField();
 
-        List<Talent> globalCharacterTalents = globalCharacter.getTalents();
+        List<Talent> globalCharacterTalents = privateCharacter.getTalents();
 
         Talent existing = globalCharacterTalents.stream().filter(t -> t.getName().equals(talent.getName())).findFirst().orElse(null);
         talentTakenField.setValue(existing != null ? existing.getAmountTaken() : 0);
@@ -1362,7 +1359,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private void updateTalents(AbstractField.ComponentValueChangeEvent<IntegerField, Integer> e, Talent talent) {
         int amountTakenValue = e.getValue();
-        List<Talent> currentTalents = globalCharacter.getTalents();
+        List<Talent> currentTalents = privateCharacter.getTalents();
         for (Talent t : currentTalents) {
             if (t.getName().equals(talent.getName())) {
                 t.setAmountTaken(amountTakenValue);
@@ -1388,15 +1385,15 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private Div armourElements() {
         Div armourDiv = new Div();
 
-        if (globalCharacter.getArmourValues() == null || globalCharacter.getArmourValues().size() != 6) {
+        if (privateCharacter.getArmourValues() == null || privateCharacter.getArmourValues().size() != 6) {
             List<Integer> fixedList = new ArrayList<>();
             for (int i = 0; i < 6; i++) {
                 fixedList.add(0);
             }
-            globalCharacter.setArmourValues(fixedList);
+            privateCharacter.setArmourValues(fixedList);
         }
 
-        List<Integer> armour = globalCharacter.getArmourValues();
+        List<Integer> armour = privateCharacter.getArmourValues();
 
         for (int i = 0; i < 6; i++) {
             int index = i;
@@ -1420,73 +1417,73 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         // random character elements. contains things such as fate, resilience, height, motivation and so on.
         IntegerField fateField = new IntegerField();
-        fateField.setValue(globalCharacter.getFate());
+        fateField.setValue(privateCharacter.getFate());
         fateField.setLabel("Fate");
         fateField.addValueChangeListener(e ->
-                globalCharacter.setFate(e.getValue() != null ? e.getValue() : 0)
+                privateCharacter.setFate(e.getValue() != null ? e.getValue() : 0)
         );
 
         IntegerField fortuneField = new IntegerField();
-        fortuneField.setValue(globalCharacter.getFortune());
+        fortuneField.setValue(privateCharacter.getFortune());
         fortuneField.setLabel("Fortune");
         fortuneField.addValueChangeListener(e ->
-                globalCharacter.setFortune(e.getValue() != null ? e.getValue() : 0)
+                privateCharacter.setFortune(e.getValue() != null ? e.getValue() : 0)
         );
 
         IntegerField resilienceField = new IntegerField();
-        resilienceField.setValue(globalCharacter.getResilience());
+        resilienceField.setValue(privateCharacter.getResilience());
         resilienceField.setLabel("Resilience");
         resilienceField.addValueChangeListener(e ->
-                globalCharacter.setResilience(e.getValue() != null ? e.getValue() : 0)
+                privateCharacter.setResilience(e.getValue() != null ? e.getValue() : 0)
         );
 
         IntegerField resolveField = new IntegerField();
-        resolveField.setValue(globalCharacter.getResolve());
+        resolveField.setValue(privateCharacter.getResolve());
         resolveField.setLabel("Resolve");
         resolveField.addValueChangeListener(e ->
-                globalCharacter.setResolve(e.getValue() != null ? e.getValue() : 0)
+                privateCharacter.setResolve(e.getValue() != null ? e.getValue() : 0)
         );
 
         TextField motivationField = new TextField();
-        motivationField.setValue(globalCharacter.getMotivation());
+        motivationField.setValue(privateCharacter.getMotivation());
         motivationField.setLabel("Motivation");
         motivationField.addValueChangeListener(e ->
-                globalCharacter.setMotivation(e.getValue())
+                privateCharacter.setMotivation(e.getValue())
         );
 
         TextField hairField = new TextField();
-        hairField.setValue(globalCharacter.getHair());
+        hairField.setValue(privateCharacter.getHair());
         hairField.setLabel("Hair");
         hairField.addValueChangeListener(e ->
-                globalCharacter.setHair(e.getValue())
+                privateCharacter.setHair(e.getValue())
         );
 
         TextField heightField = new TextField();
-        heightField.setValue(globalCharacter.getHeight());
+        heightField.setValue(privateCharacter.getHeight());
         heightField.setLabel("Height");
         heightField.addValueChangeListener(e ->
-                globalCharacter.setHeight(e.getValue())
+                privateCharacter.setHeight(e.getValue())
         );
 
         TextField eyeField = new TextField();
-        eyeField.setValue(globalCharacter.getEyes());
+        eyeField.setValue(privateCharacter.getEyes());
         eyeField.setLabel("Eyes");
         eyeField.addValueChangeListener(e ->
-                globalCharacter.setEyes(e.getValue())
+                privateCharacter.setEyes(e.getValue())
         );
 
         IntegerField moneyField = new IntegerField();
-        moneyField.setValue(globalCharacter.getPfennings());
+        moneyField.setValue(privateCharacter.getPfennings());
         moneyField.setLabel("Pfennings");
         moneyField.addValueChangeListener(e ->
-                globalCharacter.setPfennings(e.getValue())
+                privateCharacter.setPfennings(e.getValue())
         );
 
         IntegerField movementField = new IntegerField();
-        movementField.setValue(globalCharacter.getMovement());
+        movementField.setValue(privateCharacter.getMovement());
         movementField.setLabel("Movement");
         movementField.addValueChangeListener(e ->
-                globalCharacter.setMovement(e.getValue())
+                privateCharacter.setMovement(e.getValue())
         );
 
         randomElementsDiv.add(
