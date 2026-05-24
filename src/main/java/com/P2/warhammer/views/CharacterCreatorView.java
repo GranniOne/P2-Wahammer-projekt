@@ -99,7 +99,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     privateCharacter = characterService.getCharacterFromId(parameterCharacter);
                     loadedCharacter = true;
                 } catch (NullPointerException e) {
-                    System.out.println("characterID is not linked to character");
+
                 }
             }else{
                 privateCharacter =  new Character();
@@ -318,12 +318,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Button RandomCareerButton = new Button("Roll for career",e ->{
             if (currentRaceTable == null) {
-                System.out.println("No race selected");
+
                 return;
             }
 
             int roll = ThreadLocalRandom.current().nextInt(1, 15);
-            System.out.println("Career roll: " + roll );
+
 
             RaceEntry result = currentRaceTable.getEntries().stream().filter(entry -> roll >= entry.getMin() && roll <= entry.getMax()).findFirst().orElseThrow();
             Career career = careerRepository.findAll().stream().filter(c -> c.getName().equals(result.getCareer())).findFirst().orElseThrow();
@@ -392,7 +392,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Button button1 = new Button("Roll for Species", e -> {
             int roll = ThreadLocalRandom.current().nextInt(1, 101);
-            System.out.println("Species roll: " + roll);
 
             Race speciesTable = raceRepository.findById("species_table").orElseThrow();
 
@@ -433,16 +432,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
 
-        raceFields.forEach((characteristicname, field) ->{
-            System.out.println(characteristicname);
-        } );
 
         raceFields.forEach((characteristicName, field) -> {
 
             ArrayList<Integer> value = diceRolls.get(characteristicName);
 
             if (value != null && !value.isEmpty()) {
-                System.out.println(characteristicName + " " + value.get(0));
+
                 field.setValue(value.get(0));
 
                 for (Characteristic characteristic : privateCharacter.getCharacteristics()){
@@ -454,7 +450,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             } else {
                 field.setValue(0);
-                System.out.println("idk it breaks");
             }
         });
         startingSkillsBox.removeAll();
@@ -476,16 +471,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
 
-        raceFields.forEach((characteristicname, field) ->{
-            System.out.println(characteristicname);
-        } );
-
         raceFields.forEach((characteristicName, field) -> {
 
             ArrayList<Integer> value = diceRolls.get(characteristicName);
 
             if (value != null && !value.isEmpty()) {
-                System.out.println(characteristicName + " " + value.get(0));
                 field.setValue(value.get(0));
 
                 for (Characteristic characteristic : privateCharacter.getCharacteristics()){
@@ -496,7 +486,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             } else {
                 field.setValue(0);
-                System.out.println("idk it breaks");
             }
         });
         startingSkillsBox.removeAll();
@@ -537,7 +526,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicUpdates.values().forEach(Runnable::run);
 
         }catch (Exception e){
-            System.out.println("noget gik galt");
+
         }
     }
 
@@ -572,10 +561,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             //render allready added skills
             currentCharacteristicSkills.forEach(skill -> {
-                System.out.println(skill + characteristic.getName());
                 if (!skill.getCharacteristic().equals(characteristic.getName())){
-                    System.out.println("returns");
-                    System.out.println(skill.getCharacteristic() + " " + characteristic.getName());
                     return;
                 }
                 Div skillDiv = new Div();
@@ -682,7 +668,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         existingSkill.setBonusValue(modifierField.getValue());
         existingSkill.setPenaltyValue(penaltyField.getValue());
         existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
-        System.out.println(skillBoughtCheckbox.getValue());
+
 
         privateCharacter.setSkills(skillList);
     }
@@ -701,7 +687,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         boolean colorbool = true;
 
         for (Characteristic characterCharacteristic : privateCharacter.getCharacteristics()){
-            System.out.println(characterCharacteristic.getBase());
+
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
 
             if (colorbool) {
@@ -806,7 +792,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
 
         String race = privateCharacter.getRace().toLowerCase().replace(" ", "_") + "_starting_table";
-        System.out.println(race);
+
 
         Race raceTable = raceRepository.findById(race).orElseThrow();
         List<String> allowedSkills = raceTable.getSkills();
@@ -887,7 +873,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         layout.add(headline2, paragraph3);
 
         List<String> allowedTalents1 = raceTable.getTalents().stream().filter(t -> "auto".equals(t.get("source"))).map(t -> (String) t.get("Name")).toList();
-        System.out.println(allowedTalents1);
+
         Set<String> allowedSet1 = new HashSet<>(allowedTalents1);
 
         for (Talent templateTalent : talents) {
@@ -1370,7 +1356,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 currentTalents.add(copy);
             }
-            System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
+
         } else {
             currentTalents.removeIf(t -> t.getName().equals(talent.getName()));
         }
