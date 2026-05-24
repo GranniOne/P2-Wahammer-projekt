@@ -40,10 +40,6 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
-//Current known bugs:
-// 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
-// 2. changing race does not remove talents granted from species starting bonus
-
 @PermitAll
 @PageTitle("Character Creator Page")
 @Route("characterCreator")
@@ -1425,7 +1421,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private Div randomCharacterElements() {
         Div randomElementsDiv = new Div();
 
-        // fate og fortune
+        // random character elements. contains things such as fate, resilience, height, motivation and so on.
         IntegerField fateField = new IntegerField();
         fateField.setValue(globalCharacter.getFate());
         fateField.setLabel("Fate");
@@ -1440,8 +1436,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 globalCharacter.setFortune(e.getValue() != null ? e.getValue() : 0)
         );
 
-
-        // resilience resolve motivation
         IntegerField resilienceField = new IntegerField();
         resilienceField.setValue(globalCharacter.getResilience());
         resilienceField.setLabel("Resilience");
@@ -1463,8 +1457,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 globalCharacter.setMotivation(e.getValue())
         );
 
-
-        // random things
         TextField hairField = new TextField();
         hairField.setValue(globalCharacter.getHair());
         hairField.setLabel("Hair");
