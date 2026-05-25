@@ -170,7 +170,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createInfoSection() {
         Div info = new Div();
         info.setClassName("info");
-        info.getStyle().setBackground("green");
+
 
         info.add(
                 createLabeledDiv("Name:" + character.getName(), "DivName"),
@@ -183,7 +183,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createCareerSection() {
         Div careerInfo = new Div();
         careerInfo.setClassName("info");
-        careerInfo.getStyle().setBackground("yellow");
         careerInfo.getStyle().set("display", "flex");
         careerInfo.getStyle().set("flex-wrap", "wrap");
         careerInfo.getStyle().set("gap", "10px");
@@ -197,7 +196,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createPathSection() {
         Div careers = new Div();
         careers.setClassName("info"); // Keeps consistency with your other containers
-        careers.getStyle().setBackground("blue");
+
         careers.getStyle().set("display", "flex");
         careers.getStyle().set("flex-wrap", "wrap");
         careers.getStyle().set("gap", "10px");
@@ -215,7 +214,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createBodySection() {
         Div body = new Div();
         body.setClassName("info");
-        body.getStyle().setBackground("pink");
+
         body.getStyle().set("display", "flex");
         body.getStyle().set("flex-wrap", "wrap");
         body.getStyle().set("gap", "10px");

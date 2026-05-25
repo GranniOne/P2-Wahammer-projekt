@@ -24,13 +24,14 @@
     flex-direction: row;
     width: 100%;
     height: 100%;
-    background: blueviolet;
+
 }
 
 .skillInfo {
     width: 450px;
     height: auto;
-    background: #47ff12;
+    background: transparent;
+
 }
 
 .skillGrid {
@@ -43,7 +44,11 @@
 .characterInfo{
     width: 750px;
     height: auto;
-    background: blue;
+    background-image: url("../images/test3Test.jpg");
+    background-repeat: no-repeat, repeat;
+    background-size: contain;
+    border: #5c0000 solid 1px;
+    box-sizing: border-box;
 }
 
 
@@ -53,85 +58,137 @@
     height: 50px;
     direction: ltr;
     align-items: center;
+    background: transparent;
+    outline: 1px solid #5c0000;
+    box-sizing: border-box;
 }
 
 .DivName{
     width: 350px;
+    background: transparent;
+
 }
 
 .DivSpecies{
     width: 350px;
+    background: transparent;
+
 }
 
 .DivClass{
     width: 350px;
+    background: transparent;
+
 }
 .MovementWealthArmor{
     display: flex;
     width: 100%;
     height: 600px;
+    background: transparent;
+    outline: 1px solid #5c0000;
 }
 
 .movementwealth{
     width: 50%;
     height: 600px;
+    background: transparent;
+    outline: 1px solid #5c0000;
+
 }
 
 .movement{
-    background: blue;
+    background: transparent;
+    outline: 1px solid #5c0000;
     width: 100%;
     height: 300px;
+    box-sizing: border-box;
 }
 .wealth{
-    background: chocolate;
+    background: transparent;
+    outline: 1px solid #5c0000;
     width: 100%;
     height: 300px;
+    box-sizing: border-box;
 }
 
 .armor{
-    background: aqua;
+    background: transparent;
+    outline: 1px solid #5c0000;
     width: 50%;
     height: 600px;
+    box-sizing: border-box;
 }
 .FateResilienceExp{
     display: flex;
     flex-direction: row;
-    background: deeppink;
+    background: transparent;
     width: 100%;
     height: 100px;
+    outline: 1px solid #5c0000;
+
 }
 
 .FXR{
     display: flex;
     flex-direction: row;
-    background: red;
+    background: transparent;
+    outline: 1px solid #5c0000;
     width: 50%;
     height: 100px;
+
 }
 .Fate{
-    background: yellow;
+    background: transparent;
     width: 30%;
     height: 100px;
+    box-sizing: border-box;
+    outline: 1px solid #5c0000;
 }
 .Resilience{
-    background: #a200ff;
+    background: transparent;
+    outline: 1px solid #5c0000;
     width: 70%;
+    box-sizing: border-box;
 }
 
 .Exp{
-    background: dimgray;
+    background: transparent;
+    outline: 1px solid #5c0000;
     width: 50%;
     height: 100px;
-
+    box-sizing: border-box;
 
 }
 .TitleSpan{
     display: flex;
     justify-content: center;
     font-size: 20px;
+    background: transparent;
+    outline: 1px solid #5c0000;
+    box-sizing: border-box;
 }
 .ResilienceResolve {
     width: 50%;
+    background: transparent;
+    outline: 1px solid #5c0000;
+    box-sizing: border-box;
 }
+.DivMotivation{
+    outline: 1px solid #5c0000;
+    box-sizing: border-box;
+    height: auto;
+}
+DivFate{
+    outline: 1px solid #5c0000;
+    box-sizing: border-box;
+    height: auto;
+}
+.DivFortune{
+     outline: 1px solid #5c0000;
+     box-sizing: border-box;
+     height: auto;
+ }
+
+
 
 
