@@ -1475,6 +1475,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         IntegerField trappingAmount = new IntegerField();
         trappingAmount.setMin(0);
+        trappingAmount.setValue(0);
         trappingAmount.setLabel("Amount");
 
         Button addManualTrapping = new Button(
