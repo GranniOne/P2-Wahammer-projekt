@@ -41,28 +41,20 @@ public class AdminProfileView extends HorizontalLayout implements BeforeEnterObs
         this.userService = userService;
         this.characterService = characterService;
         this.campaignService = campaignService;
-
-        System.out.println("first");
-
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
         String userID = beforeEnterEvent.getRouteParameters().get("userID").get();
 
-
-
         try{
-            characters = new ArrayList<>(
-                    characterService.getCharactersByUser(userService.findUserById(userID))
+            characters = new ArrayList<>(characterService.getCharactersByUser(userService.findUserById(userID))
             );
         } catch (Exception e) {
             characters = new ArrayList<>();
         }
-
         try{
-            campaigns = new ArrayList<>(
-                    campaignService.findByGameMaster(userService.findUserById(userID))
+            campaigns = new ArrayList<>(campaignService.findByGameMaster(userService.findUserById(userID))
             );
         } catch (Exception e) {
             campaigns = new ArrayList<>();
@@ -82,52 +74,47 @@ public class AdminProfileView extends HorizontalLayout implements BeforeEnterObs
 
 
 
-
         characterGrid.addColumn(Character::getId)
-                .setHeader("Character ID");
+            .setHeader("Character ID");
 
         characterGrid.addColumn(Character::getName)
-                .setHeader("Character Name");
-
-
-
-
+            .setHeader("Character Name");
 
 
 
         characterGrid.addComponentColumn(character ->
-                new Button("X", event -> {
-
-                    campaignService.findByCharacters(List.of(character)).forEach(campaign -> {
-                        List<Character> characters1 = campaign.getCharacters();
-                        characters1.removeIf(character1 -> character1.getId().equals(character.getId()));
-                        campaign.setCharacters(characters1);
-                        campaignService.saveCampaign(campaign);
-
-                    });
+            new Button("X", event -> {
+                campaignService.findByCharacters(List.of(character)).forEach(campaign -> {
+                    List<Character> characters1 = campaign.getCharacters();
+                    characters1.removeIf(character1 -> character1.getId().equals(character.getId()));
+                    campaign.setCharacters(characters1);
+                    campaignService.saveCampaign(campaign);
 
 
-                    characterService.deleteCharacterFromId(character.getId());
-                    characters.remove(character);
-                    characterGrid.getDataProvider().refreshAll();
-                })
+                });
+                characterService.deleteCharacterFromId(character.getId());
+                characters.remove(character);
+                characterGrid.getDataProvider().refreshAll();
+            })
         );
 
 
 
 
         campaignGrid.addColumn(Campaign::getId)
-                .setHeader("Campaign ID");
+            .setHeader("Campaign ID");
 
         campaignGrid.addColumn(Campaign::getName)
-                .setHeader("Campaign Name");
+            .setHeader("Campaign Name");
+
+
 
         campaignGrid.addComponentColumn(campaign ->
-                new Button("X", event -> {
-                    campaignService.deleteCampaignById(campaign.getId());
-                    campaigns.remove(campaign);
-                    campaignGrid.getDataProvider().refreshAll();
-                })
+            new Button("X", event -> {
+                campaignService.deleteCampaignById(campaign.getId());
+                campaigns.remove(campaign);
+                campaignGrid.getDataProvider().refreshAll();
+            })
         );
 
 

@@ -50,64 +50,79 @@ public class AdminDashboardView extends Div {
         grid.setAllRowsVisible(true);
         grid.setItems(users);
 
-
         grid.addColumn(User::getUsername).setHeader("Username");
         grid.addColumn(User::getEmail).setHeader("Email");
         grid.addColumn(User::getPassword).setHeader("Passwords");
         grid.addComponentColumn(user -> new Button("nulstil adgangskode",event -> {
-            openDialog(user,event.getSource().getText());
+            openDialogResetPassword(user);
         })).setHeader("nulstil adgangskode");
         grid.addComponentColumn(user -> new Button("delete " + user.getUsername(), event -> {
-            openDialog(user,"delete");
+            openDialogDeleteUser(user);
         })).setHeader("Delete user");
         grid.addComponentColumn(user -> new Button("Access Profile " + user.getUsername(), event -> {
             UI.getCurrent().navigate("admin-dashboard/UserProfile/"+ user.getId() +"/");
 
         })).setHeader("Access user");
-
-
-
         add(grid);
     }
 
-    public void openDialog(User user,String option) {
+    public void openDialogResetPassword(User user) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle(
-                String.format(" %s user \"%s\"?",option, user.getUsername()));
-        dialog.add("Are you sure you want to" + option + "this user permanently?");
-        System.out.println(option);
-
-        Button deleteButton = new Button(option, e -> {
-            System.out.println(option);
-            if(option.equals("delete")){
-
-                campaignService.findbyPlayers(List.of(user)).forEach(campaign -> {
-                    List<User> users = campaign.getPlayers();
-                    users.removeIf(user1 ->  user1.getUsername().equals(user.getUsername()));
-                    campaign.setPlayers(users);
-
-                    List<Character> characters = campaign.getCharacters();
-                    characters.removeIf(character -> character.getUser().getId().equals(user.getId()));
-                    campaign.setCharacters(characters);
+                String.format("nulstil user \"%s\"?", user.getUsername()));
+        dialog.add("Are you sure you want reset this users password permanently?");
 
 
-                    campaignService.saveCampaign(campaign);
-                });
+        Button deleteButton = new Button("nulstil", e -> {
+            user.setPassword("1234abcd");
+            userService.saveUser(user);
+            dialog.close();
+            UI.getCurrent().getPage().reload();
+        });
 
-                userService.deleteUser(user);
-                campaignService.findByGameMaster(user).forEach(campaign -> {
-                    campaignService.deleteCampaignById(campaign.getId());
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
+        deleteButton.getStyle().set("margin-right", "auto");
+        dialog.getFooter().add(deleteButton);
 
-                });
-                characterService.getCharactersByUser(user).forEach(character -> {
-                    characterService.deleteCharacterFromId(character.getId());
-                });
+        Button cancelButton = new Button("Cancel", e -> {
+            dialog.close();
+            UI.getCurrent().getPage().reload();
+        });
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        dialog.getFooter().add(cancelButton);
+        add(dialog);
+        dialog.open();
+    }
 
-            }
-            if(option.equals("nulstil adgangskode")){
-                user.setPassword("1234abcd");
-                userService.saveUser(user);
-            }
+
+    public void openDialogDeleteUser(User user) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle(
+                String.format(" delete user \"%s\"?",user.getUsername()));
+        dialog.add("Are you sure you want to delete this user permanently?");
+
+        Button deleteButton = new Button("delete", e -> {
+            campaignService.findbyPlayers(List.of(user)).forEach(campaign -> {
+                List<User> users = campaign.getPlayers();
+                users.removeIf(user1 ->  user1.getUsername().equals(user.getUsername()));
+                campaign.setPlayers(users);
+
+                List<Character> characters = campaign.getCharacters();
+                characters.removeIf(character -> character.getUser().getId().equals(user.getId()));
+                campaign.setCharacters(characters);
+
+
+                campaignService.saveCampaign(campaign);
+            });
+            userService.deleteUser(user);
+            campaignService.findByGameMaster(user).forEach(campaign -> {
+                campaignService.deleteCampaignById(campaign.getId());
+
+            });
+            characterService.getCharactersByUser(user).forEach(character -> {
+                characterService.deleteCharacterFromId(character.getId());
+            });
 
             dialog.close();
             UI.getCurrent().getPage().reload();
