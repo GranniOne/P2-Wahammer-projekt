@@ -127,6 +127,29 @@
     outline: 1px solid #5c0000;
 
 }
+.TalentBox{
+    background: transparent;
+    width: 100%;
+    outline: 1px solid #5c0000;
+}
+
+.Talent {
+    background: transparent;
+    border: none;
+    max-height: 195px;
+    overflow: auto;
+}
+
+.Talent::part(cell),
+.Talent::part(header-cell),
+.Talent::part(row) {
+    background: transparent;
+}
+
+.Talent::part(header-cell) {
+    font-weight: bold;
+    background: transparent;
+}
 
 .FXR{
     display: flex;

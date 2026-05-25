@@ -2,6 +2,7 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.Talents.Talent;
 import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
@@ -94,7 +95,8 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     createPathSection(),
                     createBodySection(),
                     createFateSection(),
-                    MovementWealthArmorDiv()
+                    MovementWealthArmorDiv(),
+                    createTalentSection()
             );
 
             page.add(banner,contentDiv);
@@ -166,6 +168,37 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
         }
 
+    private Div createTalentSection() {
+        Div talentBox = new Div();
+        talentBox.setClassName("TalentBox");
+
+        H3 talentHeadline = new H3("Talents");
+
+        Grid<Talent> grid = new Grid<>(Talent.class, false);
+        grid.addClassName("Talent");
+        grid.setItems(character.getTalents());
+
+        grid.addColumn(Talent::getName)
+                .setHeader("Name")
+                .setAutoWidth(true);
+
+        grid.addColumn(Talent::getAmountTaken)
+                .setHeader("Amount")
+                .setAutoWidth(true);
+
+        grid.addColumn(Talent::getDescription)
+                .setHeader("Description")
+                .setFlexGrow(1);
+
+
+
+        grid.addThemeVariants(GridVariant.LUMO_COMPACT);
+        grid.setAllRowsVisible(true);
+
+        talentBox.add(talentHeadline, grid);
+
+        return talentBox;
+    }
 
     private Div createInfoSection() {
         Div info = new Div();
@@ -232,6 +265,8 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         container.setClassName(className);
         return container;
     }
+
+
 
     private Div createFateSection(){
         Div div  = new Div();
