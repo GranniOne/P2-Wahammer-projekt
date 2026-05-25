@@ -656,19 +656,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 break;
             }
         }
-
         if (existingSkill == null) {
             existingSkill = new Skill();
+            existingSkill.setName(skill.getName());
+            existingSkill.setCharacteristic(skill.getCharacteristic());
+            existingSkill.setStartValue(baseField.getValue());
+            existingSkill.setBonusValue(modifierField.getValue());
+            existingSkill.setPenaltyValue(penaltyField.getValue());
+            existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
             skillList.add(existingSkill);
         }
-
-        existingSkill.setName(skill.getName());
-        existingSkill.setCharacteristic(skill.getCharacteristic());
-        existingSkill.setStartValue(baseField.getValue());
-        existingSkill.setBonusValue(modifierField.getValue());
-        existingSkill.setPenaltyValue(penaltyField.getValue());
-        existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
-
 
         privateCharacter.setSkills(skillList);
     }
