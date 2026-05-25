@@ -681,19 +681,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         headline.getStyle().set("margin", "0 auto");
 
         int characteristicNumber = 0;
-        boolean colorbool = true;
+
 
         for (Characteristic characterCharacteristic : privateCharacter.getCharacteristics()){
 
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
 
-            if (colorbool) {
-                charDiv.getStyle().set("border", "3px solid black");
-            } else {
-                charDiv.getStyle().set("border", "3px solid black");
-            }
-
-            colorbool = !colorbool;
+            charDiv.getStyle().set("border", "3px solid black");
 
             TextField charField = new TextField ();
             charField.setReadOnly(true);
