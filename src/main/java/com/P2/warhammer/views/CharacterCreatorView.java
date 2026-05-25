@@ -550,7 +550,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             }
 
             skills.forEach(skill -> {
-                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size()); //failsave if career dosent have
+                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size()); //failsave if career dosent have a list of skills for the selected level
                 if (skill.getCharacteristic().equals(characteristic.getName())){
                     for (int i = 0; i < maxLevel; i++) { //loops for each level
                         if (allowedSkills.get(i).contains(skill.getName())) { //if skill is allowed and the characteristic is right
@@ -564,9 +564,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             //render allready added skills
             currentCharacteristicSkills.forEach(skill -> {
-                if (!skill.getCharacteristic().equals(characteristic.getName())){
-                    return;
-                }
                 Div skillDiv = new Div();
 
                 TextField charField = new TextField();
