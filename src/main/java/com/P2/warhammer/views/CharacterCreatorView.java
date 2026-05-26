@@ -656,6 +656,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         totalField.setValue(total);
 
+        skill.setBoughtBool(skillBoughtCheckbox.getValue());
+
         List<Skill> skillList = privateCharacter.getSkills();
 
         Skill existingSkill = null;
@@ -1283,7 +1285,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         charSkillDiv.removeAll();
         charSkillDiv.add(renderSkillDivs(characterCharacteristic));
-        baseCharDiv.add(charSkillDiv);
     }
 
     private void renderTalentsDivs(Career career, int level){
