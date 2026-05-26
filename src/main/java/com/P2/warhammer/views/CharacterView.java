@@ -96,8 +96,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     createBodySection(),
                     createFateSection(),
                     MovementWealthArmorDiv(),
-                    createTalentSection(),
-                    MovementWealthArmorDiv()
+                    createTalentSection()
             );
 
             page.add(banner,contentDiv);
