@@ -1359,9 +1359,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private @NonNull IntegerField getIntegerField(Talent talent) {
         IntegerField talentTakenField = new IntegerField();
 
-        List<Talent> globalCharacterTalents = privateCharacter.getTalents();
+        List<Talent> privateCharacterTalents = privateCharacter.getTalents();
 
-        Talent existing = globalCharacterTalents.stream().filter(t -> t.getName().equals(talent.getName())).findFirst().orElse(null);
+        Talent existing = privateCharacterTalents.stream().filter(t -> t.getName().equals(talent.getName())).findFirst().orElse(null);
         talentTakenField.setValue(existing != null ? existing.getAmountTaken() : 0);
         talentTakenField.setMin(0);
 
