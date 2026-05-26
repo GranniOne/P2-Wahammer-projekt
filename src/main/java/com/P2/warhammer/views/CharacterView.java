@@ -321,7 +321,8 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     .set("width", "120px");
 
             // 2. The Stat breakdown (Base, Modifier, Penalty)
-            Span base = new Span(String.valueOf(characteristic.getBase()));
+            int baseVal = characteristic.getBase() + characteristic.getRacemod();
+            Span base = new Span(String.valueOf(baseVal));
             base.getStyle().set("color", "var(--lumo-secondary-text-color)").set("width", "30px");
 
             Span mod = new Span("+" + characteristic.getModifier());
@@ -331,7 +332,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             pen.getStyle().set("color", "var(--lumo-error-text-color)").set("width", "30px");
 
             // 3. Total Target Number
-            int totalVal = characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty();
+            int totalVal = characteristic.getBase() + characteristic.getModifier() + characteristic.getRacemod() - characteristic.getPenalty();
             Span total = new Span(String.valueOf(totalVal));
             total.getStyle()
                     .set("margin-left", "auto") // Pushes total to the far right of the component

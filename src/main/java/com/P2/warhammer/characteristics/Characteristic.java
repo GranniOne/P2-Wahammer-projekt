@@ -1,7 +1,5 @@
 package com.P2.warhammer.characteristics;
 
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
-
 public class Characteristic {
 
     Integer base;
@@ -49,7 +47,7 @@ public class Characteristic {
         this.penalty = penalty;
     }
 
-    public void setRacemod(Integer modifier) {
+    public void setRacemod(Integer racemod) {
         this.racemod = racemod;
     }
 

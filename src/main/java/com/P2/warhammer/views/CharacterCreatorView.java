@@ -453,7 +453,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 for (Characteristic characteristic : privateCharacter.getCharacteristics()){
                     if (characteristic.getName().equals(characteristicName)){
                         characteristic.setRacemod(value.get(0));
-
                     }
                 }
 
@@ -597,7 +596,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 IntegerField baseField = createField(99);
                 baseField.setLabel("Characteristic total");
-                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod() + raceFields.get(characteristic.getName()).getValue());
+                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod());
                 baseField.setReadOnly(true);
                 baseField.setWidth("150px");
 
@@ -653,8 +652,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private void updateSkill(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Skill skill, Checkbox skillBoughtCheckbox){
         int total = myParse(baseField)
                 + myParse(modifierField)
-                - myParse(penaltyField)
-                + myParse(raceField);
+                - myParse(penaltyField);
 
         totalField.setValue(total);
 
@@ -1280,7 +1278,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         characterCharacteristic.setBase(baseField.getValue());
         characterCharacteristic.setModifier(modifierField.getValue());
         characterCharacteristic.setPenalty(penaltyField.getValue());
-
+        characterCharacteristic.setRacemod(raceField.getValue());
 
         int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
 
@@ -1543,9 +1541,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 corruptionField,
                 manualTrappings
         );
-
         return randomElementsDiv;
     }
-
-
 }
