@@ -10,7 +10,6 @@ import com.P2.warhammer.Talents.TalentRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
 import com.P2.warhammer.characteristics.Characteristic;
-import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
@@ -697,7 +696,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         for (Characteristic characterCharacteristic : privateCharacter.getCharacteristics()){
             System.out.println(characterCharacteristic.getBase());
-            CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
+            Div charDiv = new Div();
 
             charDiv.getStyle().set("border", "3px solid black");
 
