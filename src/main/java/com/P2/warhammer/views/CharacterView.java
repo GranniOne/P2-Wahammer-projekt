@@ -420,7 +420,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
             // Configure the inner grid columns
             innerGrid.addColumn(Skill::getName).setHeader("Skill Name").setWidth("145px");
-            innerGrid.addColumn(Skill::getCategory).setHeader("Category").setAutoWidth(true);
+            //innerGrid.addColumn(Skill::getCategory).setHeader("Category").setAutoWidth(true);
 
             innerGrid.addColumn(Skill::getStartValue)
                     .setHeader("S")
@@ -498,10 +498,10 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                 H4 heading = new H4(skill.getName());
                 heading.getStyle().set("margin", "0").set("font-size", "var(--lumo-font-size-m)");
 
-                Span badge = new Span(skill.getCategory());
-                badge.getElement().getThemeList().add("badge contrast small");
+                //Span badge = new Span(skill.getCategory());
+                //badge.getElement().getThemeList().add("badge contrast small");
 
-                HorizontalLayout header = new HorizontalLayout(heading, badge);
+                HorizontalLayout header = new HorizontalLayout(heading);
                 header.setAlignItems(FlexComponent.Alignment.CENTER);
                 header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
                 header.getStyle()
