@@ -2,6 +2,8 @@ package com.P2.warhammer.views;
 
 import com.P2.warhammer.Skills.Skill;
 import com.P2.warhammer.Skills.SkillRepository;
+import com.P2.warhammer.campaigns.Campaign;
+import com.P2.warhammer.campaigns.CampaignService;
 import com.P2.warhammer.characteristics.Characteristic;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterService;
@@ -10,74 +12,120 @@ import com.P2.warhammer.users.User;
 import com.P2.warhammer.users.UserService;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.RolesAllowed;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 @PageTitle("User Page")
 @RolesAllowed("ROLE_ADMIN")
 @Route("admin-dashboard/UserProfile/:userID")
-public class AdminProfileView extends Div implements BeforeEnterObserver {
+public class AdminProfileView extends HorizontalLayout implements BeforeEnterObserver {
     final UserService userService;
     final CharacterService characterService;
-    final SkillRepository skillRepository;
-    private String userID;
-    public AdminProfileView(UserService userService, CharacterService characterService, SkillRepository skillRepository) {
+    final CampaignService campaignService;
+
+
+    private Grid<Character> characterGrid;
+    private Grid<Campaign> campaignGrid;
+
+    private List<Character> characters = new ArrayList<>();
+    private List<Campaign> campaigns = new ArrayList<>();
+
+    public AdminProfileView(UserService userService, CharacterService characterService, CampaignService  campaignService) {
         this.userService = userService;
         this.characterService = characterService;
-        this.skillRepository = skillRepository;
-        System.out.println("first");
-
+        this.campaignService = campaignService;
     }
 
     @Override
     public void beforeEnter(BeforeEnterEvent beforeEnterEvent) {
-        userID = beforeEnterEvent.getRouteParameters().get("userID").get();
-        User user = userService.findUserById(userID);
-        Div layout = new Div();
-        layout.getStyle().set("display", "grid")
-                .set("grid-template-columns",
-                        "repeat(auto-fill, minmax(190px, 1fr))")
-                .set("gap", "1em");
-        characterService.getCharactersByUser(user).forEach(c -> {
-            try{
-                layout.add(new CharacterCard(c));
+        String userID = beforeEnterEvent.getRouteParameters().get("userID").get();
 
-            }catch (NoSuchElementException e){
-                e.printStackTrace();
-            }
+        try{
+            characters = new ArrayList<>(characterService.getCharactersByUser(userService.findUserById(userID))
+            );
+        } catch (Exception e) {
+            characters = new ArrayList<>();
+        }
+        try{
+            campaigns = new ArrayList<>(campaignService.findByGameMaster(userService.findUserById(userID))
+            );
+        } catch (Exception e) {
+            campaigns = new ArrayList<>();
+        }
 
-        });
-        this.add(layout);
 
-        this.add(new Button("hello", event -> {
-            //Character character = new Character("Testing",user,user, 1, 2);
-            //List<Skill> Usedskills =  skillRepository.findAll();
-            //character.setSkills(Usedskills);
-            //characterService.addCharacter(character);
 
-        }));
+        // Character grid
+        characterGrid = new Grid<>(Character.class, false);
+        // Campaign grid
+        campaignGrid = new Grid<>(Campaign.class, false);
 
-        RouteParameters params = new RouteParameters(
-                Map.of("userID", userID, "characterID", "GranniCharacter")
+
+        characterGrid.setItems(characters);
+        campaignGrid.setItems(campaigns);
+
+
+
+
+        characterGrid.addColumn(Character::getId)
+            .setHeader("Character ID");
+
+        characterGrid.addColumn(Character::getName)
+            .setHeader("Character Name");
+
+
+
+        characterGrid.addComponentColumn(character ->
+            new Button("X", event -> {
+                campaignService.findByCharacters(List.of(character)).forEach(campaign -> {
+                    List<Character> characters1 = campaign.getCharacters();
+                    characters1.removeIf(character1 -> character1.getId().equals(character.getId()));
+                    campaign.setCharacters(characters1);
+                    campaignService.saveCampaign(campaign);
+
+
+                });
+                characterService.deleteCharacterFromId(character.getId());
+                characters.remove(character);
+                characterGrid.getDataProvider().refreshAll();
+            })
         );
 
-        String url = RouteConfiguration.forSessionScope()
-                .getUrl(AdminCharacterView.class, params);
 
-        add(new Button("Edit", e -> {
-            UI.getCurrent().navigate(url);
-        }));
 
-        // The generated url is `item/123/edit`
-        Anchor link = new Anchor(url, "Button Api");
-        add(link);
+
+        campaignGrid.addColumn(Campaign::getId)
+            .setHeader("Campaign ID");
+
+        campaignGrid.addColumn(Campaign::getName)
+            .setHeader("Campaign Name");
+
+
+
+        campaignGrid.addComponentColumn(campaign ->
+            new Button("X", event -> {
+                campaignService.deleteCampaignById(campaign.getId());
+                campaigns.remove(campaign);
+                campaignGrid.getDataProvider().refreshAll();
+            })
+        );
+
+
+
+
+        setSizeFull();
+
+        characterGrid.setSizeFull();
+        campaignGrid.setSizeFull();
+        this.add(characterGrid, campaignGrid);
+
 
 
 

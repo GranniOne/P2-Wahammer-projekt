@@ -96,7 +96,8 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     createBodySection(),
                     createFateSection(),
                     MovementWealthArmorDiv(),
-                    TalentDiv()
+                    createTalentSection(),
+                    MovementWealthArmorDiv()
             );
 
             page.add(banner,contentDiv);
@@ -168,11 +169,42 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
         }
 
+    private Div createTalentSection() {
+        Div talentBox = new Div();
+        talentBox.setClassName("TalentBox");
+
+        H3 talentHeadline = new H3("Talents");
+
+        Grid<Talent> grid = new Grid<>(Talent.class, false);
+        grid.addClassName("Talent");
+        grid.setItems(character.getTalents());
+
+        grid.addColumn(Talent::getName)
+                .setHeader("Name")
+                .setAutoWidth(true);
+
+        grid.addColumn(Talent::getAmountTaken)
+                .setHeader("Amount")
+                .setAutoWidth(true);
+
+        grid.addColumn(Talent::getDescription)
+                .setHeader("Description")
+                .setFlexGrow(1);
+
+
+
+        grid.addThemeVariants(GridVariant.LUMO_COMPACT);
+        grid.setAllRowsVisible(true);
+
+        talentBox.add(talentHeadline, grid);
+
+        return talentBox;
+    }
 
     private Div createInfoSection() {
         Div info = new Div();
         info.setClassName("info");
-        info.getStyle().setBackground("green");
+
 
         info.add(
                 createLabeledDiv("Name:" + character.getName(), "DivName"),
@@ -185,7 +217,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createCareerSection() {
         Div careerInfo = new Div();
         careerInfo.setClassName("info");
-        careerInfo.getStyle().setBackground("yellow");
         careerInfo.getStyle().set("display", "flex");
         careerInfo.getStyle().set("flex-wrap", "wrap");
         careerInfo.getStyle().set("gap", "10px");
@@ -199,7 +230,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createPathSection() {
         Div careers = new Div();
         careers.setClassName("info"); // Keeps consistency with your other containers
-        careers.getStyle().setBackground("blue");
+
         careers.getStyle().set("display", "flex");
         careers.getStyle().set("flex-wrap", "wrap");
         careers.getStyle().set("gap", "10px");
@@ -217,7 +248,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
     private Div createBodySection() {
         Div body = new Div();
         body.setClassName("info");
-        body.getStyle().setBackground("pink");
+
         body.getStyle().set("display", "flex");
         body.getStyle().set("flex-wrap", "wrap");
         body.getStyle().set("gap", "10px");
@@ -235,6 +266,8 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
         container.setClassName(className);
         return container;
     }
+
+
 
     private Div createFateSection(){
         Div div  = new Div();
@@ -326,15 +359,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
         div.add(MovementWealth,armour);
 
-        return div;
-    }
-
-    private Div TalentDiv(){
-        Div div = new Div();
-        for(Talent talent : character.getTalents()){
-            Div talentRow = new Div("Talent " + talent.getName() + " has been taken " + talent.getAmountTaken() + " times");
-            div.add(talentRow);
-        }
         return div;
     }
 

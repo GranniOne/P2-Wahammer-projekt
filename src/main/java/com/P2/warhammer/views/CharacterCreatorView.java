@@ -18,7 +18,6 @@ import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
-import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -26,6 +25,7 @@ import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -33,18 +33,12 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.*;
-import com.vaadin.flow.theme.lumo.LumoUtility;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-
-//Current known bugs:
-// 1. clicking on character creator in the navigator bar, duplicates the site instead of reloading it
-// 2. changing race does not remove talents granted from species starting bonus
 
 @PermitAll
 @PageTitle("Character Creator Page")
@@ -111,7 +105,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                         privateCharacter =  new Character();
                     }
                 } catch (NullPointerException e) {
-                    System.out.println("characterID is not linked to character");
+
                 }
             }else{
                 privateCharacter =  new Character();
@@ -206,18 +200,20 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private void inventoryDivCreator(){
         for (WarhammerItem inventoryItem : privateCharacter.getInventory()){
-             Div inventoryElementDiv = new Div();
-             TextField itemField = new TextField();
-             itemField.setValue(inventoryItem.getName());
-             itemField.setReadOnly(true);
+             if(inventoryItem.getAmount() > 0) {
+                 Div inventoryElementDiv = new Div();
+                 TextField itemField = new TextField();
+                 itemField.setValue(inventoryItem.getName());
+                 itemField.setReadOnly(true);
 
-             IntegerField itemAmount = new IntegerField();
-             itemAmount.setValue(inventoryItem.getAmount());
+                 IntegerField itemAmount = new IntegerField();
+                 itemAmount.setValue(inventoryItem.getAmount());
 
-             inventoryElementDiv.add(itemField);
-             inventoryElementDiv.add(itemAmount);
+                 inventoryElementDiv.add(itemField);
+                 inventoryElementDiv.add(itemAmount);
 
-             inventoryDiv.add(inventoryElementDiv);
+                 inventoryDiv.add(inventoryElementDiv);
+             }
         }
     }
 
@@ -332,12 +328,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Button RandomCareerButton = new Button("Roll for career",e ->{
             if (currentRaceTable == null) {
-                System.out.println("No race selected");
+
                 return;
             }
 
             int roll = ThreadLocalRandom.current().nextInt(1, 15);
-            System.out.println("Career roll: " + roll );
+
 
             RaceEntry result = currentRaceTable.getEntries().stream().filter(entry -> roll >= entry.getMin() && roll <= entry.getMax()).findFirst().orElseThrow();
             Career career = careerRepository.findAll().stream().filter(c -> c.getName().equals(result.getCareer())).findFirst().orElseThrow();
@@ -406,7 +402,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Button button1 = new Button("Roll for Species", e -> {
             int roll = ThreadLocalRandom.current().nextInt(1, 101);
-            System.out.println("Species roll: " + roll);
 
             Race speciesTable = raceRepository.findById("species_table").orElseThrow();
 
@@ -447,16 +442,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
 
-        raceFields.forEach((characteristicname, field) ->{
-            System.out.println(characteristicname);
-        } );
 
         raceFields.forEach((characteristicName, field) -> {
 
             ArrayList<Integer> value = diceRolls.get(characteristicName);
 
             if (value != null && !value.isEmpty()) {
-                System.out.println(characteristicName + " " + value.get(0));
+
                 field.setValue(value.get(0));
 
                 for (Characteristic characteristic : privateCharacter.getCharacteristics()){
@@ -468,7 +460,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             } else {
                 field.setValue(0);
-                System.out.println("idk it breaks");
             }
         });
         startingSkillsBox.removeAll();
@@ -490,16 +481,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         Map<String, ArrayList<Integer>> diceRolls = race.getBasecharacteristicMap();
 
-        raceFields.forEach((characteristicname, field) ->{
-            System.out.println(characteristicname);
-        } );
-
         raceFields.forEach((characteristicName, field) -> {
 
             ArrayList<Integer> value = diceRolls.get(characteristicName);
 
             if (value != null && !value.isEmpty()) {
-                System.out.println(characteristicName + " " + value.get(0));
                 field.setValue(value.get(0));
 
                 for (Characteristic characteristic : privateCharacter.getCharacteristics()){
@@ -509,14 +495,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     }
                     if (characteristic.getName().equals(characteristicName)){
                         characteristic.setRacemod(value.get(0));
-                        System.out.println("works here");
-                        System.out.println("blank");
                     }
                 }
 
             } else {
                 field.setValue(0);
-                System.out.println("idk it breaks");
             }
         });
         startingSkillsBox.removeAll();
@@ -557,7 +540,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicUpdates.values().forEach(Runnable::run);
 
         }catch (Exception e){
-            System.out.println("noget gik galt");
+
         }
     }
 
@@ -578,7 +561,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             }
 
             skills.forEach(skill -> {
-                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size()); //failsave if career dosent have
+                int maxLevel = Math.min(levelField.getValue(), allowedSkills.size()); //failsave if career dosent have a list of skills for the selected level
                 if (skill.getCharacteristic().equals(characteristic.getName())){
                     for (int i = 0; i < maxLevel; i++) { //loops for each level
                         if (allowedSkills.get(i).contains(skill.getName())) { //if skill is allowed and the characteristic is right
@@ -592,12 +575,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
             //render allready added skills
             currentCharacteristicSkills.forEach(skill -> {
-                System.out.println(skill + characteristic.getName());
-                if (!skill.getCharacteristic().equals(characteristic.getName())){
-                    System.out.println("returns");
-                    System.out.println(skill.getCharacteristic() + " " + characteristic.getName());
-                    return;
-                }
                 Div skillDiv = new Div();
 
                 TextField charField = new TextField();
@@ -690,19 +667,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 break;
             }
         }
-
         if (existingSkill == null) {
             existingSkill = new Skill();
+            existingSkill.setName(skill.getName());
+            existingSkill.setCharacteristic(skill.getCharacteristic());
+            existingSkill.setStartValue(baseField.getValue());
+            existingSkill.setBonusValue(modifierField.getValue());
+            existingSkill.setPenaltyValue(penaltyField.getValue());
+            existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
             skillList.add(existingSkill);
         }
-
-        existingSkill.setName(skill.getName());
-        existingSkill.setCharacteristic(skill.getCharacteristic());
-        existingSkill.setStartValue(baseField.getValue());
-        existingSkill.setBonusValue(modifierField.getValue());
-        existingSkill.setPenaltyValue(penaltyField.getValue());
-        existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
-        System.out.println(skillBoughtCheckbox.getValue());
 
         privateCharacter.setSkills(skillList);
     }
@@ -718,19 +692,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         headline.getStyle().set("margin", "0 auto");
 
         int characteristicNumber = 0;
-        boolean colorbool = true;
+
+
 
         for (Characteristic characterCharacteristic : privateCharacter.getCharacteristics()){
             System.out.println(characterCharacteristic.getBase());
             CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
 
-            if (colorbool) {
-                charDiv.getStyle().set("border", "3px solid black");
-            } else {
-                charDiv.getStyle().set("border", "3px solid black");
-            }
-
-            colorbool = !colorbool;
+            charDiv.getStyle().set("border", "3px solid black");
 
             TextField charField = new TextField ();
             charField.setReadOnly(true);
@@ -826,7 +795,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         }
 
         String race = privateCharacter.getRace().toLowerCase().replace(" ", "_") + "_starting_table";
-        System.out.println(race);
+
 
         Race raceTable = raceRepository.findById(race).orElseThrow();
         List<String> allowedSkills = raceTable.getSkills();
@@ -907,7 +876,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         layout.add(headline2, paragraph3);
 
         List<String> allowedTalents1 = raceTable.getTalents().stream().filter(t -> "auto".equals(t.get("source"))).map(t -> (String) t.get("Name")).toList();
-        System.out.println(allowedTalents1);
+
         Set<String> allowedSet1 = new HashSet<>(allowedTalents1);
 
         for (Talent templateTalent : talents) {
@@ -1390,7 +1359,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 currentTalents.add(copy);
             }
-            System.out.println("talent: " + talent.getName() + " is now at " + amountTakenValue);
+
         } else {
             currentTalents.removeIf(t -> t.getName().equals(talent.getName()));
         }
@@ -1429,7 +1398,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private Div randomCharacterElements() {
         Div randomElementsDiv = new Div();
 
-        // fate og fortune
+        // random character elements. contains things such as fate, resilience, height, motivation and so on.
         IntegerField fateField = new IntegerField();
         fateField.setValue(privateCharacter.getFate());
         fateField.setLabel("Fate");
@@ -1444,8 +1413,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 privateCharacter.setFortune(e.getValue() != null ? e.getValue() : 0)
         );
 
-
-        // resilience resolve motivation
         IntegerField resilienceField = new IntegerField();
         resilienceField.setValue(privateCharacter.getResilience());
         resilienceField.setLabel("Resilience");
@@ -1467,8 +1434,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 privateCharacter.setMotivation(e.getValue())
         );
 
-
-        // random things
         TextField hairField = new TextField();
         hairField.setValue(privateCharacter.getHair());
         hairField.setLabel("Hair");
@@ -1502,6 +1467,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         movementField.setLabel("Movement");
         movementField.addValueChangeListener(e ->
                 privateCharacter.setMovement(e.getValue())
+                privateCharacter.setMovement(e.getValue())
         );
 
         IntegerField maxWoundsField = new IntegerField();
@@ -1532,6 +1498,32 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 privateCharacter.setCorruptionTaken(e.getValue())
         );
 
+
+        Div manualTrappings = new Div(new Span("Manual Trapping"));
+        manualTrappings.setClassName("Manual Trapping");
+
+        TextField trappingName = new TextField("");
+        trappingName.setLabel("Trapping name");
+
+        IntegerField trappingAmount = new IntegerField();
+        trappingAmount.setMin(0);
+        trappingAmount.setValue(0);
+        trappingAmount.setLabel("Amount");
+
+        Button addManualTrapping = new Button(
+        "Add Trapping(s)", e -> {
+            WarhammerItem newItem = new WarhammerItem();
+            newItem.setName(trappingName.getValue());
+            newItem.setAmount(trappingAmount.getValue());
+            List<WarhammerItem> newInventory = privateCharacter.getInventory();
+            newInventory.add(newItem);
+            privateCharacter.setInventory(newInventory);
+            inventoryDiv.removeAll();
+            inventoryDivCreator();
+        });
+
+        manualTrappings.add(trappingName, trappingAmount, addManualTrapping);
+
         randomElementsDiv.add(
                 fateField,
                 fortuneField,
@@ -1546,7 +1538,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 maxWoundsField,
                 woundsField,
                 maxCorruptionField,
-                corruptionField
+                corruptionField,
+                manualTrappings
         );
 
         return randomElementsDiv;
