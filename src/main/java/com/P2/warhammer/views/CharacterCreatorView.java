@@ -387,14 +387,23 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         return TrappingsBox;
     }
 
-    private Div raceBox(){
-        Div raceBoxDiv = new Div();
+    private VerticalLayout raceBox(){
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
+
+        Div raceBoxDiv = new Div();
+        raceBoxDiv.getStyle().set("margin", "0 auto");
 
         H1 headline = new H1("1. Choose Species");
         headline.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph = new Paragraph("Your Character will be a Human, Dwarf, Halfling, High Elf, or " +
+                "Wood Elf. You can either choose a specific species from the dropdown menu below or alternatively, " +
+                "you can roll 1d100 to gain a random species, which comes with the benefit of gaining +20 XP if you accept the result.");
+
 
         ComboBox<String> dropdownMenu = new ComboBox<>("Choose a species");
         dropdownMenu.setItems(raceItems.stream().map(Race::getRace).filter(Objects::nonNull).toList());
@@ -414,14 +423,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         });
 
         dropdownMenu.setValue(privateCharacter.getRace());
-        raceBoxDiv.add(headline, dropdownMenu, button1);
+        raceBoxDiv.add(dropdownMenu, button1);
 
         dropdownMenu.addValueChangeListener(e ->
                 updateRace(dropdownMenu)
         );
 
-
-        return raceBoxDiv;
+        layout.add(headline, paragraph, raceBoxDiv);
+        return layout;
     }
 
     private void updateRace(ComboBox<String> dropdownMenu) {
@@ -685,17 +694,44 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
     private VerticalLayout renderCharacteristicsDivs(){
         Div characteristicsStatBox = new Div();
-        characteristicsStatBox.getStyle().set("gap", "10px");
+        characteristicsStatBox.getStyle().set("margin", "0 auto");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
 
         H1 headline = new H1("3. Determining Characteristics/Attributes");
         headline.getStyle().set("margin", "0 auto");
 
+        Paragraph paragraph = new Paragraph("Step 1) Roll 2d10 for each of the ten Characteristics and " +
+                "make a note of the results. If you feel your Character would be " +
+                "improved if you swapped round some of the dice roll results " +
+                "between Characteristics, move to the next step. If you stick with "  +
+                "your random results gain +50 XP.");
+
+        Paragraph paragraph1 = new Paragraph("Step 2) Rearrange the ten numbers rolled under step 1, assigning " +
+                "each to a different Characteristic. If " +
+                "you’re happy with this new mix, record them on your Character " +
+                "Sheet and gain +25 XP. If not, move to the next step. ");
+
+        Paragraph paragraph2 = new Paragraph("Step 3) If you’re still not happy with your results, either roll again " +
+                "and swap the rolls around with no XP bonus, or you could ignore " +
+                "the dice completely! Instead, allocate 100 points across the 10 " +
+                "Characteristics as you prefer, with a minimum of 4 and a maximum " +
+                "of 18 allocated to any single Characteristic. Like " +
+                "rolling again, there is no XP bonus for this option.");
+
+        Paragraph paragraph3 = new Paragraph("In the table below you will see that not only are there your 10 characteristics, " +
+                "there is also skills under some of the characteristic, which you gain from your career." +
+                " If you are currently in the process of making your character, you should ignore them at the moment. " +
+                " If you are here after playing and wants to spend some exp you can add advances to your skill making them " +
+                "better by clicking on the + for the skill or characteristic modifier. But remember to only do this after saving y" +
+                "our character for the first time as you gain some modifiers to skills further below that will overwrite what you " +
+                "input now id you haven't done that first.");
+
+
         int characteristicNumber = 0;
-
-
 
         for (Characteristic characterCharacteristic : privateCharacter.getCharacteristics()){
             System.out.println(characterCharacteristic.getBase());
@@ -760,8 +796,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
         }
-
-        statBox.add(headline, characteristicsStatBox);
+        statBox.getStyle().set("margin", "0 auto");
+        statBox.add(headline, paragraph, paragraph1, paragraph2, paragraph3, characteristicsStatBox);
         layout.add(statBox);
 
         return layout;
