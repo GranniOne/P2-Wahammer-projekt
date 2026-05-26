@@ -26,6 +26,7 @@ public class Skill {
         this.StartValue = 0;
         this.speciesStartingBonus = 0;
         this.careerStartingBonus = 0;
+        this.boughtBool = false;
     }
 
     public Skill(String Name, int speciesStartingBonus, int careerStartingBonus, String Category, String Characteristic, String Description,  int StartValue, int BonusValue,  int PenaltyValue, Boolean boughtBool) {

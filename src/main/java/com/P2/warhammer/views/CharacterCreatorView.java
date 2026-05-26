@@ -555,7 +555,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             List<Skill> currentCharacteristicSkills = new ArrayList<>();
             for (Skill skill : privateCharacter.getSkills()){
                 if (skill.getCharacteristic().equals(characteristic.getName())){
-                    currentCharacteristicSkills.add(skill);
+                    if (skill.getBoughtBool()) {
+                        currentCharacteristicSkills.add(skill);
+                    }
                 }
             }
 
@@ -671,13 +673,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         if (existingSkill == null) {
             existingSkill = new Skill();
             existingSkill.setName(skill.getName());
-            existingSkill.setCharacteristic(skill.getCharacteristic());
-            existingSkill.setStartValue(baseField.getValue());
-            existingSkill.setBonusValue(modifierField.getValue());
-            existingSkill.setPenaltyValue(penaltyField.getValue());
-            existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
             skillList.add(existingSkill);
         }
+
+        existingSkill.setCharacteristic(skill.getCharacteristic());
+        existingSkill.setStartValue(baseField.getValue());
+        existingSkill.setBonusValue(modifierField.getValue());
+        existingSkill.setPenaltyValue(penaltyField.getValue());
+        existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
 
         privateCharacter.setSkills(skillList);
     }
