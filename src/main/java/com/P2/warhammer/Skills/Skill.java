@@ -20,7 +20,13 @@ public class Skill {
     Integer speciesStartingBonus;
     Integer careerStartingBonus;
 
-    public Skill() {}
+    public Skill() {
+        this.PenaltyValue = 0;
+        this.BonusValue = 0;
+        this.StartValue = 0;
+        this.speciesStartingBonus = 0;
+        this.careerStartingBonus = 0;
+    }
 
     public Skill(String Name, int speciesStartingBonus, int careerStartingBonus, String Category, String Characteristic, String Description,  int StartValue, int BonusValue,  int PenaltyValue, Boolean boughtBool) {
         this.Name = Name;
