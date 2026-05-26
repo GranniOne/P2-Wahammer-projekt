@@ -1467,7 +1467,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         movementField.setLabel("Movement");
         movementField.addValueChangeListener(e ->
                 privateCharacter.setMovement(e.getValue())
-                privateCharacter.setMovement(e.getValue())
         );
 
         IntegerField maxWoundsField = new IntegerField();
