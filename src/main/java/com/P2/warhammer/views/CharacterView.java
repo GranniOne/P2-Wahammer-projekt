@@ -107,63 +107,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             add(page);
 
 
-
-
-            /*
-
-            Div body = new Div();
-            body.setClassName("character_sheet");
-            add(body);
-
-            Div div  = new Div();
-            div.getStyle().setWidth("100%").setHeight("100px");
-
-
-            body.add(div);
-
-
-            Div characteristics_body = new Div();
-            characteristics_body.setClassName("characteristics_body");
-            characteristicsMap.forEach((k,v) -> {
-                Div characteristic_box_in_body = new Div();
-                characteristic_box_in_body.setClassName("characteristics_box_in_body");
-                characteristic_box_in_body.add(new Span(k));
-                characteristic_box_in_body.add(new Span(v.toString()));;
-                characteristics_body.add(characteristic_box_in_body);
-
-            });
-
-            body.add(characteristics_body);
-            Div wounds_box_in_body = new Div();
-            wounds_box_in_body.setClassName("wounds_box_in_body");
-            wounds_box_in_body.add(new Span("Max wounds " + character.getMaxWounds()));
-
-            IntegerField current_wounds = new IntegerField("Wounds");
-            Binder<Character> wound_binder = new Binder<>(Character.class);
-
-            wound_binder.forField(current_wounds)
-                    .bind(Character::getDamageTaken, Character::setDamageTaken);
-            wound_binder.readBean(character);
-
-            current_wounds.setValueChangeMode(ValueChangeMode.LAZY);
-            current_wounds.addValueChangeListener(change -> {
-                if(change.getValue() == null) {
-                    return;
-                }
-                character.setDamageTaken(change.getValue());
-                    characterRepository.save(character);
-              //  current_wounds.getB
-
-            });
-            wounds_box_in_body.add(current_wounds);
-            body.add(wounds_box_in_body);
-
-
-
-
-
-             */
-
             Map<Skill,List<Integer>> test = new HashMap<>();
 
 
