@@ -344,18 +344,31 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             Div randomButtonBox = new Div();
             Button randomButton = new Button("X");
             randomButton.addClickListener(event -> {
-                int randomValue = new Random().nextInt(100)+1;
+                int randomValue = new Random().nextInt(100) + 1;
 
                 boolean rolledOverTotal = randomValue >= totalVal;
 
-                String result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + totalVal + ")" : "Dice rolled is " +randomValue + " (under " +totalVal + ")";
+                String result;
+                Notification rollNotification;
 
-                Notification rollNotification = Notification.show(result);
-
-                if (rolledOverTotal) {
-                    rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                if (randomValue % 11 == 0) {
+                    if (!rolledOverTotal) {
+                        result = "Dice rolled is " + randomValue + " — a critical success (under " + totalVal + ")";
+                        rollNotification = Notification.show(result);
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    } else {
+                        result = "Dice rolled is " + randomValue + " — a fumble (over " + totalVal + ")";
+                        rollNotification = Notification.show(result);
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    }
                 } else {
-                    rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + totalVal + ")" : "Dice rolled is " + randomValue + " (under " + totalVal + ")";
+                    rollNotification = Notification.show(result);
+                    if (rolledOverTotal) {
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    } else {
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    }
                 }
             });
 
@@ -451,18 +464,31 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                 Div randomButtonBox = new Div();
                 Button randomButton = new Button("X");
                 randomButton.addClickListener(event -> {
-                    int randomValue = new Random().nextInt(100)+1;
+                    int randomValue = new Random().nextInt(100) + 1;
 
                     boolean rolledOverTotal = randomValue >= skill.getTotalValue();
 
-                    String result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + skill.getTotalValue() + ")" : "Dice rolled is " +randomValue + " (under " +skill.getTotalValue() + ")";
+                    String result;
+                    Notification rollNotification;
 
-                    Notification rollNotification = Notification.show(result);
-
-                    if (rolledOverTotal) {
-                        rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    if (randomValue % 11 == 0) {
+                        if (!rolledOverTotal) {
+                            result = "Dice rolled is " + randomValue + " — a critical success (under " + skill.getTotalValue() + ")";
+                            rollNotification = Notification.show(result);
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        } else {
+                            result = "Dice rolled is " + randomValue + " — a fumble (over " + skill.getTotalValue() + ")";
+                            rollNotification = Notification.show(result);
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        }
                     } else {
-                        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + skill.getTotalValue() + ")" : "Dice rolled is " + randomValue + " (under " + skill.getTotalValue() + ")";
+                        rollNotification = Notification.show(result);
+                        if (rolledOverTotal) {
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        } else {
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        }
                     }
                 });
 
