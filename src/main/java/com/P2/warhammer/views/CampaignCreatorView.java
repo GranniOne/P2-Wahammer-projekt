@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -61,9 +62,8 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
             campaignNameBinder.readBean(campaign);
         }else{
             if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).size() >= 5){
-                Notification.show("you have to many cmapaign", 5000, Notification.Position.MIDDLE);
+                Notification.show("you have to many Campaigns", 5000, Notification.Position.MIDDLE).setThemeVariant(NotificationVariant.LUMO_ERROR,true);
                 beforeEnterEvent.forwardTo(DashBoard.class);
-                return;
             }
 
             campaign = new Campaign();

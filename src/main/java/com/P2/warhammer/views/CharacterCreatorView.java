@@ -15,6 +15,7 @@ import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
+import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.HasValue;
@@ -46,11 +47,10 @@ import java.util.stream.Collectors;
 @Route("characterCreator")
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div implements HasUrlParameter<String> {
-    private final UserRepository userRepository;
+    private final UserService userService;
     Map<String, Runnable> characteristicUpdates = new HashMap<>();
     Random random = new Random();
     private final SkillRepository skillRepository;
-    private final CharacterRepository characterRepository;
     private final CharacterService characterService;
     private final CareerRepository careerRepository;
     private final TalentRepository talentRepository;
@@ -77,10 +77,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private static final int MaxFive = 3;
 
 
-    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserRepository userRepository) {
+    public CharacterCreatorView(SkillRepository skillRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserService userService) {
 
         this.skillRepository = skillRepository;
-        this.characterRepository = characterRepository;
         this.talentRepository = talentRepository;
         this.raceRepository = raceRepository;
         this.careerRepository = careerRepository;
@@ -88,7 +87,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         setClassName("div-page");
         getStyle().set("position", "relative");
-        this.userRepository = userRepository;
+        this.userService = userService;
 
     }
     @Override
@@ -111,6 +110,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 }
             }else{
+                if(characterService.getCharactersByUser(userService.findFromEmail(Utilities.getUserFromAuthentication().getEmail())).size() >= 5){
+                    Notification.show("you have to many Characters", 5000, Notification.Position.MIDDLE).setThemeVariant(NotificationVariant.LUMO_ERROR,true);
+                    beforeEvent.forwardTo(DashBoard.class);
+                }
                 privateCharacter =  new Character();
             }
 
