@@ -43,8 +43,20 @@ public class Skill {
     }
 
     @Override
-    public String toString(){
-        return "Skill{Name = '" + Name + "', Category = '" + Category + "', Characteristic = '" + Characteristic + "', Description = '" + Description + "'}";
+    public String toString() {
+        return "Skill{" +
+                "id='" + id + '\'' +
+                ", Name='" + Name + '\'' +
+                ", Characteristic='" + Characteristic + '\'' +
+                ", Category='" + Category + '\'' +
+                ", Description='" + Description + '\'' +
+                ", PenaltyValue=" + PenaltyValue +
+                ", boughtBool=" + boughtBool +
+                ", BonusValue=" + BonusValue +
+                ", StartValue=" + StartValue +
+                ", speciesStartingBonus=" + speciesStartingBonus +
+                ", careerStartingBonus=" + careerStartingBonus +
+                '}';
     }
 
     public String getId() {
