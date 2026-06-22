@@ -96,8 +96,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     createBodySection(),
                     createFateSection(),
                     MovementWealthArmorDiv(),
-                    createTalentSection(),
-                    MovementWealthArmorDiv()
+                    createTalentSection()
             );
 
             page.add(banner,contentDiv);
@@ -106,63 +105,6 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             skillInfo.add(createSkillGrid());
             add(page);
 
-
-
-
-            /*
-
-            Div body = new Div();
-            body.setClassName("character_sheet");
-            add(body);
-
-            Div div  = new Div();
-            div.getStyle().setWidth("100%").setHeight("100px");
-
-
-            body.add(div);
-
-
-            Div characteristics_body = new Div();
-            characteristics_body.setClassName("characteristics_body");
-            characteristicsMap.forEach((k,v) -> {
-                Div characteristic_box_in_body = new Div();
-                characteristic_box_in_body.setClassName("characteristics_box_in_body");
-                characteristic_box_in_body.add(new Span(k));
-                characteristic_box_in_body.add(new Span(v.toString()));;
-                characteristics_body.add(characteristic_box_in_body);
-
-            });
-
-            body.add(characteristics_body);
-            Div wounds_box_in_body = new Div();
-            wounds_box_in_body.setClassName("wounds_box_in_body");
-            wounds_box_in_body.add(new Span("Max wounds " + character.getMaxWounds()));
-
-            IntegerField current_wounds = new IntegerField("Wounds");
-            Binder<Character> wound_binder = new Binder<>(Character.class);
-
-            wound_binder.forField(current_wounds)
-                    .bind(Character::getDamageTaken, Character::setDamageTaken);
-            wound_binder.readBean(character);
-
-            current_wounds.setValueChangeMode(ValueChangeMode.LAZY);
-            current_wounds.addValueChangeListener(change -> {
-                if(change.getValue() == null) {
-                    return;
-                }
-                character.setDamageTaken(change.getValue());
-                    characterRepository.save(character);
-              //  current_wounds.getB
-
-            });
-            wounds_box_in_body.add(current_wounds);
-            body.add(wounds_box_in_body);
-
-
-
-
-
-             */
 
             Map<Skill,List<Integer>> test = new HashMap<>();
 
@@ -379,7 +321,8 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                     .set("width", "120px");
 
             // 2. The Stat breakdown (Base, Modifier, Penalty)
-            Span base = new Span(String.valueOf(characteristic.getBase()));
+            int baseVal = characteristic.getBase() + characteristic.getRacemod();
+            Span base = new Span(String.valueOf(baseVal));
             base.getStyle().set("color", "var(--lumo-secondary-text-color)").set("width", "30px");
 
             Span mod = new Span("+" + characteristic.getModifier());
@@ -389,7 +332,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             pen.getStyle().set("color", "var(--lumo-error-text-color)").set("width", "30px");
 
             // 3. Total Target Number
-            int totalVal = characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty();
+            int totalVal = characteristic.getBase() + characteristic.getModifier() + characteristic.getRacemod() - characteristic.getPenalty();
             Span total = new Span(String.valueOf(totalVal));
             total.getStyle()
                     .set("margin-left", "auto") // Pushes total to the far right of the component
@@ -402,18 +345,31 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
             Div randomButtonBox = new Div();
             Button randomButton = new Button("X");
             randomButton.addClickListener(event -> {
-                int randomValue = new Random().nextInt(100)+1;
+                int randomValue = new Random().nextInt(100) + 1;
 
                 boolean rolledOverTotal = randomValue >= totalVal;
 
-                String result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + totalVal + ")" : "Dice rolled is " +randomValue + " (under " +totalVal + ")";
+                String result;
+                Notification rollNotification;
 
-                Notification rollNotification = Notification.show(result);
-
-                if (rolledOverTotal) {
-                    rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                if (randomValue % 11 == 0) {
+                    if (!rolledOverTotal) {
+                        result = "Dice rolled is " + randomValue + " — a critical success (under " + totalVal + ")";
+                        rollNotification = Notification.show(result);
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    } else {
+                        result = "Dice rolled is " + randomValue + " — a fumble (over " + totalVal + ")";
+                        rollNotification = Notification.show(result);
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    }
                 } else {
-                    rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + totalVal + ")" : "Dice rolled is " + randomValue + " (under " + totalVal + ")";
+                    rollNotification = Notification.show(result);
+                    if (rolledOverTotal) {
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    } else {
+                        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                    }
                 }
             });
 
@@ -477,7 +433,7 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
 
             // Configure the inner grid columns
             innerGrid.addColumn(Skill::getName).setHeader("Skill Name").setWidth("145px");
-            innerGrid.addColumn(Skill::getCategory).setHeader("Category").setAutoWidth(true);
+            //innerGrid.addColumn(Skill::getCategory).setHeader("Category").setAutoWidth(true);
 
             innerGrid.addColumn(Skill::getStartValue)
                     .setHeader("S")
@@ -509,18 +465,31 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                 Div randomButtonBox = new Div();
                 Button randomButton = new Button("X");
                 randomButton.addClickListener(event -> {
-                    int randomValue = new Random().nextInt(100)+1;
+                    int randomValue = new Random().nextInt(100) + 1;
 
                     boolean rolledOverTotal = randomValue >= skill.getTotalValue();
 
-                    String result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + skill.getTotalValue() + ")" : "Dice rolled is " +randomValue + " (under " +skill.getTotalValue() + ")";
+                    String result;
+                    Notification rollNotification;
 
-                    Notification rollNotification = Notification.show(result);
-
-                    if (rolledOverTotal) {
-                        rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                    if (randomValue % 11 == 0) {
+                        if (!rolledOverTotal) {
+                            result = "Dice rolled is " + randomValue + " — a critical success (under " + skill.getTotalValue() + ")";
+                            rollNotification = Notification.show(result);
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        } else {
+                            result = "Dice rolled is " + randomValue + " — a fumble (over " + skill.getTotalValue() + ")";
+                            rollNotification = Notification.show(result);
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        }
                     } else {
-                        rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        result = rolledOverTotal ? "Dice rolled is " + randomValue + " (over " + skill.getTotalValue() + ")" : "Dice rolled is " + randomValue + " (under " + skill.getTotalValue() + ")";
+                        rollNotification = Notification.show(result);
+                        if (rolledOverTotal) {
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                        } else {
+                            rollNotification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                        }
                     }
                 });
 
@@ -555,10 +524,10 @@ public class CharacterView extends Div implements HasUrlParameter<String> {
                 H4 heading = new H4(skill.getName());
                 heading.getStyle().set("margin", "0").set("font-size", "var(--lumo-font-size-m)");
 
-                Span badge = new Span(skill.getCategory());
-                badge.getElement().getThemeList().add("badge contrast small");
+                //Span badge = new Span(skill.getCategory());
+                //badge.getElement().getThemeList().add("badge contrast small");
 
-                HorizontalLayout header = new HorizontalLayout(heading, badge);
+                HorizontalLayout header = new HorizontalLayout(heading);
                 header.setAlignItems(FlexComponent.Alignment.CENTER);
                 header.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
                 header.getStyle()

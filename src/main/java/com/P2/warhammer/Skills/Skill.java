@@ -20,7 +20,14 @@ public class Skill {
     Integer speciesStartingBonus;
     Integer careerStartingBonus;
 
-    public Skill() {}
+    public Skill() {
+        this.PenaltyValue = 0;
+        this.BonusValue = 0;
+        this.StartValue = 0;
+        this.speciesStartingBonus = 0;
+        this.careerStartingBonus = 0;
+        this.boughtBool = false;
+    }
 
     public Skill(String Name, int speciesStartingBonus, int careerStartingBonus, String Category, String Characteristic, String Description,  int StartValue, int BonusValue,  int PenaltyValue, Boolean boughtBool) {
         this.Name = Name;
@@ -36,8 +43,20 @@ public class Skill {
     }
 
     @Override
-    public String toString(){
-        return "Skill{Name = '" + Name + "', Category = '" + Category + "', Characteristic = '" + Characteristic + "', Description = '" + Description + "'}";
+    public String toString() {
+        return "Skill{" +
+                "id='" + id + '\'' +
+                ", Name='" + Name + '\'' +
+                ", Characteristic='" + Characteristic + '\'' +
+                ", Category='" + Category + '\'' +
+                ", Description='" + Description + '\'' +
+                ", PenaltyValue=" + PenaltyValue +
+                ", boughtBool=" + boughtBool +
+                ", BonusValue=" + BonusValue +
+                ", StartValue=" + StartValue +
+                ", speciesStartingBonus=" + speciesStartingBonus +
+                ", careerStartingBonus=" + careerStartingBonus +
+                '}';
     }
 
     public String getId() {

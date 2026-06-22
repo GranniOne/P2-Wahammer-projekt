@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -61,9 +62,8 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
             campaignNameBinder.readBean(campaign);
         }else{
             if(campaignService.getCampaignsByPlayerAndGameMaster(Utilities.getUserFromAuthentication(),Utilities.getUserFromAuthentication()).size() >= 5){
-                Notification.show("you have to many cmapaign", 5000, Notification.Position.MIDDLE);
+                Notification.show("you have to many Campaigns", 5000, Notification.Position.MIDDLE).setThemeVariant(NotificationVariant.LUMO_ERROR,true);
                 beforeEnterEvent.forwardTo(DashBoard.class);
-                return;
             }
 
             campaign = new Campaign();
@@ -76,7 +76,8 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
 
         getStyle().set("display", "flex").setJustifyContent(Style.JustifyContent.CENTER).setHeight("100%").setWidth("100%");
         Div layout = new Div();
-        layout.getStyle().setHeight("70%").setWidth("70%").setBackground("darkslategrey").setAlignSelf(Style.AlignSelf.CENTER).setFlexDirection(Style.FlexDirection.COLUMN).setDisplay(Style.Display.FLEX).setGap("25px");
+        //darkslategrey
+        layout.getStyle().setHeight("70%").setWidth("70%").setBackground("antiquewhite").setAlignSelf(Style.AlignSelf.CENTER).setFlexDirection(Style.FlexDirection.COLUMN).setDisplay(Style.Display.FLEX).setGap("25px");
 
         H3 title = new H3("Campaign");
         layout.add(title);

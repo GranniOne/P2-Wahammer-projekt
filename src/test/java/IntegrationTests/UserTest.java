@@ -183,10 +183,10 @@ public class UserTest extends SpringBrowserlessTest {
 
         // efterligner at trykke "nulstil adgangskode" ud fra en
         // user som kører nedenstående
-        adminDashboardView.openDialog(userToGetResetPasswordBefore, "nulstil adgangskode");
+        adminDashboardView.openDialogResetPassword(userToGetResetPasswordBefore);
 
         // finder reset button knap i dialog og trykker på den
-        Button dialogResetPassWordButton = $(Button.class).withText("nulstil adgangskode").single();
+        Button dialogResetPassWordButton = $(Button.class).withText("nulstil").single();
         dialogResetPassWordButton.click();
 
         User userToGetResetPasswordAfter = userRepository.findUserByEmail("dennis@gmail.com");
@@ -200,7 +200,7 @@ public class UserTest extends SpringBrowserlessTest {
         User userToBeDeleted = userRepository.findUserByEmail("dennis@gmail.com");
         assertNotNull(userToBeDeleted);
 
-        adminDashboardView.openDialog(userToBeDeleted, "delete");
+        adminDashboardView.openDialogDeleteUser(userToBeDeleted);
         Button dialogDeleteUserButton = $(Button.class).withText("delete").single();
         dialogDeleteUserButton.click();
 

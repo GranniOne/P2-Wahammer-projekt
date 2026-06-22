@@ -10,14 +10,15 @@ import com.P2.warhammer.Talents.TalentRepository;
 import com.P2.warhammer.careers.Career;
 import com.P2.warhammer.careers.CareerRepository;
 import com.P2.warhammer.characteristics.Characteristic;
-import com.P2.warhammer.characteristics.CharacteristicsDiv;
 import com.P2.warhammer.characters.Character;
 import com.P2.warhammer.characters.CharacterRepository;
 import com.P2.warhammer.characters.CharacterService;
 import com.P2.warhammer.items.WarhammerItem;
 import com.P2.warhammer.users.UserRepository;
+import com.P2.warhammer.users.UserService;
 import com.P2.warhammer.utilities.Utilities;
 import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -32,6 +33,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.*;
 import jakarta.annotation.security.PermitAll;
 import org.jspecify.annotations.NonNull;
@@ -45,11 +47,10 @@ import java.util.stream.Collectors;
 @Route("characterCreator")
 @StyleSheet("css/characterStyle.css")
 public class CharacterCreatorView extends Div implements HasUrlParameter<String> {
-    private final UserRepository userRepository;
+    private final UserService userService;
     Map<String, Runnable> characteristicUpdates = new HashMap<>();
     Random random = new Random();
     private final SkillRepository skillRepository;
-    private final CharacterRepository characterRepository;
     private final CharacterService characterService;
     private final CareerRepository careerRepository;
     private final TalentRepository talentRepository;
@@ -69,15 +70,16 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     Div inventoryDiv = new Div();
     IntegerField levelField;
     Map<String, IntegerField> raceFields = new HashMap<>();
+    Map<Characteristic, List<HasValue<?,?>>> SkillFields = new HashMap<>();
+
 
     private static final int MaxThree = 3;
     private static final int MaxFive = 3;
 
 
-    public CharacterCreatorView(SkillRepository skillRepository, CharacterRepository characterRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserRepository userRepository) {
+    public CharacterCreatorView(SkillRepository skillRepository, CareerRepository careerRepository, RaceRepository raceRepository, TalentRepository talentRepository, CharacterService characterService, List<Career> careers, UserService userService) {
 
         this.skillRepository = skillRepository;
-        this.characterRepository = characterRepository;
         this.talentRepository = talentRepository;
         this.raceRepository = raceRepository;
         this.careerRepository = careerRepository;
@@ -85,7 +87,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         setClassName("div-page");
         getStyle().set("position", "relative");
-        this.userRepository = userRepository;
+        this.userService = userService;
 
     }
     @Override
@@ -108,6 +110,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 }
             }else{
+                if(characterService.getCharactersByUser(userService.findFromEmail(Utilities.getUserFromAuthentication().getEmail())).size() >= 5){
+                    Notification.show("you have to many Characters", 5000, Notification.Position.MIDDLE).setThemeVariant(NotificationVariant.LUMO_ERROR,true);
+                    beforeEvent.forwardTo(DashBoard.class);
+                }
                 privateCharacter =  new Character();
             }
 
@@ -388,14 +394,23 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         return TrappingsBox;
     }
 
-    private Div raceBox(){
-        Div raceBoxDiv = new Div();
+    private VerticalLayout raceBox(){
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
+
+        Div raceBoxDiv = new Div();
+        raceBoxDiv.getStyle().set("margin", "0 auto");
 
         H1 headline = new H1("1. Choose Species");
         headline.getStyle().set("margin", "0 auto");
+
+        Paragraph paragraph = new Paragraph("Your Character will be a Human, Dwarf, Halfling, High Elf, or " +
+                "Wood Elf. You can either choose a specific species from the dropdown menu below or alternatively, " +
+                "you can roll 1d100 to gain a random species, which comes with the benefit of gaining +20 XP if you accept the result.");
+
 
         ComboBox<String> dropdownMenu = new ComboBox<>("Choose a species");
         dropdownMenu.setItems(raceItems.stream().map(Race::getRace).filter(Objects::nonNull).toList());
@@ -415,14 +430,14 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         });
 
         dropdownMenu.setValue(privateCharacter.getRace());
-        raceBoxDiv.add(headline, dropdownMenu, button1);
+        raceBoxDiv.add(dropdownMenu, button1);
 
         dropdownMenu.addValueChangeListener(e ->
                 updateRace(dropdownMenu)
         );
 
-
-        return raceBoxDiv;
+        layout.add(headline, paragraph, raceBoxDiv);
+        return layout;
     }
 
     private void updateRace(ComboBox<String> dropdownMenu) {
@@ -454,7 +469,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 for (Characteristic characteristic : privateCharacter.getCharacteristics()){
                     if (characteristic.getName().equals(characteristicName)){
                         characteristic.setRacemod(value.get(0));
-
                     }
                 }
 
@@ -556,7 +570,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             List<Skill> currentCharacteristicSkills = new ArrayList<>();
             for (Skill skill : privateCharacter.getSkills()){
                 if (skill.getCharacteristic().equals(characteristic.getName())){
-                    currentCharacteristicSkills.add(skill);
+                    if (skill.getBoughtBool()) {
+                        currentCharacteristicSkills.add(skill);
+                    }
                 }
             }
 
@@ -596,7 +612,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
                 IntegerField baseField = createField(99);
                 baseField.setLabel("Characteristic total");
-                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod() + raceFields.get(characteristic.getName()).getValue());
+                baseField.setValue(characteristic.getBase() + characteristic.getModifier() - characteristic.getPenalty() + characteristic.getRacemod());
+                skill.setStartValue(baseField.getValue());
                 baseField.setReadOnly(true);
                 baseField.setWidth("150px");
 
@@ -619,6 +636,9 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 totalField.setValue(baseField.getValue() + modifierField.getValue() - penaltyField.getValue());
                 totalField.setWidth("120px");
 
+
+
+
                 Checkbox skillBoughtCheckbox = new Checkbox();
                 skillBoughtCheckbox.setLabel("Bought");
                 boolean skillBought = false;
@@ -630,10 +650,13 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 }
                 skillBoughtCheckbox.setValue(skillBought);
 
+                baseField.setValueChangeMode(ValueChangeMode.EAGER);
+                modifierField.setValueChangeMode(ValueChangeMode.EAGER);
+                penaltyField.setValueChangeMode(ValueChangeMode.EAGER);
+                raceField.setValueChangeMode(ValueChangeMode.EAGER);
 
                 Runnable update = () ->
                         updateSkill(baseField, modifierField, penaltyField, raceField, totalField, skill, skillBoughtCheckbox);
-
                 baseField.addValueChangeListener(e -> update.run());
                 modifierField.addValueChangeListener(e -> update.run());
                 penaltyField.addValueChangeListener(e -> update.run());
@@ -652,10 +675,11 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
     private void updateSkill(IntegerField baseField, IntegerField modifierField, IntegerField penaltyField, IntegerField raceField, IntegerField totalField, Skill skill, Checkbox skillBoughtCheckbox){
         int total = myParse(baseField)
                 + myParse(modifierField)
-                - myParse(penaltyField)
-                + myParse(raceField);
+                - myParse(penaltyField);
 
         totalField.setValue(total);
+
+        skill.setBoughtBool(skillBoughtCheckbox.getValue());
 
         List<Skill> skillList = privateCharacter.getSkills();
 
@@ -670,34 +694,66 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         if (existingSkill == null) {
             existingSkill = new Skill();
             existingSkill.setName(skill.getName());
-            existingSkill.setCharacteristic(skill.getCharacteristic());
-            existingSkill.setStartValue(baseField.getValue());
-            existingSkill.setBonusValue(modifierField.getValue());
-            existingSkill.setPenaltyValue(penaltyField.getValue());
-            existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
             skillList.add(existingSkill);
         }
 
+        existingSkill.setCharacteristic(skill.getCharacteristic());
+        existingSkill.setStartValue(baseField.getValue());
+        existingSkill.setBonusValue(modifierField.getValue());
+        existingSkill.setPenaltyValue(penaltyField.getValue());
+        existingSkill.setBoughtBool(skillBoughtCheckbox.getValue());
         privateCharacter.setSkills(skillList);
+        privateCharacter.getSkills().forEach(skill1 -> System.out.println(skill1.toString()));
     }
+    private void updateskill(){
+
+    }
+
 
     private VerticalLayout renderCharacteristicsDivs(){
         Div characteristicsStatBox = new Div();
-        characteristicsStatBox.getStyle().set("gap", "10px");
+        characteristicsStatBox.getStyle().set("margin", "0 auto");
 
         VerticalLayout layout = new VerticalLayout();
         layout.setWidthFull();
+        layout.setSpacing(false);
+        layout.setPadding(false);
 
         H1 headline = new H1("3. Determining Characteristics/Attributes");
         headline.getStyle().set("margin", "0 auto");
 
+        Paragraph paragraph = new Paragraph("Step 1) Roll 2d10 for each of the ten Characteristics and " +
+                "make a note of the results. If you feel your Character would be " +
+                "improved if you swapped round some of the dice roll results " +
+                "between Characteristics, move to the next step. If you stick with "  +
+                "your random results gain +50 XP.");
+
+        Paragraph paragraph1 = new Paragraph("Step 2) Rearrange the ten numbers rolled under step 1, assigning " +
+                "each to a different Characteristic. If " +
+                "you’re happy with this new mix, record them on your Character " +
+                "Sheet and gain +25 XP. If not, move to the next step. ");
+
+        Paragraph paragraph2 = new Paragraph("Step 3) If you’re still not happy with your results, either roll again " +
+                "and swap the rolls around with no XP bonus, or you could ignore " +
+                "the dice completely! Instead, allocate 100 points across the 10 " +
+                "Characteristics as you prefer, with a minimum of 4 and a maximum " +
+                "of 18 allocated to any single Characteristic. Like " +
+                "rolling again, there is no XP bonus for this option.");
+
+        Paragraph paragraph3 = new Paragraph("In the table below you will see that not only are there your 10 characteristics, " +
+                "there is also skills under some of the characteristic, which you gain from your career." +
+                " If you are currently in the process of making your character, you should ignore them at the moment. " +
+                " If you are here after playing and wants to spend some exp you can add advances to your skill making them " +
+                "better by clicking on the + for the skill or characteristic modifier. But remember to only do this after saving y" +
+                "our character for the first time as you gain some modifiers to skills further below that will overwrite what you " +
+                "input now id you haven't done that first.");
+
+
         int characteristicNumber = 0;
-
-
 
         for (Characteristic characterCharacteristic : privateCharacter.getCharacteristics()){
             System.out.println(characterCharacteristic.getBase());
-            CharacteristicsDiv charDiv = new CharacteristicsDiv(characterCharacteristic.getName());
+            Div charDiv = new Div();
 
             charDiv.getStyle().set("border", "3px solid black");
 
@@ -735,6 +791,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             totalField.setValue(0);
             totalField.setWidth("120px");
 
+            SkillFields.put(characterCharacteristic,List.of(raceField,baseField, modifierField,penaltyField));
+
             Button rollButton = new Button("Roll charateristic");
             rollButton.addClickListener(event -> {
                 int die1 = random.nextInt(10) + 1;
@@ -758,8 +816,8 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             characteristicsStatBox.add(charDiv);
             characteristicNumber++;
         }
-
-        statBox.add(headline, characteristicsStatBox);
+        statBox.getStyle().set("margin", "0 auto");
+        statBox.add(headline, paragraph, paragraph1, paragraph2, paragraph3, characteristicsStatBox);
         layout.add(statBox);
 
         return layout;
@@ -848,11 +906,12 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                     bonusGroup.setValue(oldValue);
                     return;
                 }
-                skill.setSpeciesStartingBonus(newValue);
+
                 boolean exists = false;
 
                 for (Skill existingSkill : privateCharacter.getSkills()) {
                     if (existingSkill.getName().equals(skill.getName())) {
+                        System.out.println(skill.getName());
                         exists = true;
                         existingSkill.setSpeciesStartingBonus(newValue);
                         break;
@@ -860,7 +919,22 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 }
 
                 if (!exists) {
+                    SkillFields.forEach((skillName, skillValues) -> {
+                        System.out.println(skillName.getName());
+                        System.out.println(skill.getCharacteristic());
+                        if(skillName.getName().equals(skill.getCharacteristic())){
+                            skill.setStartValue(
+                                    (Integer) skillValues.get(0).getValue()
+                                            + (Integer) skillValues.get(1).getValue()
+                                            + (Integer) skillValues.get(2).getValue()
+                                            - (Integer) skillValues.get(3).getValue()
+                            );                        }
+                    });
+                    skill.setSpeciesStartingBonus(newValue);
+                    skill.setBoughtBool(true);
+                    skill.setDescription("this is the correct skill");
                     privateCharacter.getSkills().add(skill);
+
                 }
 
                 characteristicUpdates.values().forEach(Runnable::run);
@@ -1034,7 +1108,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
             Paragraph paragraph5 = new Paragraph("\nYour Species grants you " + randomTalentAmount + " Random talents from the following table :");
             layout.add(paragraph5);
 
-            Map<String, Talent> talentMap = talents.stream().collect(Collectors.toMap(Talent::getName, t -> t));
             Race randomTalentsTable = raceRepository.findById("species_random_talent_table").orElseThrow();
 
             for (int i = 1; i <= randomTalentAmount; i++) {
@@ -1170,10 +1243,10 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                             .orElse(null);
 
                     if (existingSkill == null) {
-
                         Skill copy = new Skill();
                         copy.setName(skill.getName());
                         copy.setCharacteristic(skill.getCharacteristic());
+                        copy.setBoughtBool(true);
                         copy.setCareerStartingBonus(
                                 advancesField.getValue()
                         );
@@ -1276,7 +1349,7 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         characterCharacteristic.setBase(baseField.getValue());
         characterCharacteristic.setModifier(modifierField.getValue());
         characterCharacteristic.setPenalty(penaltyField.getValue());
-
+        characterCharacteristic.setRacemod(raceField.getValue());
 
         int total = myParse(baseField) + myParse(modifierField) - myParse(penaltyField) + myParse(raceField);
 
@@ -1284,7 +1357,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
 
         charSkillDiv.removeAll();
         charSkillDiv.add(renderSkillDivs(characterCharacteristic));
-        baseCharDiv.add(charSkillDiv);
     }
 
     private void renderTalentsDivs(Career career, int level){
@@ -1467,7 +1539,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
         movementField.setLabel("Movement");
         movementField.addValueChangeListener(e ->
                 privateCharacter.setMovement(e.getValue())
-                privateCharacter.setMovement(e.getValue())
         );
 
         IntegerField maxWoundsField = new IntegerField();
@@ -1541,9 +1612,6 @@ public class CharacterCreatorView extends Div implements HasUrlParameter<String>
                 corruptionField,
                 manualTrappings
         );
-
         return randomElementsDiv;
     }
-
-
 }
