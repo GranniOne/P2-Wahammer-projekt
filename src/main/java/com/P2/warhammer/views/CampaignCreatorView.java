@@ -76,7 +76,8 @@ public class CampaignCreatorView extends Div implements BeforeEnterObserver {
 
         getStyle().set("display", "flex").setJustifyContent(Style.JustifyContent.CENTER).setHeight("100%").setWidth("100%");
         Div layout = new Div();
-        layout.getStyle().setHeight("70%").setWidth("70%").setBackground("darkslategrey").setAlignSelf(Style.AlignSelf.CENTER).setFlexDirection(Style.FlexDirection.COLUMN).setDisplay(Style.Display.FLEX).setGap("25px");
+        //darkslategrey
+        layout.getStyle().setHeight("70%").setWidth("70%").setBackground("antiquewhite").setAlignSelf(Style.AlignSelf.CENTER).setFlexDirection(Style.FlexDirection.COLUMN).setDisplay(Style.Display.FLEX).setGap("25px");
 
         H3 title = new H3("Campaign");
         layout.add(title);
